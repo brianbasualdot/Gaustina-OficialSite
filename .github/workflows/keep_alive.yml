@@ -1,0 +1,16 @@
+name: Keep Alive
+
+on:
+  schedule:
+    - cron: '0 */2 * * *' # Ejecutar cada 2 horas
+  workflow_dispatch:
+
+jobs:
+  ping_health:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Ping Health Endpoint
+        run: |
+          # Usamos GET (-L para seguir redirects, -v para ver detalles)
+          curl -v -L --retry 5 --retry-delay 10 --max-time 60 --fail ${{ secrets.RENDER_BACKEND_URL }}/health

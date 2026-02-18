@@ -1,0 +1,109 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAI
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  paused      Boolean  @default(false)
+  images      String[] 
+  customizationOptions Json? // Stores { fabricColors: [], embroideryColors: [] }
+  createdAt   DateTime @default(now())
+
+  categoryId  Int?     // Campo opcional para la relación
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  orderItems  OrderItem[] 
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  products    Product[]
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id])
+  status          OrderStatus @default(PENDING)
+  total           Decimal
+  items           OrderItem[]
+
+  paymentMethod   String      @default("MERCADOPAGO")
+  paymentId       String? // Mercado Pago ID
+  createdAt       DateTime    @default(now())
+
+  updatedAt       DateTime    @updatedAt
+
+  // Guest / Shipping Info
+  customerName    String?     // Opcional en BD, validado en Controller
+  customerEmail   String?
+  shippingAddress String?
+  shippingCity    String?
+  shippingZip     String?
+  shippingPhone   String?
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  selectedCustomizations Json? // Stores { fabricColor: "Red", embroideryColor: "Gold" }
+
+  productId Int     
+  product   Product @relation(fields: [productId], references: [id])
+
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  
+  reply       String?
+  repliedAt   DateTime?
+  replyTemplate String? // 'GENERAL', 'RETURNS', 'THANKS'
+
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}

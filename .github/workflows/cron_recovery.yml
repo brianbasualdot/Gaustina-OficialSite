@@ -1,0 +1,17 @@
+name: Recover Abandoned Carts Cron
+
+on:
+  schedule:
+    # Ejecutar cada 6 horas (cron syntax: min hour day month week)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Permite ejecutar manualmente desde GitHub UI
+
+jobs:
+  trigger_recovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Recovery Endpoint
+        run: |
+          curl -X POST ${{ secrets.RENDER_BACKEND_URL }}/api/cron/recover-carts \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          -H "Content-Type: application/json"
