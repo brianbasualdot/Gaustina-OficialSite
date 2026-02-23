@@ -3,7 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const RESEND_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_KEY ? new Resend(RESEND_KEY) : null;
+
+if (!resend) {
+  console.warn("⚠️  RESEND_API_KEY is missing. Email service will be disabled.");
+}
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Gaustina <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.CONTACT_EMAIL || 'bgaustina@gmail.com';
 
@@ -28,6 +33,11 @@ const getEmailFooter = () => `
 
 const sendEmail = async ({ to, subject, html, reply_to }) => {
   try {
+    if (!resend) {
+      console.error('Email Service is disabled (missing API Key)');
+      return { success: false, error: 'Email service disabled' };
+    }
+
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
