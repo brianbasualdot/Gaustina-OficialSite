@@ -72,17 +72,6 @@ app.listen(PORT, () => {
     console.log(`✅ Server is running on port ${PORT}`);
 });
 
-// --- CÓDIGO DE DEBUG TEMPORAL ---
-app._router.stack.forEach(function (r) {
-    if (r.route && r.route.path) {
-        console.log("Ruta detectada:", r.route.path)
-    }
-    if (r.name === 'router') {
-        // Esto inspecciona las sub-rutas montadas (como /api/products)
-        const regex = r.regexp.toString();
-        console.log("Grupo de Rutas detectado (Regex):", regex);
-    }
-})
-// --------------------------------
+// --- CÓDIGO DE DEBUG TEMPORAL REMOVIDO ---
 
 export default app;
