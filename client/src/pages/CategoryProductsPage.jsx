@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import SeoHead from '../components/common/SeoHead';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -36,6 +36,10 @@ const CategoryProductsPage = () => {
 
     return (
         <div className="pt-20">
+            <SeoHead 
+                title={`${displayTitle} | Gaustina`}
+                description={`Explora nuestra exclusiva colección de ${categoryName}. Textiles hechos a mano.`}
+            />
             <div className="bg-[#fefefc] py-12 px-6 min-h-screen">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="font-heading text-4xl md:text-5xl text-brand-dark text-center mb-4">

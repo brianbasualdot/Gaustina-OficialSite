@@ -16,6 +16,8 @@ import OffersPage from './pages/OffersPage';
 import ReturnsPolicy from './pages/ReturnsPolicy';
 import ShippingInfo from './pages/ShippingInfo';
 import TransferenciaPage from './pages/TransferenciaPage';
+import SuccessPage from './pages/SuccessPage';
+import FailurePage from './pages/FailurePage';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminRoute from './components/auth/AdminRoute';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -44,6 +46,9 @@ function App() {
                         <Route path="/informacion-envios" element={<ShippingInfo />} />
                         <Route path="/carrito" element={<CartPage />} />
                         <Route path="/checkout/transferencia" element={<TransferenciaPage />} />
+                        <Route path="/checkout/success" element={<SuccessPage />} />
+                        <Route path="/checkout/failure" element={<FailurePage />} />
+                        <Route path="/checkout/pending" element={<SuccessPage />} /> {/* Usamos Success para pending también */}
                         {/* Admin Routes */}
                         <Route path="/admin/login" element={<AdminLogin />} />
 
