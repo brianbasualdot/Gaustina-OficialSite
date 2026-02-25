@@ -130,6 +130,7 @@ export const createPreference = async (req, res) => {
                     // For now, let's try a safer format or omit it to avoid rejection.
                 },
                 external_reference: newOrder.id.toString(),
+                statement_descriptor: "GAUSTINA",
                 back_urls: {
                     success: "https://gaustina.com.ar/checkout/success",
                     failure: "https://gaustina.com.ar/checkout/failure",

@@ -61,7 +61,8 @@ const sendEmail = async ({ to, subject, html, reply_to }) => {
 
 // 1. Order Confirmation (User)
 export const sendOrderConfirmation = async (order) => {
-  const subject = `Confirmación de Orden #${order.id.slice(0, 8)} | Gaustina`;
+  const shortId = order.id ? order.id.toString().slice(0, 8) : '???';
+  const subject = `Confirmación de Orden #${shortId} | Gaustina`;
 
   const itemsHtml = order.items.map(item => {
     const productName = item.product ? item.product.name : 'Producto';
@@ -103,7 +104,8 @@ export const sendOrderConfirmation = async (order) => {
 
 // 2. New Order Notification (Admin)
 export const sendAdminNewOrderNotification = async (order) => {
-  const subject = `💰 Nueva Venta #${order.id.slice(0, 8)} - $${order.total}`;
+  const shortId = order.id ? order.id.toString().slice(0, 8) : '???';
+  const subject = `💰 Nueva Venta #${shortId} - $${order.total}`;
   const html = `
     <h1>¡Nueva Venta!</h1>
     <p><strong>Cliente:</strong> ${order.customerName} (${order.customerEmail})</p>
