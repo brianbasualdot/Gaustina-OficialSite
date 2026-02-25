@@ -60,6 +60,7 @@ const CartPage = () => {
             const data = await response.json();
 
             if (!response.ok) {
+                console.error("Detalles del error del servidor:", data);
                 throw new Error(data.error || "Error al procesar el pedido");
             }
 

@@ -7,7 +7,10 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 // Configurar Mercado Pago
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+if (!process.env.MP_ACCESS_TOKEN) {
+    console.error("CRITICAL: MP_ACCESS_TOKEN is missing in environment variables!");
+}
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
 
 // 1. CREAR ORDEN CON TRANSACCIÓN ACID
 const createOrderTransaction = async (items, total, type, customerData) => {
@@ -115,15 +118,16 @@ export const createPreference = async (req, res) => {
                     title: item.selectedCustomizations
                         ? `${item.name} (${Object.values(item.selectedCustomizations).join(', ')})`
                         : item.name,
-                    quantity: item.quantity || 1,
-                    unit_price: item.price,
+                    quantity: parseInt(item.quantity) || 1,
+                    unit_price: Math.round(item.price * 100) / 100, // Round to 2 decimals
                     currency_id: 'ARS',
                     picture_url: item.images?.[0] || ''
                 })),
                 payer: {
                     name: customerData.customerName,
                     email: customerData.customerEmail,
-                    phone: { number: customerData.shippingPhone }
+                    // Mercado Pago phone object is sensitive. Better to omit if format is unsure or format it correctly.
+                    // For now, let's try a safer format or omit it to avoid rejection.
                 },
                 external_reference: newOrder.id.toString(),
                 back_urls: {
@@ -132,7 +136,7 @@ export const createPreference = async (req, res) => {
                     pending: "https://gaustina.com.ar/checkout/pending"
                 },
                 auto_return: "approved",
-                notification_url: 'https://gaustina.com.ar/api/payment/webhook' // Importante en prod
+                // notification_url: 'https://gaustina.com.ar/api/payment/webhook' // Commented for testing if causing rejection
             }
         });
 
@@ -143,8 +147,17 @@ export const createPreference = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error al crear preferencia:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+        console.error("Error detallado al crear preferencia:", {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause,
+            response: error.response?.data || error.response || "No response data"
+        });
+        res.status(500).json({
+            error: "Error interno del servidor",
+            details: error.message,
+            mpError: error.response?.data || null
+        });
     }
 };
 
