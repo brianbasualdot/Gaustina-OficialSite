@@ -2,15 +2,15 @@ name: Keep Alive
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # Ejecutar cada 2 horas
-  workflow_dispatch:
+    # Se ejecuta cada 14 minutos (Render se duerme a los 15 min de inactividad)
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Para probarlo manualmente
 
 jobs:
-  ping_health:
+  ping_render:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Ping Health Endpoint
+      - name: Wake up Render
         run: |
-          # Usamos GET (-L para seguir redirects, -v para ver detalles)
-          curl -v -L --retry 5 --retry-delay 10 --max-time 60 --fail ${{ secrets.RENDER_BACKEND_URL }}/health
+          curl -s "${{ secrets.RENDER_APP_URL }}/health" > /dev/null
+          echo "Ping enviado a las $(date)"
