@@ -35,7 +35,7 @@ const createOrderTransaction = async (items, total, type, customerData) => {
         // B. Crear Orden con Datos de Envío
         const order = await tx.order.create({
             data: {
-                total: total,
+                totalAmount: total,
                 status: 'PENDING',
                 paymentMethod: type,
                 // Datos de Cliente y Envío (Obligatorios por lógica de negocio ahora)
@@ -43,7 +43,7 @@ const createOrderTransaction = async (items, total, type, customerData) => {
                 customerEmail: customerData.customerEmail,
                 shippingAddress: customerData.shippingAddress,
                 shippingCity: customerData.shippingCity,
-                shippingZip: customerData.shippingZip,
+                postalCode: customerData.shippingZip,
                 shippingPhone: customerData.shippingPhone,
 
                 items: {

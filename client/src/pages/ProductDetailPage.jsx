@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import SeoHead from '../components/common/SeoHead';
-import { Truck, ZoomIn, Play } from 'lucide-react'; // Agregamos iconos para video
+import { Truck, ZoomIn, Play } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // 1. IMPORTAR LA LIBRERÍA Y SUS ESTILOS
 import Lightbox from "yet-another-react-lightbox";
@@ -19,6 +21,7 @@ const isVideo = (url) => {
 const ProductDetailPage = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
+    const { showToast } = useToast();
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -83,11 +86,7 @@ const ProductDetailPage = () => {
 
         for (let i = 0; i < quantity; i++) addToCart(productToAdd);
 
-        let message = `¡Agregaste ${quantity} ${product.name} al carrito!`;
-        if (customization.fabricColor) message += `\nTela: ${customization.fabricColor}`;
-        if (customization.embroideryColor) message += `\nBordado: ${customization.embroideryColor}`;
-
-        alert(message);
+        showToast(`¡Agregaste ${quantity} ${product.name} al carrito!`);
     };
 
     if (loading) return (
@@ -105,7 +104,6 @@ const ProductDetailPage = () => {
         </div>
     );
 
-    // Helper para verificar si hay imágenes válidas
     const hasImages = product.images && product.images.length > 0;
     const mainImageSrc = selectedImage || "https://via.placeholder.com/600?text=Sin+Imagen";
 
@@ -118,7 +116,6 @@ const ProductDetailPage = () => {
             />
 
             <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
-                {/* Breadcrumb */}
                 <div className="text-sm text-gray-400 mb-8">
                     <Link to="/" className="hover:text-black">Inicio</Link> /
                     <Link to="/productos" className="hover:text-black mx-1">Colección</Link> /
@@ -126,35 +123,16 @@ const ProductDetailPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-
-                    {/* --- ZONA DE IMÁGENES (IZQUIERDA) --- */}
                     <div className="space-y-4">
-
-                        {/* 3. IMAGEN PRINCIPAL CLICKEABLE */}
-                        {/* 3. IMAGEN PRINCIPAL / VIDEO */}
                         <div
                             className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-sm relative group cursor-zoom-in"
                             onClick={() => hasImages && setIsGalleryOpen(true)}
                         >
                             {isVideo(mainImageSrc) ? (
-                                <video
-                                    src={mainImageSrc}
-                                    className="w-full h-full object-cover"
-                                    controls
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                />
+                                <video src={mainImageSrc} className="w-full h-full object-cover" controls autoPlay muted loop playsInline />
                             ) : (
-                                <img
-                                    src={mainImageSrc}
-                                    alt={product.name}
-                                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
-                                />
+                                <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
                             )}
-
-                            {/* Icono de lupa o play flotante */}
                             {hasImages && !isVideo(mainImageSrc) && (
                                 <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <ZoomIn size={20} />
@@ -162,17 +140,13 @@ const ProductDetailPage = () => {
                             )}
                         </div>
 
-                        {/* Carrusel de miniaturas (Solo si hay más de 1) */}
                         {hasImages && product.images.length > 1 && (
                             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                                 {product.images.map((img, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImage(img)}
-                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all relative ${selectedImage === img
-                                            ? 'border-black opacity-100 ring-1 ring-black'
-                                            : 'border-transparent opacity-60 hover:opacity-100'
-                                            }`}
+                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all relative ${selectedImage === img ? 'border-black opacity-100 ring-1 ring-black' : 'border-transparent opacity-60 hover:opacity-100'}`}
                                     >
                                         {isVideo(img) ? (
                                             <div className="w-full h-full bg-gray-900 flex items-center justify-center relative">
@@ -188,115 +162,53 @@ const ProductDetailPage = () => {
                         )}
                     </div>
 
-                    {/* --- INFO (DERECHA) --- */}
                     <div className="flex flex-col">
-                        {/* ... (Todo el resto de tu código de información, precio, carrito sigue igual) ... */}
-                        <h1 className="text-5xl md:text-6xl font-script text-brand-primary mb-4">
-                            {product.name}
-                        </h1>
-                        <p className="text-sm text-gray-500 mb-6 uppercase tracking-wider">
-                            Tusor Premium • Hecho a Mano
-                        </p>
+                        <h1 className="text-5xl md:text-6xl font-script text-brand-primary mb-4">{product.name}</h1>
+                        <p className="text-sm text-gray-500 mb-6 uppercase tracking-wider">Tusor Premium • Hecho a Mano</p>
                         <div className="flex flex-col mb-6">
                             <div className="flex items-baseline gap-3 mb-1">
-                                <span className="text-3xl font-bold text-green-700">
-                                    ${(product.price * 0.95).toLocaleString('es-AR')}
-                                </span>
+                                <span className="text-3xl font-bold text-green-700">${(product.price * 0.95).toLocaleString('es-AR')}</span>
                                 <span className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">-5% Transferencia</span>
                             </div>
-                            <span className="text-lg text-gray-500">
-                                ${product.price.toLocaleString('es-AR')} (Precio de Lista / Mercado Pago)
-                            </span>
+                            <span className="text-lg text-gray-500">${product.price.toLocaleString('es-AR')} (Precio de Lista / Mercado Pago)</span>
                         </div>
                         <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3 mb-8">
                             <Truck className="text-green-700 w-5 h-5" />
-                            <span className="text-green-800 text-sm font-medium">
-                                Envío Gratis incluido a todo el país.
-                            </span>
+                            <span className="text-green-800 text-sm font-medium">Envío Gratis incluido a todo el país.</span>
                         </div>
-                        <p className="text-gray-600 leading-relaxed mb-8 text-lg font-light whitespace-pre-wrap">
-                            {product.description}
-                        </p>
+                        <p className="text-gray-600 leading-relaxed mb-8 text-lg font-light whitespace-pre-wrap">{product.description}</p>
 
-                        {/* SELECTORES DE PERSONALIZACIÓN */}
                         {product.customizationOptions && (
                             <div className="space-y-6 mb-8 border-t border-b border-gray-100 py-6">
-                                {/* Color de Tela */}
                                 {product.customizationOptions.fabricColors?.length > 0 && (
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-900 mb-3">Color de Tela: <span className="text-gray-500 font-normal">{selectedFabricColor}</span></h3>
                                         <div className="flex flex-wrap gap-3">
                                             {product.customizationOptions.fabricColors.map(color => {
-                                                const isObject = typeof color === 'object';
-                                                const colorName = isObject ? color.name : color;
-                                                const colorHex = isObject ? color.hex : null;
+                                                const colorName = typeof color === 'object' ? color.name : color;
+                                                const colorHex = typeof color === 'object' ? color.hex : null;
                                                 const isSelected = selectedFabricColor === colorName;
-
-                                                if (colorHex) {
-                                                    return (
-                                                        <button
-                                                            key={colorName}
-                                                            onClick={() => setSelectedFabricColor(colorName)}
-                                                            title={colorName}
-                                                            className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'
-                                                                }`}
-                                                            style={{ backgroundColor: colorHex }}
-                                                        />
-                                                    );
-                                                }
-
-                                                return (
-                                                    <button
-                                                        key={colorName}
-                                                        onClick={() => setSelectedFabricColor(colorName)}
-                                                        className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected
-                                                            ? 'border-black bg-black text-white'
-                                                            : 'border-gray-200 text-gray-700 hover:border-gray-400'
-                                                            }`}
-                                                    >
-                                                        {colorName}
-                                                    </button>
+                                                return colorHex ? (
+                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
+                                                ) : (
+                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
                                                 );
                                             })}
                                         </div>
                                     </div>
                                 )}
-
-                                {/* Color de Bordado */}
                                 {product.customizationOptions.embroideryColors?.length > 0 && (
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-900 mb-3">Color de Bordado: <span className="text-gray-500 font-normal">{selectedEmbroideryColor}</span></h3>
                                         <div className="flex flex-wrap gap-3">
                                             {product.customizationOptions.embroideryColors.map(color => {
-                                                const isObject = typeof color === 'object';
-                                                const colorName = isObject ? color.name : color;
-                                                const colorHex = isObject ? color.hex : null;
+                                                const colorName = typeof color === 'object' ? color.name : color;
+                                                const colorHex = typeof color === 'object' ? color.hex : null;
                                                 const isSelected = selectedEmbroideryColor === colorName;
-
-                                                if (colorHex) {
-                                                    return (
-                                                        <button
-                                                            key={colorName}
-                                                            onClick={() => setSelectedEmbroideryColor(colorName)}
-                                                            title={colorName}
-                                                            className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'
-                                                                }`}
-                                                            style={{ backgroundColor: colorHex }}
-                                                        />
-                                                    );
-                                                }
-
-                                                return (
-                                                    <button
-                                                        key={colorName}
-                                                        onClick={() => setSelectedEmbroideryColor(colorName)}
-                                                        className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected
-                                                            ? 'border-black bg-black text-white'
-                                                            : 'border-gray-200 text-gray-700 hover:border-gray-400'
-                                                            }`}
-                                                    >
-                                                        {colorName}
-                                                    </button>
+                                                return colorHex ? (
+                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
+                                                ) : (
+                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
                                                 );
                                             })}
                                         </div>
@@ -311,41 +223,25 @@ const ProductDetailPage = () => {
                                 <span className="w-8 text-center font-heading text-lg">{quantity}</span>
                                 <button onClick={handleIncrement} className="px-4 py-3 hover:bg-gray-50 text-black font-heading">+</button>
                             </div>
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={handleAddToCart}
                                 disabled={product.stock <= 0 || product.paused}
                                 className="flex-1 bg-transparent border border-black text-black font-heading uppercase tracking-widest text-sm py-3 px-8 hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {product.paused
-                                    ? 'Publicación Pausada'
-                                    : product.stock > 0
-                                        ? 'Agregar al Carrito'
-                                        : 'Sin Stock'}
-                            </button>
+                                {product.paused ? 'Publicación Pausada' : product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
+                            </motion.button>
                         </div>
                         <div className="space-y-4">
                             <div className="flex gap-6 border-b border-gray-200 pb-2">
                                 {['materiales', 'cuidados', 'envios'].map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`pb-2 text-sm uppercase tracking-wide transition-colors ${activeTab === tab
-                                            ? 'border-b-2 border-black text-black font-medium'
-                                            : 'text-gray-400 hover:text-gray-600'
-                                            }`}
-                                    >
-                                        {tab}
-                                    </button>
+                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-2 text-sm uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
                                 ))}
                             </div>
                             <div className="py-4 text-gray-600 text-sm leading-relaxed min-h-[100px]">
                                 {activeTab === 'materiales' && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
-                                {activeTab === 'cuidados' && (
-                                    <ul className="list-disc pl-5 space-y-1">
-                                        <li>Lavar a mano o ciclo delicado (agua fría).</li>
-                                        <li>Secar a la sombra.</li>
-                                    </ul>
-                                )}
+                                {activeTab === 'cuidados' && <ul className="list-disc pl-5 space-y-1"><li>Lavar a mano o ciclo delicado (agua fría).</li><li>Secar a la sombra.</li></ul>}
                                 {activeTab === 'envios' && <p>Despachamos por Correo Argentino dentro de las 48hs hábiles.</p>}
                             </div>
                         </div>
@@ -353,42 +249,29 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {/* 4. COMPONENTE DE GALERÍA A PANTALLA COMPLETA */}
             {hasImages && (
                 <Lightbox
                     open={isGalleryOpen}
                     close={() => setIsGalleryOpen(false)}
                     index={product.images.indexOf(selectedImage)}
-                    slides={product.images.map(imgUrl => (
-                        isVideo(imgUrl)
-                            ? { type: "video", sources: [{ src: imgUrl, type: "video/mp4" }] }
-                            : { src: imgUrl }
-                    ))}
+                    slides={product.images.map(imgUrl => isVideo(imgUrl) ? { type: "video", sources: [{ src: imgUrl, type: "video/mp4" }] } : { src: imgUrl })}
                     render={{
                         slide: ({ slide }) => {
                             if (slide.type === "video") {
                                 return (
-                                    <video
-                                        className="max-h-[80vh] max-w-[90vw] object-contain mx-auto"
-                                        controls
-                                        autoPlay
-                                        muted={false}
-                                        playsInline
-                                    >
+                                    <video className="max-h-[80vh] max-w-[90vw] object-contain mx-auto" controls autoPlay muted={false} playsInline>
                                         <source src={slide.sources[0].src} type="video/mp4" />
                                         Tu navegador no soporta el elemento de video.
                                     </video>
                                 );
                             }
-                            return undefined; // Usa el renderizado por defecto para imágenes
+                            return undefined;
                         }
                     }}
                 />
             )}
-
         </div>
     );
 };
 
 export default ProductDetailPage;
-

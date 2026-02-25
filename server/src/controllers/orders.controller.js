@@ -11,13 +11,6 @@ export const getAllOrders = async (req, res) => {
                 createdAt: 'desc'
             },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        name: true
-                    }
-                },
                 items: {
                     include: {
                         product: true
@@ -62,12 +55,6 @@ export const downloadInvoice = async (req, res) => {
         const order = await prisma.order.findUnique({
             where: { id },
             include: {
-                user: {
-                    select: {
-                        name: true,
-                        email: true
-                    }
-                },
                 items: {
                     include: {
                         product: true
