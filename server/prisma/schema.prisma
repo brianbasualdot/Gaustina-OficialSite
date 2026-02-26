@@ -83,7 +83,7 @@ enum Role {
 
 enum OrderStatus {
   PENDING
-  PAI
+  PAID
   SHIPPED
   DELIVERED
   CANCELLED

@@ -10,7 +10,7 @@ import paymentRoutes from './routes/payment.routes.js';
 dotenv.config();
 
 // Import routes and middlewares
-// import { validate } from './middlewares/validationMiddleware.js';
+import { validate } from './middlewares/validationMiddleware.js';
 import productsRoutes from './routes/products.routes.js';
 import ordersRoutes from './routes/orders.routes.js';
 import messagesRoutes from './routes/messages.routes.js';
@@ -35,7 +35,11 @@ app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
 // 2. CORS and JSON middleware
-app.use(cors()); // Allow all origins for dev
+app.use(cors({
+    origin: ['https://gaustina.com.ar', 'https://www.gaustina.com.ar'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Ruta básica de salud

@@ -5,7 +5,6 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import CategoryProductsPage from './pages/CategoryProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-import AboutPage from './pages/AboutPage';
 import CartPage from './pages/CartPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
@@ -37,7 +36,6 @@ function App() {
                             <Route path="/productos" element={<ProductsPage />} />
                             <Route path="/categoria/:categoryName" element={<CategoryProductsPage />} />
                             <Route path="/producto/:id" element={<ProductDetailPage />} />
-                            <Route path="/nosotros" element={<AboutPage />} />
                             <Route path="/contacto" element={<ContactPage />} />
                             <Route path="/preguntas-frecuentes" element={<FAQPage />} />
                             <Route path="/mas-vendidos" element={<BestSellersPage />} />

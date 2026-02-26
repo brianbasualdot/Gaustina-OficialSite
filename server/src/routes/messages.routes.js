@@ -1,16 +1,11 @@
 
 import express from 'express';
-import { getMessages, replyMessage } from '../controllers/messages.controller.js';
-// import { protect, admin } from '../middlewares/authMiddleware.js'; // Ensure you have auth middleware if needed
+import isAdmin from '../middleware/isAdmin.js';
 
 const router = express.Router();
 
-// Routes should presumably be protected
-// router.get('/', protect, admin, getMessages);
-// router.post('/:id/reply', protect, admin, replyMessage);
-
-// For now, assuming open or handled by app.js protection
-router.get('/', getMessages);
-router.post('/:id/reply', replyMessage);
+// Protected Routes
+router.get('/', isAdmin, getMessages);
+router.post('/:id/reply', isAdmin, replyMessage);
 
 export default router;

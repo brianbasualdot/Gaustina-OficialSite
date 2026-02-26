@@ -137,7 +137,7 @@ export const createPreference = async (req, res) => {
                     pending: "https://gaustina.com.ar/checkout/pending"
                 },
                 auto_return: "approved",
-                // notification_url: 'https://gaustina.com.ar/api/payment/webhook' // Commented for testing if causing rejection
+                notification_url: 'https://gaustina.com.ar/api/payment/webhook'
             }
         });
 
