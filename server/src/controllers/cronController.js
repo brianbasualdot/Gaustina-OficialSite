@@ -1,5 +1,6 @@
 // server/src/controllers/cronController.js
 import { PrismaClient } from '@prisma/client';
+import * as Sentry from "@sentry/node";
 import { sendAbandonedCartEmail } from '../services/emailService.js';
 
 const prisma = new PrismaClient();
@@ -32,7 +33,6 @@ export const recoverAbandonedCarts = async (req, res) => {
                     gt: eightHoursAgo, // Time window to prevent spam loop
                 },
             },
-            include: { user: true },
         });
 
         console.log(`Found ${abandonedOrders.length} abandoned carts.`);
@@ -41,8 +41,16 @@ export const recoverAbandonedCarts = async (req, res) => {
         // const transporter = nodemailer.createTransport({ ... });
 
         const emailPromises = abandonedOrders.map(order => {
-            console.log(`Sending recovery email to ${order.user.email} for Order ${order.id}`);
-            return sendAbandonedCartEmail(order);
+            const email = order.customerEmail;
+            if (email) {
+                console.log(`Sending recovery email to ${email} for Order #${order.id}`);
+                return sendAbandonedCartEmail(order);
+            } else {
+                const errorMsg = `Order #${order.id} found without customerEmail for recovery.`;
+                console.warn(errorMsg);
+                Sentry.captureMessage(errorMsg, "warning");
+                return Promise.resolve();
+            }
         });
 
         await Promise.all(emailPromises);
@@ -54,6 +62,7 @@ export const recoverAbandonedCarts = async (req, res) => {
 
     } catch (error) {
         console.error("Cron job failed:", error);
+        Sentry.captureException(error);
         res.status(500).json({ error: error.message });
     }
 };

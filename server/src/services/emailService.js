@@ -165,7 +165,7 @@ export const sendAbandonedCartEmail = async (order) => {
   const subject = `¿Olvidaste algo? Tu carrito te espera en Gaustina`;
   const html = `
     ${getEmailHeader()}
-    <h2 style="color: #333;">Hola ${order.user?.name || 'ahí'},</h2>
+    <h2 style="color: #333;">Hola ${order.customerName || 'ahí'},</h2>
     <p style="color: #555;">Notamos que dejaste una orden pendiente en nuestra tienda.</p>
     <p>¡No te preocupes! Guardamos tu carrito para cuando quieras volver.</p>
     
@@ -178,5 +178,5 @@ export const sendAbandonedCartEmail = async (order) => {
 
     ${getEmailFooter()}
   `;
-  return sendEmail({ to: order.user?.email || order.customerEmail, subject, html });
+  return sendEmail({ to: order.customerEmail, subject, html });
 };
