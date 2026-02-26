@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabase';
 import { Mail, ArrowLeft, Send, CheckCircle, Clock } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -14,6 +15,7 @@ const AdminMessages = () => {
         template: 'GENERAL'
     });
     const [sending, setSending] = useState(false);
+    const { showToast } = useToast();
 
     const fetchMessages = async () => {
         try {
@@ -58,18 +60,18 @@ const AdminMessages = () => {
             });
 
             if (res.ok) {
-                alert("Respuesta enviada correctamente");
+                showToast("Respuesta enviada correctamente", "success");
                 // Update local state
                 const updatedMsg = await res.json();
                 setMessages(messages.map(m => m.id === selectedMessage.id ? updatedMsg.data : m));
                 setSelectedMessage(updatedMsg.data); // Update selected view
                 setReplyForm({ text: '', template: 'GENERAL' }); // Reset form
             } else {
-                alert("Error al enviar la respuesta");
+                showToast("Error al enviar la respuesta", "error");
             }
         } catch (error) {
             console.error("Error replying:", error);
-            alert("Error de conexión");
+            showToast("Error de conexión", "error");
         } finally {
             setSending(false);
         }

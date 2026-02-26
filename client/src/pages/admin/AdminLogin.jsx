@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { supabase, initializationError } from '../../utils/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+    const { showToast } = useToast();
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(null);
 
         try {
             const { error } = await supabase.auth.signInWithPassword({
@@ -19,12 +19,13 @@ const AdminLogin = () => {
             });
 
             if (error) {
-                setError(error.message);
+                showToast(error.message, 'error');
             } else {
+                showToast("Bienvenida de nuevo, Agustina", 'success');
                 navigate('/admin/dashboard');
             }
         } catch (err) {
-            setError("Unexpected error during login: " + err.message);
+            showToast("Error inesperado al iniciar sesión", 'error');
         }
     };
 
@@ -32,15 +33,6 @@ const AdminLogin = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
-
-                {initializationError && (
-                    <div className="bg-yellow-100 text-yellow-800 p-4 rounded mb-6 border border-yellow-200 text-sm">
-                        <strong>Debug Info:</strong><br />
-                        {initializationError}
-                    </div>
-                )}
-
-                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>

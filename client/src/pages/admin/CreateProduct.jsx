@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Loader, ArrowLeft, X } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
+import { useToast } from '../../context/ToastContext';
 
 // URL INTELIGENTE
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -10,6 +11,7 @@ const CreateProduct = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [session, setSession] = useState(null);
+    const { showToast } = useToast();
 
     // ESTADO PARA MÚLTIPLES IMÁGENES
     const [imageFiles, setImageFiles] = useState([]); // Array de archivos
@@ -158,12 +160,12 @@ const CreateProduct = () => {
 
             if (!response.ok) throw new Error("Error al guardar en base de datos");
 
-            alert("¡Producto creado con múltiples imágenes!");
+            showToast("¡Producto creado con éxito!", 'success');
             navigate('/admin/dashboard');
 
         } catch (error) {
             console.error(error);
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         } finally {
             setLoading(false);
         }

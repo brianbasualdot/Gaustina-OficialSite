@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, Loader, ArrowLeft, X, Trash2 } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
+import { useToast } from '../../context/ToastContext';
 
 // URL INTELIGENTE
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -13,6 +14,7 @@ const EditProduct = () => {
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [session, setSession] = useState(null);
+    const { showToast } = useToast();
 
     // IMÁGENES
     const [existingImages, setExistingImages] = useState([]); // URLs ya guardadas
@@ -85,7 +87,7 @@ const EditProduct = () => {
 
             } catch (error) {
                 console.error(error);
-                alert("Error cargando el producto");
+                showToast("Error cargando el producto", "error");
                 navigate('/admin/dashboard');
             } finally {
                 setFetching(false);
@@ -213,12 +215,12 @@ const EditProduct = () => {
 
             if (!response.ok) throw new Error("Error al actualizar el producto");
 
-            alert("Producto actualizado correctamente");
+            showToast("Producto actualizado correctamente", "success");
             navigate('/admin/dashboard');
 
         } catch (error) {
             console.error(error);
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, "error");
         } finally {
             setLoading(false);
         }
