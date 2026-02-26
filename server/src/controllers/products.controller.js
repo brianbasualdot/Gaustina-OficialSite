@@ -101,9 +101,24 @@ export const updateProduct = async (req, res) => {
         if (body.stock && typeof body.stock === 'string') body.stock = parseInt(body.stock);
         if (body.categoryId && typeof body.categoryId === 'string') body.categoryId = parseInt(body.categoryId);
 
+        const updateData = {
+            name: body.name,
+            description: body.description,
+            price: body.price,
+            stock: body.stock,
+            images: body.images,
+            categoryId: body.categoryId,
+            customizationOptions: body.customizationOptions,
+            paused: body.paused,
+            isDigital: body.isDigital
+        };
+
+        // Remove undefined fields to avoid overwriting with undefined
+        Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
         const updatedProduct = await prisma.product.update({
-            where: { id: parseInt(id) }, // CORRECCIÓN: ID a Número
-            data: body,
+            where: { id: parseInt(id) },
+            data: updateData,
         });
 
         res.json(updatedProduct);

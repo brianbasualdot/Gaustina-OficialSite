@@ -36,7 +36,7 @@ export const updateOrderStatus = async (req, res) => {
         }
 
         const updatedOrder = await prisma.order.update({
-            where: { id },
+            where: { id: parseInt(id) },
             data: { status }
         });
 
@@ -53,7 +53,7 @@ export const downloadInvoice = async (req, res) => {
         const { id } = req.params;
 
         const order = await prisma.order.findUnique({
-            where: { id },
+            where: { id: parseInt(id) },
             include: {
                 items: {
                     include: {

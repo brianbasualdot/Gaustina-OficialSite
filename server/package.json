@@ -20,7 +20,7 @@
     },
     "scripts": {
         "start": "node src/app.js",
-        "build": "prisma generate"
+        "build": "prisma generate && prisma migrate deploy"
     },
     "engines": {
         "node": ">=18.0.0"
