@@ -8,7 +8,7 @@ const TransferenciaPage = () => {
     const total = getCartTotal() * 0.95;
 
     const copiarCBU = () => {
-        navigator.clipboard.writeText("0000003100000000000000"); // Pon tu CBU real
+        navigator.clipboard.writeText("0140999803200074125413");
         alert("¡CBU Copiado!");
     };
 
@@ -25,11 +25,14 @@ const TransferenciaPage = () => {
                 </p>
 
                 <div className="bg-gray-100 p-6 rounded-xl text-left mb-8 relative">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Titular</p>
+                    <p className="font-mono font-medium text-lg mb-4">Agustina Berth</p>
+
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Alias</p>
-                    <p className="font-mono font-medium text-lg mb-4">MI.EMPRENDIMIENTO</p>
+                    <p className="font-mono font-medium text-lg mb-4">GAUSTINA.AR</p>
 
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">CBU</p>
-                    <p className="font-mono font-medium text-lg text-gray-600 break-all">0000003100000000000000</p>
+                    <p className="font-mono font-medium text-lg text-gray-600 break-all">0140999803200074125413</p>
 
                     <button onClick={copiarCBU} className="absolute top-4 right-4 text-blue-600 hover:text-blue-800">
                         <Copy size={20} />
@@ -41,7 +44,7 @@ const TransferenciaPage = () => {
                         <ArrowLeft size={18} /> Volver
                     </Link>
                     <a
-                        href={`https://wa.me/5491100000000?text=Hola!%20Ya%20hice%20la%20transferencia%20de%20$${total}%20por%20mi%20pedido.`}
+                        href={`https://wa.me/5492215791290?text=Hola!%20Ya%20hice%20la%20transferencia%20de%20$${total}%20por%20mi%20pedido.`}
                         target="_blank"
                         rel="noreferrer"
                         className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-lg shadow-green-200"
