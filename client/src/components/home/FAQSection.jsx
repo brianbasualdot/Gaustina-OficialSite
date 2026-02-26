@@ -124,11 +124,11 @@ const FAQSection = () => {
 
                     <div className="flex flex-col md:flex-row justify-center gap-4">
                         <a
-                            href="mailto:bibliotecadebordados@gmail.com"
+                            href="mailto:bgaustina@gmail.com"
                             className="bg-white text-brand-dark hover:bg-gray-50 border border-gray-200 px-6 py-3 rounded-lg flex items-center justify-center gap-3 transition-colors shadow-sm font-medium"
                         >
                             <Mail size={18} />
-                            bibliotecadebordados@gmail.com
+                            bgaustina@gmail.com
                         </a>
                         <a
                             href="https://api.whatsapp.com/send/?phone=5492215791290&text&type=phone_number&app_absent=0"

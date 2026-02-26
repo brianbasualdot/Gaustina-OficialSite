@@ -15,9 +15,9 @@ function generateHeader(doc) {
     doc
         .fillColor("#444444")
         .fontSize(20)
-        .text("BDB - Biblioteca de Bordados", 50, 57)
+        .text("Gaustina", 50, 57)
         .fontSize(10)
-        .text("BDB", 200, 50, { align: "right" })
+        .text("Gaustina", 200, 50, { align: "right" })
         .text("Buenos Aires, Argentina", 200, 65, { align: "right" })
         .moveDown();
 }
@@ -105,7 +105,7 @@ function generateFooter(doc) {
     doc
         .fontSize(10)
         .text(
-            "Gracias por tu compra. BDB.",
+            "Gracias por tu compra. Gaustina.",
             50,
             780,
             { align: "center", width: 500 }

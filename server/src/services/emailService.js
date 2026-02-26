@@ -16,15 +16,29 @@ const ADMIN_EMAIL = process.env.CONTACT_EMAIL || 'bgaustina@gmail.com';
 
 const getEmailHeader = () => `
   <div style="text-align: center; margin-bottom: 30px;">
-    <img src="${process.env.FRONTEND_URL}/iconBDB.png" alt="Gaustina" style="width: 100px; height: auto; margin-bottom: 15px;" />
+    <img src="https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/loguito.png" alt="Gaustina" style="width: 100px; height: auto; margin-bottom: 15px;" />
   </div>
 `;
 
 const getEmailFooter = () => `
   <div style="margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
-    <img src="${process.env.FRONTEND_URL}/iconBDB.png" alt="Gaustina" style="width: 50px; height: auto; opacity: 0.8;" />
+    <img src="https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/loguito.png" alt="Gaustina" style="width: 50px; height: auto; opacity: 0.8;" />
+    <p style="font-size: 14px; color: #333; margin-top: 15px; font-weight: bold;">
+      Gaustina
+    </p>
+    <div style="margin-top: 15px;">
+      <a href="https://www.instagram.com/bgaustina" style="margin: 0 10px; text-decoration: none;">
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" style="width: 24px; vertical-align: middle;">
+      </a>
+      <a href="https://www.pinterest.com/gaustina" style="margin: 0 10px; text-decoration: none;">
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174863.png" alt="Pinterest" style="width: 24px; vertical-align: middle;">
+      </a>
+      <a href="https://www.tiktok.com/@bgaustina" style="margin: 0 10px; text-decoration: none;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" alt="TikTok" style="width: 24px; vertical-align: middle;">
+      </a>
+    </div>
     <p style="font-size: 12px; color: #aaa; margin-top: 10px;">
-      Gaustina - Biblioteca de Bordados
+      &copy; ${new Date().getFullYear()} Gaustina. Todos los derechos reservados.
     </p>
   </div>
 `;

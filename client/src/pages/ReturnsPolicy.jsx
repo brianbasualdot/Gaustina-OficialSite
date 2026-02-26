@@ -67,7 +67,7 @@ const ReturnsPolicy = () => {
                             <div>
                                 <h3 className="font-bold text-brand-dark mb-1">¿Cómo gestionar un cambio?</h3>
                                 <p className="text-sm text-gray-600">
-                                    Escríbenos a <a href="mailto:contacto@bibliotecadebordados.com" className="text-brand-primary underline">contacto@bibliotecadebordados.com</a> con tu número de orden y el motivo. Te responderemos en 24hs hábiles.
+                                    Escríbenos a <a href="mailto:bgaustina@gmail.com" className="text-brand-primary underline">bgaustina@gmail.com</a> con tu número de orden y el motivo. Te responderemos en 24hs hábiles.
                                 </p>
                             </div>
                         </div>
