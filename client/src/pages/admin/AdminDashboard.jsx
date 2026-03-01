@@ -336,7 +336,7 @@ const AdminDashboard = () => {
                             {orders.map((order) => (
                                 <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                                     <td className="p-4 text-xs font-mono text-gray-500">
-                                        {order.id.slice(0, 8)}...
+                                        {String(order.id).slice(0, 8)}
                                     </td>
                                     <td className="p-4">
                                         <div className="font-medium text-gray-800">
