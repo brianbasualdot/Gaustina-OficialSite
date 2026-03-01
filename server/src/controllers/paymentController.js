@@ -79,7 +79,7 @@ export const createPreference = async (req, res) => {
 
         // APLICAR DESCUENTO TRANSFERENCIA (5%)
         if (method === 'transferencia') {
-            total = total * 0.95;
+            total = total * 0.85;
         }
 
         // --- TRANSACCIÓN ACID (Stock + Orden) ---

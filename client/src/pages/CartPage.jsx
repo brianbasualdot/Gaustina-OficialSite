@@ -20,7 +20,7 @@ const CartPage = () => {
     const [isFormValid, setIsFormValid] = useState(false);
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-    const finalTotal = paymentMethod === 'transferencia' ? subtotal * 0.95 : subtotal;
+    const finalTotal = paymentMethod === 'transferencia' ? subtotal * 0.85 : subtotal;
     const discountAmount = subtotal - finalTotal;
 
     useEffect(() => {
@@ -252,7 +252,7 @@ const CartPage = () => {
                                     >
                                         <Banknote size={20} className="mb-2" />
                                         <span className="text-xs font-heading font-medium">Transferencia</span>
-                                        <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full mt-1 font-bold">-5%</span>
+                                        <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full mt-1 font-bold">-15%</span>
                                         {paymentMethod === 'transferencia' && (
                                             <motion.div layoutId="selection" className="absolute inset-0 border-2 border-black rounded-xl pointer-events-none" />
                                         )}
