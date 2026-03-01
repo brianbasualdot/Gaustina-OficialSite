@@ -53,7 +53,7 @@ const ContactPage = () => {
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
                     <div className="text-center mb-16">
-                        <h1 className="text-5xl md:text-6xl font-script text-brand-primary mb-4 transform -rotate-2">
+                        <h1 className="text-5xl md:text-6xl font-heading text-brand-primary mb-4">
                             Hablemos
                         </h1>
                         <p className="text-lg text-gray-600 font-heading max-w-2xl mx-auto uppercase tracking-wide">

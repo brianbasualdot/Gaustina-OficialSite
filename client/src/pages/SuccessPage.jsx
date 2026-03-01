@@ -40,7 +40,9 @@ const SuccessPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-script text-brand-primary">¡Pago Exitoso!</h1>
+                    <h1 className="text-3xl md:text-4xl font-heading text-brand-primary mb-2">
+                        ¡Gracias por tu compra!
+                    </h1>
                     <p className="text-gray-500 font-body">Tu pedido ha sido recibido correctamente.</p>
                 </div>
 
@@ -87,10 +89,10 @@ const SuccessPage = () => {
                         Volver al Inicio
                     </Link>
                 </div>
-            </div>
+            </div >
 
             {/* Inyectamos estilos extra para las animaciones específicas si no están en tailwind */}
-            <style dangerouslySetInnerHTML={{
+            < style dangerouslySetInnerHTML={{
                 __html: `
                 @keyframes bounce-short {
                     0%, 100% { transform: translateY(0); }
@@ -100,7 +102,7 @@ const SuccessPage = () => {
                     animation: bounce-short 2s ease-in-out infinite;
                 }
             `}} />
-        </div>
+        </div >
     );
 };
 

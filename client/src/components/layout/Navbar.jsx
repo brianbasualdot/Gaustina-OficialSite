@@ -17,29 +17,40 @@ const Navbar = () => {
     ];
 
     return (
-        <nav className="bg-white py-6 border-b border-gray-100 sticky top-0 z-40">
-            <div className="container mx-auto px-6 flex flex-col items-center">
+        <nav className="bg-white border-b border-gray-100 sticky top-0 z-40">
+            <div className="container mx-auto px-6">
+                <div className="flex items-center justify-between h-20 md:h-28">
 
-                {/* --- ROW 1: Mobile Button | Logo | Cart --- */}
-                <div className="w-full flex justify-between items-center mb-0 md:mb-6 relative">
-
-                    {/* Mobile Menu Button (Left) */}
-                    <div className="w-20 flex justify-start">
-                        <button
-                            className="md:hidden text-gray-900 hover:text-black focus:outline-none"
-                            onClick={toggleMenu}
-                        >
-                            <Menu className="w-6 h-6" />
-                        </button>
-                    </div>
-
-                    {/* Logo (Center) */}
-                    <Link to="/" className="text-4xl md:text-6xl font-script text-brand-primary tracking-wide text-center">
-                        Gaustina
+                    {/* --- Logo (Left) --- */}
+                    <Link
+                        to="/"
+                        className="flex-shrink-0 transition-transform duration-300 hover:scale-105"
+                    >
+                        <img
+                            src="https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/logoinicio.png"
+                            alt="Gaustina"
+                            className="h-12 md:h-16 w-auto object-contain"
+                        />
                     </Link>
 
-                    {/* Cart Icon (Right) */}
-                    <div className="w-20 flex justify-end">
+                    {/* --- Desktop Navigation (Center) --- */}
+                    <div className="hidden md:flex items-center space-x-8 lg:space-x-12">
+                        {navLinks.map((link) => (
+                            <NavLink
+                                key={link.path}
+                                to={link.path}
+                                className={({ isActive }) =>
+                                    `font-heading text-sm uppercase tracking-widest hover:text-brand-accent transition-colors duration-300 ease-in-out border-b-2 border-transparent pb-1 ${isActive ? "text-black border-black" : "text-brand-primary hover:border-brand-accent"
+                                    }`
+                                }
+                            >
+                                {link.label}
+                            </NavLink>
+                        ))}
+                    </div>
+
+                    {/* --- Actions (Right) --- */}
+                    <div className="flex items-center space-x-5">
                         <Link
                             to="/carrito"
                             className="relative group hover:text-brand-accent transition-colors text-brand-primary"
@@ -52,23 +63,15 @@ const Navbar = () => {
                                 </span>
                             )}
                         </Link>
-                    </div>
-                </div>
 
-                {/* --- ROW 2: Desktop Navigation (Centered) --- */}
-                <div className="hidden md:flex items-center space-x-12">
-                    {navLinks.map((link) => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            className={({ isActive }) =>
-                                `font-heading text-sm uppercase tracking-widest hover:text-brand-accent transition-colors duration-300 ease-in-out border-b border-transparent pb-1 ${isActive ? "text-black border-black" : "text-brand-primary hover:border-brand-accent"
-                                }`
-                            }
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="md:hidden text-gray-900 hover:text-black focus:outline-none"
+                            onClick={toggleMenu}
                         >
-                            {link.label}
-                        </NavLink>
-                    ))}
+                            <Menu className="w-6 h-6" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -90,8 +93,12 @@ const Navbar = () => {
                             <X className="w-6 h-6" />
                         </button>
 
-                        <div className="mb-8 mt-4 text-center">
-                            <span className="text-3xl font-script text-brand-primary">Gaustina</span>
+                        <div className="mb-8 mt-4 flex justify-center border-b pb-6">
+                            <img
+                                src="https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/logoinicio.png"
+                                alt="Gaustina"
+                                className="h-12 w-auto object-contain"
+                            />
                         </div>
 
                         <ul className="flex flex-col space-y-6 text-lg font-heading text-gray-700 items-center">

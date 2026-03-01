@@ -103,7 +103,7 @@ const CartPage = () => {
     return (
         <div className="bg-white min-h-screen py-16">
             <div className="container mx-auto px-4">
-                <h1 className="text-4xl md:text-5xl font-script text-brand-primary mb-8 text-center">
+                <h1 className="text-4xl md:text-5xl font-heading text-brand-primary mb-8 text-center">
                     Tu Carrito de Compras
                 </h1>
 
@@ -135,6 +135,9 @@ const CartPage = () => {
                                                 )}
                                                 {item.selectedCustomizations.embroideryColor && (
                                                     <p>Bordado: <span className="font-medium text-gray-700">{item.selectedCustomizations.embroideryColor}</span></p>
+                                                )}
+                                                {item.selectedCustomizations.initials && (
+                                                    <p>Iniciales: <span className="font-medium text-gray-700">{item.selectedCustomizations.initials} ({item.selectedCustomizations.initialsColor})</span></p>
                                                 )}
                                             </div>
                                         )}

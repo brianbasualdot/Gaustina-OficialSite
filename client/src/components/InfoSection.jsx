@@ -6,10 +6,10 @@ const InfoCard = ({ icon: Icon, title, description }) => (
         <div className="p-4 rounded-full mb-4">
             <Icon className="w-8 h-8 text-brand-primary opacity-80" strokeWidth={1.5} />
         </div>
-        <h3 className="text-2xl font-script text-brand-primary mb-3">
+        <h3 className="text-sm font-body font-bold text-gray-900 uppercase tracking-widest mb-1">
             {title}
         </h3>
-        <p className="text-gray-600 font-heading text-sm uppercase tracking-wider leading-relaxed max-w-xs">
+        <p className="text-brand-primary font-script text-2xl leading-tight max-w-xs">
             {description}
         </p>
     </div>
@@ -19,18 +19,18 @@ const InfoSection = () => {
     const infos = [
         {
             icon: Truck,
-            title: "Envíos Seguros",
-            description: "A todo el país con seguimiento detallado"
+            title: "Envíos Gratis",
+            description: "A Sucursal De Correo Argentino"
         },
         {
             icon: Sparkles,
-            title: "Telas Premium",
-            description: "Algodón 100% y lino de la mejor calidad"
+            title: "Descuento Por Transferencia",
+            description: "15% OFF en toda tu compra"
         },
         {
             icon: Award,
             title: "Hecho a Mano",
-            description: "Cada pieza es única y artesanal"
+            description: "Industria Argentina"
         }
     ];
 

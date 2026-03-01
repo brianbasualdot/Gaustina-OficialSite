@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'; // Agrupamos useNavigate a
 import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import ConfirmationModal from '../../components/ui/ConfirmationModal';
-import Toast from '../../components/ui/Toast';
+import { useToast } from '../../context/ToastContext';
 
 // URL Inteligente
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -18,7 +18,7 @@ const AdminDashboard = () => {
     // UI State
     const [modalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
-    const [toast, setToast] = useState(null); // { message, type }
+    const { showToast } = useToast();
 
     // Estado para Edición
     // const [editingProduct, setEditingProduct] = useState(null);
@@ -67,13 +67,13 @@ const AdminDashboard = () => {
 
             if (res.ok) {
                 setProducts(products.filter(p => p.id !== itemToDelete.id));
-                setToast({ message: "Producto eliminado correctamente", type: "success" });
+                showToast("Producto eliminado correctamente", "success");
             } else {
-                setToast({ message: "Error al eliminar el producto", type: "error" });
+                showToast("Error al eliminar el producto", "error");
             }
         } catch (error) {
             console.error(error);
-            setToast({ message: "Error de conexión", type: "error" });
+            showToast("Error de conexión", "error");
         } finally {
             setModalOpen(false);
             setItemToDelete(null);
@@ -100,9 +100,13 @@ const AdminDashboard = () => {
             if (res.ok) {
                 const updatedProduct = await res.json();
                 setProducts(products.map(p => (p.id === updatedProduct.id ? updatedProduct : p)));
+                showToast(`Producto ${updatedProduct.paused ? 'pausado' : 'activado'} correctamente`);
+            } else {
+                showToast("Error al actualizar el estado del producto", "error");
             }
         } catch (error) {
             console.error("Error updating status:", error);
+            showToast("Error de conexión", "error");
         }
     };
 
@@ -126,11 +130,11 @@ const AdminDashboard = () => {
                 window.URL.revokeObjectURL(url);
                 a.remove();
             } else {
-                alert("Error al descargar la factura");
+                showToast("Error al descargar la factura", "error");
             }
         } catch (error) {
             console.error("Error downloading invoice:", error);
-            alert("Error al descargar la factura");
+            showToast("Error al descargar la factura", "error");
         }
     };
 
@@ -151,11 +155,14 @@ const AdminDashboard = () => {
             });
 
             if (res.ok) {
-                const updatedOrder = await res.json();
                 setOrders(orders.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
+                showToast(`Estado de orden actualizado a ${newStatus}`);
+            } else {
+                showToast("Error al actualizar el estado de la orden", "error");
             }
         } catch (error) {
             console.error("Error updating status:", error);
+            showToast("Error de conexión", "error");
         }
     };
 
@@ -340,12 +347,22 @@ const AdminDashboard = () => {
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        <div className="text-sm text-gray-700">
-                                            {order.items.length} items
+                                        <div className="text-sm font-medium text-gray-800">
+                                            {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                                         </div>
-                                        <div className="text-xs text-gray-400">
-                                            {order.items.slice(0, 2).map(i => i.product.name).join(', ')}
-                                            {order.items.length > 2 && '...'}
+                                        <div className="mt-1 space-y-2">
+                                            {order.items.map((item, idx) => (
+                                                <div key={idx} className="text-[10px] leading-tight border-l-2 border-gray-100 pl-2 py-0.5">
+                                                    <div className="font-bold text-gray-700">{item.product.name}</div>
+                                                    {item.selectedCustomizations && (
+                                                        <div className="text-gray-500 italic">
+                                                            {item.selectedCustomizations.fabricColor && <span>Tela: {item.selectedCustomizations.fabricColor} </span>}
+                                                            {item.selectedCustomizations.embroideryColor && <span>Bord: {item.selectedCustomizations.embroideryColor} </span>}
+                                                            {item.selectedCustomizations.initials && <span className="text-brand-primary font-bold">Inic: {item.selectedCustomizations.initials} ({item.selectedCustomizations.initialsColor})</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </td>
                                     <td className="p-4 font-bold text-gray-900">
@@ -433,12 +450,6 @@ const AdminDashboard = () => {
                 onConfirm={confirmDelete}
                 title="Eliminar Producto"
                 message={`¿Estás seguro que quieres eliminar "${itemToDelete?.name}"? Esta acción no se puede deshacer.`}
-            />
-
-            <Toast
-                message={toast?.message}
-                type={toast?.type}
-                onClose={() => setToast(null)}
             />
         </div>
     );

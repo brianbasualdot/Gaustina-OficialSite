@@ -132,12 +132,12 @@ export const createPreference = async (req, res) => {
                 external_reference: newOrder.id.toString(),
                 statement_descriptor: "GAUSTINA",
                 back_urls: {
-                    success: "https://gaustina.com.ar/checkout/success",
-                    failure: "https://gaustina.com.ar/checkout/failure",
-                    pending: "https://gaustina.com.ar/checkout/pending"
+                    success: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout/success`,
+                    failure: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout/failure`,
+                    pending: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout/pending`
                 },
                 auto_return: "approved",
-                notification_url: 'https://gaustina.com.ar/api/payment/webhook'
+                notification_url: `${process.env.BACKEND_URL || 'http://localhost:3000'}/api/payment/webhook`
             }
         });
 

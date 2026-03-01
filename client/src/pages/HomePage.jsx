@@ -24,7 +24,7 @@ const HomePage = () => {
     return (
         <div className="bg-white min-h-screen font-body">
             <SeoHead
-                title="Gaustina | Bordados & Textiles"
+                title="Gaustina | Necessers & Bordados"
                 description="Diseños únicos en tusor, hechos a mano en Argentina."
             />
 
@@ -33,10 +33,10 @@ const HomePage = () => {
             <div className="container mx-auto px-4 py-16 max-w-6xl">
                 {/* Section Title */}
                 <div className="text-center mb-12">
-                    <h2 className="text-5xl md:text-6xl font-script text-brand-primary mb-4 transform -rotate-2">
-                        Lo Nuevo
+                    <h2 className="text-4xl md:text-5xl font-heading text-brand-primary mb-2">
+                        Nuestros productos
                     </h2>
-                    <p className="text-gray-500 uppercase tracking-widest text-sm">Hecho a mano con amor</p>
+                    <p className="text-gray-500 uppercase tracking-widest text-sm"></p>
                 </div>
 
                 {/* Dynamic Product Grid */}

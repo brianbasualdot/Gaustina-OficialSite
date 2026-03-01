@@ -41,8 +41,8 @@ const ProductsPage = () => {
             <div className="container mx-auto px-4 py-16 max-w-6xl">
                 {/* Page Header */}
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-script text-brand-primary mb-6">
-                        Colección Completa
+                    <h1 className="text-4xl md:text-5xl font-heading text-brand-primary mb-4">
+                        Nuestra Colección
                     </h1>
                     <p className="text-gray-500 font-heading uppercase tracking-widest text-sm max-w-xl mx-auto">
                         Piezas únicas diseñadas para acompañarte en cada viaje
@@ -50,25 +50,27 @@ const ProductsPage = () => {
                 </div>
 
                 {/* Product Grid */}
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-                        {products.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                id={product.id}
-                                name={product.name}
-                                price={typeof product.price === 'number' ? product.price.toLocaleString('es-AR') : product.price}
-                                image={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/300"}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+                {
+                    loading ? (
+                        <div className="flex justify-center items-center h-64">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+                            {products.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    id={product.id}
+                                    name={product.name}
+                                    price={typeof product.price === 'number' ? product.price.toLocaleString('es-AR') : product.price}
+                                    image={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/300"}
+                                />
+                            ))}
+                        </div>
+                    )
+                }
+            </div >
+        </div >
     );
 };
 

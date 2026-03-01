@@ -18,6 +18,16 @@ const isVideo = (url) => {
     return videoExtensions.some(ext => url.toLowerCase().includes(ext));
 };
 
+const INITIALS_COLORS = [
+    { name: 'Blanco', hex: '#FFFFFF' },
+    { name: 'Negro', hex: '#000000' },
+    { name: 'Naranja', hex: '#E67E22' },
+    { name: 'Dorado', hex: '#D4AF37' },
+    { name: 'Verde Oscuro', hex: '#064E3B' },
+    { name: 'Rosa Pastel', hex: '#FFD1DC' },
+    { name: 'Azul Celeste', hex: '#87CEEB' }
+];
+
 const ProductDetailPage = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
@@ -35,6 +45,9 @@ const ProductDetailPage = () => {
     // PERSONALIZACIÓN
     const [selectedFabricColor, setSelectedFabricColor] = useState(null);
     const [selectedEmbroideryColor, setSelectedEmbroideryColor] = useState(null);
+    const [initialsCount, setInitialsCount] = useState(1);
+    const [initialsValue, setInitialsValue] = useState("");
+    const [selectedInitialsColor, setSelectedInitialsColor] = useState(INITIALS_COLORS[1].name); // Default: Negro
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -77,6 +90,10 @@ const ProductDetailPage = () => {
         }
         if (product.customizationOptions?.embroideryColors?.length > 0) {
             customization.embroideryColor = selectedEmbroideryColor;
+        }
+        if (product.customizationOptions?.allowInitials && initialsValue) {
+            customization.initials = initialsValue;
+            customization.initialsColor = selectedInitialsColor;
         }
 
         const productToAdd = {
@@ -163,7 +180,7 @@ const ProductDetailPage = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <h1 className="text-5xl md:text-6xl font-script text-brand-primary mb-4">{product.name}</h1>
+                        <h1 className="text-5xl md:text-6xl font-heading text-brand-primary mb-4">{product.name}</h1>
                         <p className="text-sm text-gray-500 mb-6 uppercase tracking-wider">Tusor Premium • Hecho a Mano</p>
                         <div className="flex flex-col mb-6">
                             <div className="flex items-baseline gap-3 mb-1">
@@ -214,6 +231,64 @@ const ProductDetailPage = () => {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {product.customizationOptions?.allowInitials && (
+                            <div className="mb-8 p-6 bg-brand-secondary/10 rounded-2xl border border-brand-secondary/20">
+                                <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Personalización de Iniciales</h3>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="text-sm text-gray-600 block mb-2">Cantidad de iniciales:</label>
+                                        <div className="flex gap-3">
+                                            {[1, 2].map(num => (
+                                                <button
+                                                    key={num}
+                                                    onClick={() => {
+                                                        setInitialsCount(num);
+                                                        setInitialsValue("");
+                                                    }}
+                                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${initialsCount === num ? 'bg-black text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:border-black'}`}
+                                                >
+                                                    {num} {num === 1 ? 'Inicial' : 'Iniciales'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm text-gray-600 block mb-2">Ingresa las iniciales:</label>
+                                        <div className="flex flex-col sm:flex-row items-center gap-6">
+                                            <input
+                                                type="text"
+                                                maxLength={initialsCount}
+                                                value={initialsValue}
+                                                onChange={(e) => setInitialsValue(e.target.value.toUpperCase())}
+                                                placeholder={initialsCount === 1 ? "Eje: A" : "Eje: AB"}
+                                                className="w-full max-w-[200px] border-b-2 border-gray-200 focus:border-black py-2 text-3xl font-heading text-center focus:outline-none tracking-[0.5em] bg-transparent"
+                                                style={{ color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000' }}
+                                            />
+
+                                            <div className="flex-1">
+                                                <label className="text-xs text-gray-400 block mb-2 uppercase">Color del bordado:</label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {INITIALS_COLORS.map(color => (
+                                                        <button
+                                                            key={color.name}
+                                                            onClick={() => setSelectedInitialsColor(color.name)}
+                                                            className={`w-6 h-6 rounded-full border border-gray-200 transition-all ${selectedInitialsColor === color.name ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`}
+                                                            style={{ backgroundColor: color.hex }}
+                                                            title={color.name}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <p className="text-[10px] text-gray-500 mt-1 italic">{selectedInitialsColor}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 mt-2 uppercase text-center sm:text-left">Máximo {initialsCount} {initialsCount === 1 ? 'letra' : 'letras'}</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 

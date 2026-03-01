@@ -10,53 +10,75 @@ const FAQSection = () => {
 
     const faqData = [
         {
-            category: "Sobre los Archivos y Diseños",
+            category: "Sobre nuestros Productos",
             questions: [
                 {
-                    q: "¿En qué formato recibiré los diseños de bordado?",
-                    a: "Nuestros diseños son compatibles con la gran mayoría de las máquinas. Recibirás un archivo .ZIP con los formatos: .PES, .DST, .JEF, .XXX, .EXP, .HUS, entre otros. Contáctanos si necesitas uno específico."
+                    q: "¿De qué material están hechos los productos?",
+                    a: "Utilizamos Tusor 100% algodón de alta calidad. Es una tela pre-lavada, con arrugas naturales y muy resistente, ideal para el uso diario en el hogar."
                 },
                 {
-                    q: "¿Cómo recibo mi pedido? ¿Es inmediato?",
-                    a: "¡Sí! Al ser productos digitales, recibes el enlace de descarga en tu correo automáticamente tras el pago."
+                    q: "¿Los productos vienen bordados?",
+                    a: "¡Sí! Cada pieza de Gaustina cuenta con bordados artesanales exclusivos, diseñados y realizados minuciosamente en nuestro taller."
                 },
                 {
-                    q: "¿Qué tamaños tienen los diseños?",
-                    a: "Cada diseño tiene sus medidas en la descripción. Verifica siempre el área de bordado de tu bastidor antes de comprar."
-                },
-                {
-                    q: "¿Puedo cambiar el tamaño del diseño yo mismo/a?",
-                    a: "No recomendamos redimensionar más de un 10-15% para no afectar la densidad de puntadas y la calidad del bordado."
+                    q: "¿Hacen trabajos personalizados?",
+                    a: "Podés elegir los colores de tela y bordado en los productos que lo permitan. Para pedidos especiales de eventos o regalos empresariales, contactanos por WhatsApp."
                 }
             ]
         },
         {
-            category: "Licencias y Uso Comercial",
+            category: "Cuidados de las Piezas",
             questions: [
                 {
-                    q: "¿Puedo vender los productos que bordo con estos diseños?",
-                    a: "¡Sí! Tienes total libertad para vender prendas o accesorios bordados con nuestros diseños en tu emprendimiento."
+                    q: "¿Cómo debo lavar mis productos de Tusor?",
+                    a: "Recomendamos lavar a mano con agua fría o en lavarropas con programa delicado. No usar blanqueadores y secar a la sombra para preservar los colores y el bordado."
                 },
                 {
-                    q: "¿Puedo compartir o revender el archivo digital?",
-                    a: "No. La licencia es de uso personal e intransferible. Queda prohibida la reventa o distribución de los archivos digitales."
+                    q: "¿Es necesario planchar el Tusor?",
+                    a: "El Tusor se caracteriza por su apariencia rústica y arrugada. Si preferís plancharlo, recomendamos hacerlo cuando la prenda esté ligeramente húmeda."
                 }
             ]
         },
         {
-            category: "Pagos y Envíos",
+            category: "Envíos y Entregas",
+            questions: [
+                {
+                    q: "¿Cuáles son las opciones de envío?",
+                    a: "Ofrecemos Envío GRATIS a cualquier sucursal de Correo Argentino del país. También contamos con Envío a Domicilio con un costo fijo de $6.000 para cualquier punto de Argentina."
+                },
+                {
+                    q: "¿Cuánto tarda en llegar mi pedido?",
+                    a: "Preparamos tu pedido dentro de las 24-48hs hábiles. El tiempo de viaje del correo suele ser de 3 a 6 días hábiles adicionales según la zona."
+                },
+                {
+                    q: "¿Cómo realizo el seguimiento?",
+                    a: "Una vez despachado, recibirás un email con tu Tracking ID para que puedas seguir el recorrido desde la web oficial del correo."
+                }
+            ]
+        },
+        {
+            category: "Pagos y Confirmación",
             questions: [
                 {
                     q: "¿Qué medios de pago aceptan?",
-                    a: "Aceptamos Mercado Pago (Tarjetas, Dinero en cuenta, Rapipago/PagoFácil) y Transferencia Bancaria."
+                    a: "Aceptamos Mercado Pago y Transferencia Bancaria (esta última cuenta con un 5% de descuento extra en toda tu compra)."
                 },
                 {
-                    q: "¿Ofrecen reembolsos?",
-                    a: "Por ser productos digitales, no ofrecemos reembolsos una vez descargados, salvo error técnico comprobable del archivo."
+                    q: "¿Cómo confirmo mi pago por transferencia?",
+                    a: "Es muy importante que nos envíes el comprobante por WhatsApp o Email dentro de las 48hs de realizada la compra para que podamos procesar tu pedido. Pasado ese tiempo, la orden se cancela automáticamente."
+                }
+            ]
+        },
+        {
+            category: "Cambios y Devoluciones",
+            questions: [
+                {
+                    q: "¿Puedo realizar un cambio?",
+                    a: "Sí, para productos de catálogo estándar tenés 30 días corridos desde la recepción. El producto debe estar sin uso y con sus etiquetas originales."
                 },
                 {
-                    q: "¿Cuánto tarda el envío de productos físicos?",
-                    a: "Despachamos en 24-48hs hábiles. Los tiempos de correo varían según tu provincia (generalmente 3 a 6 días)."
+                    q: "¿Qué es el derecho de arrepentimiento?",
+                    a: "Si te arrepentís de tu compra (en productos no personalizados), tenés 10 días corridos para solicitar la devolución total del dinero gestionándolo por nuestros canales de contacto."
                 }
             ]
         }

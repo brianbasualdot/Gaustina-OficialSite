@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
-import CategoryProductsPage from './pages/CategoryProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -11,8 +10,6 @@ import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import ContactPage from './pages/ContactPage';
 import FAQPage from './pages/FAQPage';
-import BestSellersPage from './pages/BestSellersPage';
-import OffersPage from './pages/OffersPage';
 import ReturnsPolicy from './pages/ReturnsPolicy';
 import ShippingInfo from './pages/ShippingInfo';
 import TransferenciaPage from './pages/TransferenciaPage';
@@ -34,12 +31,9 @@ function App() {
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/productos" element={<ProductsPage />} />
-                            <Route path="/categoria/:categoryName" element={<CategoryProductsPage />} />
                             <Route path="/producto/:id" element={<ProductDetailPage />} />
                             <Route path="/contacto" element={<ContactPage />} />
                             <Route path="/preguntas-frecuentes" element={<FAQPage />} />
-                            <Route path="/mas-vendidos" element={<BestSellersPage />} />
-                            <Route path="/ofertas" element={<OffersPage />} />
                             <Route path="/politica-devoluciones" element={<ReturnsPolicy />} />
                             <Route path="/informacion-envios" element={<ShippingInfo />} />
                             <Route path="/carrito" element={<CartPage />} />

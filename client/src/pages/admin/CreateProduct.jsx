@@ -33,7 +33,8 @@ const CreateProduct = () => {
         description: '',
         price: '',
         stock: '',
-        categoryId: '' // Nuevo campo
+        categoryId: '',
+        allowInitials: false
     });
 
     const [categories, setCategories] = useState([]);
@@ -52,7 +53,8 @@ const CreateProduct = () => {
     }, [navigate]);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setForm({ ...form, [e.target.name]: value });
     };
 
     // MANEJAR SELECCIÓN MÚLTIPLE
@@ -153,7 +155,8 @@ const CreateProduct = () => {
                     categoryId: parseInt(form.categoryId) || null,
                     customizationOptions: {
                         fabricColors,
-                        embroideryColors
+                        embroideryColors,
+                        allowInitials: form.allowInitials
                     }
                 })
             });
@@ -177,7 +180,7 @@ const CreateProduct = () => {
                 <ArrowLeft size={20} className="mr-2" /> Volver al Panel
             </button>
 
-            <h1 className="text-3xl font-heading text-brand-dark mb-8">Nuevo Bordado</h1>
+            <h1 className="text-3xl font-heading text-brand-dark mb-8">Nuevo Producto</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-xl shadow-sm border border-gray-100">
 
@@ -342,6 +345,22 @@ const CreateProduct = () => {
                                 ))}
                             </div>
                         </div>
+                    </div>
+
+                    <div className="mt-8 p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                name="allowInitials"
+                                checked={form.allowInitials}
+                                onChange={handleChange}
+                                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-gray-900">Permitir Personalización con Iniciales</span>
+                                <span className="text-xs text-gray-500">Habilita un campo para que el cliente ingrese 1 o 2 letras.</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

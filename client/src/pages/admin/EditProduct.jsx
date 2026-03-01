@@ -37,7 +37,8 @@ const EditProduct = () => {
         description: '',
         price: '',
         stock: '',
-        categoryId: ''
+        categoryId: '',
+        allowInitials: false
     });
 
     const [categories, setCategories] = useState([]);
@@ -69,7 +70,8 @@ const EditProduct = () => {
                     description: product.description,
                     price: product.price,
                     stock: product.stock,
-                    categoryId: product.categoryId || ''
+                    categoryId: product.categoryId || '',
+                    allowInitials: product.customizationOptions?.allowInitials || false
                 });
 
                 setExistingImages(product.images || []);
@@ -98,7 +100,8 @@ const EditProduct = () => {
     }, [id, navigate]);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        setForm({ ...form, [e.target.name]: value });
     };
 
     // --- IMÁGENES ---
@@ -208,7 +211,8 @@ const EditProduct = () => {
                     categoryId: parseInt(form.categoryId) || null,
                     customizationOptions: {
                         fabricColors,
-                        embroideryColors
+                        embroideryColors,
+                        allowInitials: form.allowInitials
                     }
                 })
             });
@@ -413,6 +417,22 @@ const EditProduct = () => {
                                 ))}
                             </div>
                         </div>
+                    </div>
+
+                    <div className="mt-8 p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                name="allowInitials"
+                                checked={form.allowInitials}
+                                onChange={handleChange}
+                                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-gray-900">Permitir Personalización con Iniciales</span>
+                                <span className="text-xs text-gray-500">Habilita un campo para que el cliente ingrese 1 o 2 letras.</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

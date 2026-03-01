@@ -17,9 +17,9 @@ export default {
                 }
             },
             fontFamily: {
-                heading: ['"Playfair Display"', 'serif'],
-                body: ['"Lato"', 'sans-serif'],
-                script: ['"Great Vibes"', 'cursive'],
+                heading: ['Montserrat', 'sans-serif'],
+                body: ['Inter', 'sans-serif'],
+                script: ['Cedarville Cursive', 'cursive'],
             }
         },
     },
