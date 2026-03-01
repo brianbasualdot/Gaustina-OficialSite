@@ -8,7 +8,7 @@ const HeroBanner = () => {
             showOverlay: false
         },
         {
-            url: "https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/banner%20celeste%20(1920%20x%201080%20px)%20(1690%20x%20590%20px).png",
+            url: "https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/banner%20celeste%20(1920%20x%201080%20px)%20(1690%20x%20590px).png",
             showContent: false,
             showOverlay: true
         }
