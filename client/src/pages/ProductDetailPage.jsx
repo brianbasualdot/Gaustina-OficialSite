@@ -184,8 +184,8 @@ const ProductDetailPage = () => {
                         <p className="text-sm text-gray-500 mb-6 uppercase tracking-wider">Tusor Premium • Hecho a Mano</p>
                         <div className="flex flex-col mb-6">
                             <div className="flex items-baseline gap-3 mb-1">
-                                <span className="text-3xl font-bold text-green-700">${(product.price * 0.95).toLocaleString('es-AR')}</span>
-                                <span className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">-5% Transferencia</span>
+                                <span className="text-3xl font-bold text-green-700">${(product.price * 0.85).toLocaleString('es-AR')}</span>
+                                <span className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">-15% Transferencia</span>
                             </div>
                             <span className="text-lg text-gray-500">${product.price.toLocaleString('es-AR')} (Precio de Lista / Mercado Pago)</span>
                         </div>

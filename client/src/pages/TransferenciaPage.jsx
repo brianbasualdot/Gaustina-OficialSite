@@ -4,8 +4,8 @@ import { useCart } from '../context/CartContext';
 
 const TransferenciaPage = () => {
     const { getCartTotal } = useCart();
-    // Calculamos el total con 5% de descuento
-    const total = getCartTotal() * 0.95;
+    // Calculamos el total con 15% de descuento
+    const total = getCartTotal() * 0.85;
 
     const copiarCBU = () => {
         navigator.clipboard.writeText("0140999803200074125413");

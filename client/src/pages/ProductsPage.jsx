@@ -45,7 +45,7 @@ const ProductsPage = () => {
                         Nuestra Colección
                     </h1>
                     <p className="text-gray-500 font-heading uppercase tracking-widest text-sm max-w-xl mx-auto">
-                        Piezas únicas diseñadas para acompañarte en cada viaje
+                        Piezas únicas diseñadas para acompañarte en cada dia
                     </p>
                 </div>
 

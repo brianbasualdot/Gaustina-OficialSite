@@ -61,7 +61,7 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Qué medios de pago aceptan?",
-                    a: "Aceptamos Mercado Pago y Transferencia Bancaria (esta última cuenta con un 5% de descuento extra en toda tu compra)."
+                    a: "Aceptamos Mercado Pago y Transferencia Bancaria (esta última cuenta con un 15% de descuento extra en toda tu compra)."
                 },
                 {
                     q: "¿Cómo confirmo mi pago por transferencia?",
