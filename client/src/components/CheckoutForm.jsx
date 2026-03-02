@@ -5,7 +5,10 @@ const CheckoutForm = ({ onDataChange }) => {
         customerName: '',
         customerEmail: '',
         shippingPhone: '',
-        shippingAddress: '',
+        street: '',
+        number: '',
+        floor: '',
+        apartment: '',
         shippingCity: '',
         shippingZip: ''
     });
@@ -13,15 +16,14 @@ const CheckoutForm = ({ onDataChange }) => {
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-        // Validar cada vez que cambian los datos y notificar al padre
         const isValid = validateChange();
         onDataChange(formData, isValid);
     }, [formData]);
 
     const validateChange = () => {
-        // Retorna true si todos los campos requeridos están llenos
-        // Validación simple
-        return Object.values(formData).every(val => val.trim() !== '');
+        // Requeridos: Nombre, Email, Teléfono, Calle, Altura, Ciudad, CP
+        const requiredFields = ['customerName', 'customerEmail', 'shippingPhone', 'street', 'number', 'shippingCity', 'shippingZip'];
+        return requiredFields.every(field => formData[field] && formData[field].trim() !== '');
     };
 
     const handleChange = (e) => {
@@ -80,17 +82,56 @@ const CheckoutForm = ({ onDataChange }) => {
                     </div>
                 </div>
 
-                {/* Dirección */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Dirección de Entrega</label>
-                    <input
-                        type="text"
-                        name="shippingAddress"
-                        value={formData.shippingAddress}
-                        onChange={handleChange}
-                        placeholder="Calle y Número, Piso, Depto"
-                        className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                    />
+                {/* Dirección - Calle y Altura */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Calle</label>
+                        <input
+                            type="text"
+                            name="street"
+                            value={formData.street}
+                            onChange={handleChange}
+                            placeholder="Ej: Av. Santa Fe"
+                            className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Altura</label>
+                        <input
+                            type="text"
+                            name="number"
+                            value={formData.number}
+                            onChange={handleChange}
+                            placeholder="1234"
+                            className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
+                </div>
+
+                {/* Piso y Depto (Opcionales) */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Piso (Opcional)</label>
+                        <input
+                            type="text"
+                            name="floor"
+                            value={formData.floor}
+                            onChange={handleChange}
+                            placeholder="Piso"
+                            className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Depto / Letra (Opcional)</label>
+                        <input
+                            type="text"
+                            name="apartment"
+                            value={formData.apartment}
+                            onChange={handleChange}
+                            placeholder="A"
+                            className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        />
+                    </div>
                 </div>
 
                 {/* Ciudad y CP */}

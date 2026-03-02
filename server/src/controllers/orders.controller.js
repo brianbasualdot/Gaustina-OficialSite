@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { generateInvoicePDF } from '../utils/invoiceGenerator.js';
+import { sendOrderConfirmation, sendShippingNotification } from '../services/emailService.js';
 
 const prisma = new PrismaClient();
 
@@ -37,8 +38,30 @@ export const updateOrderStatus = async (req, res) => {
 
         const updatedOrder = await prisma.order.update({
             where: { id: parseInt(id) },
-            data: { status }
+            data: { status },
+            include: {
+                items: {
+                    include: {
+                        product: true
+                    }
+                }
+            }
         });
+
+        // --- DISPARADORES DE EMAIL SEGÚN ESTADO ---
+        if (status === 'PAID') {
+            try {
+                await sendOrderConfirmation(updatedOrder);
+            } catch (emailError) {
+                console.error("Error sending confirmation email:", emailError);
+            }
+        } else if (status === 'SHIPPED') {
+            try {
+                await sendShippingNotification(updatedOrder);
+            } catch (emailError) {
+                console.error("Error sending shipping email:", emailError);
+            }
+        }
 
         res.json(updatedOrder);
     } catch (error) {
@@ -67,7 +90,7 @@ export const downloadInvoice = async (req, res) => {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        const doc = generateInvoicePDF(order);
+        const doc = await generateInvoicePDF(order);
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=Factura-${order.id}.pdf`);

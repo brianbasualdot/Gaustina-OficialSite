@@ -34,6 +34,8 @@ const CreateProduct = () => {
         price: '',
         stock: '',
         categoryId: '',
+        materials: '',
+        measurements: '',
         allowInitials: false
     });
 
@@ -153,6 +155,8 @@ const CreateProduct = () => {
                     stock: parseInt(form.stock),
                     images: uploadedUrls,
                     categoryId: parseInt(form.categoryId) || null,
+                    materials: form.materials,
+                    measurements: form.measurements,
                     customizationOptions: {
                         fabricColors,
                         embroideryColors,
@@ -271,6 +275,29 @@ const CreateProduct = () => {
                                 type="number" name="stock" required min="0"
                                 className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-black focus:outline-none"
                                 onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Materiales</label>
+                            <input
+                                type="text" name="materials"
+                                placeholder="Ej: Tusor 100% Algodón"
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-black focus:outline-none"
+                                onChange={handleChange}
+                                value={form.materials}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Medidas</label>
+                            <input
+                                type="text" name="measurements"
+                                placeholder="Ej: 40x40 cm"
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-black focus:outline-none"
+                                onChange={handleChange}
+                                value={form.measurements}
                             />
                         </div>
                     </div>

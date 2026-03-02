@@ -28,6 +28,16 @@ const INITIALS_COLORS = [
     { name: 'Azul Celeste', hex: '#87CEEB' }
 ];
 
+const FONTS = [
+    { name: 'Classic', value: "'Montserrat', sans-serif" },
+    { name: 'Script', value: "'Cedarville Cursive', cursive" },
+    { name: 'Elegant', value: "'Great Vibes', cursive" },
+    { name: 'Playful', value: "'Playball', cursive" },
+    { name: 'Handwritten', value: "'Zeyada', cursive" },
+    { name: 'Modern', value: "'Roboto Mono', monospace" },
+    { name: 'Vintage', value: "'Pinyon Script', cursive" }
+];
+
 const ProductDetailPage = () => {
     const { id } = useParams();
     const { addToCart } = useCart();
@@ -37,7 +47,7 @@ const ProductDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [activeTab, setActiveTab] = useState('materiales');
+    const [activeTab, setActiveTab] = useState('detalles');
 
     // 2. NUEVO ESTADO: Controla si la galería a pantalla completa está abierta
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -48,6 +58,7 @@ const ProductDetailPage = () => {
     const [initialsCount, setInitialsCount] = useState(1);
     const [initialsValue, setInitialsValue] = useState("");
     const [selectedInitialsColor, setSelectedInitialsColor] = useState(INITIALS_COLORS[1].name); // Default: Negro
+    const [selectedFont, setSelectedFont] = useState(FONTS[6]); // Default: Pinyon Script
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -59,6 +70,13 @@ const ProductDetailPage = () => {
                     if (data.images && data.images.length > 0) {
                         setSelectedImage(data.images[0]);
                     }
+
+                    // Si el producto tiene una tipografía específica definida en el dashboard
+                    if (data.customizationOptions?.font) {
+                        const productFont = FONTS.find(f => f.name === data.customizationOptions.font) || FONTS[6];
+                        setSelectedFont(productFont);
+                    }
+
                     // Auto-select first option if available
                     if (data.customizationOptions?.fabricColors?.length > 0) {
                         const first = data.customizationOptions.fabricColors[0];
@@ -94,6 +112,7 @@ const ProductDetailPage = () => {
         if (product.customizationOptions?.allowInitials && initialsValue) {
             customization.initials = initialsValue;
             customization.initialsColor = selectedInitialsColor;
+            customization.font = selectedFont.name;
         }
 
         const productToAdd = {
@@ -125,50 +144,76 @@ const ProductDetailPage = () => {
     const mainImageSrc = selectedImage || "https://via.placeholder.com/600?text=Sin+Imagen";
 
     return (
-        <div className="pt-20 md:pt-24">
+        <div className="pt-8 md:pt-12">
             <SeoHead
                 title={`${product.name} | Gaustina`}
                 description={`Compra ${product.name}. Tusor premium bordado a mano.`}
                 image={selectedImage}
             />
 
-            <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
-                <div className="text-sm text-gray-400 mb-8">
+            <div className="max-w-7xl mx-auto px-4 pt-0 pb-12 md:pb-20">
+                <div className="text-sm text-gray-400 mb-2">
                     <Link to="/" className="hover:text-black">Inicio</Link> /
                     <Link to="/productos" className="hover:text-black mx-1">Colección</Link> /
                     <span className="text-gray-800 font-medium mx-1">{product.name}</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10">
                     <div className="space-y-4">
                         <div
                             className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-sm relative group cursor-zoom-in"
-                            onClick={() => hasImages && setIsGalleryOpen(true)}
                         >
                             {isVideo(mainImageSrc) ? (
                                 <video src={mainImageSrc} className="w-full h-full object-cover" controls autoPlay muted loop playsInline />
                             ) : (
-                                <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
+                                <div className="relative w-full h-full" onClick={() => hasImages && setIsGalleryOpen(true)}>
+                                    <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
+
+                                    {/* PREVISUALIZACIÓN DEL BORDADO */}
+                                    {product.customizationOptions?.allowInitials && initialsValue && product.images && product.images.length > 0 && selectedImage === product.images[0] && (
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+                                            style={{
+                                                color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000',
+                                                fontFamily: selectedFont.value,
+                                                fontSize: '5.1rem',
+                                                opacity: 0.9,
+                                                transform: 'translateY(15%) rotate(-2deg)',
+                                                filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
+                                                textShadow: `
+                                                    0.5px 0.5px 0px rgba(255,255,255,0.2), 
+                                                    -0.5px -0.5px 0px rgba(0,0,0,0.2),
+                                                    0px 0px 2px rgba(0,0,0,0.1)
+                                                `,
+                                                letterSpacing: '0.05em'
+                                            }}
+                                        >
+                                            <span className="bg-transparent mix-blend-multiply italic">
+                                                {initialsValue}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                             {hasImages && !isVideo(mainImageSrc) && (
                                 <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <ZoomIn size={20} />
+                                    <ZoomIn size={18} />
                                 </div>
                             )}
                         </div>
 
                         {hasImages && product.images.length > 1 && (
-                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                                 {product.images.map((img, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImage(img)}
-                                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all relative ${selectedImage === img ? 'border-black opacity-100 ring-1 ring-black' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all relative ${selectedImage === img ? 'border-black opacity-100 ring-1 ring-black' : 'border-transparent opacity-60 hover:opacity-100'}`}
                                     >
                                         {isVideo(img) ? (
                                             <div className="w-full h-full bg-gray-900 flex items-center justify-center relative">
                                                 <video src={img} className="w-full h-full object-cover absolute inset-0 opacity-50" />
-                                                <Play size={24} className="text-white relative z-10" fill="currentColor" />
+                                                <Play size={20} className="text-white relative z-10" fill="currentColor" />
                                             </div>
                                         ) : (
                                             <img src={img} alt={`Vista ${index}`} className="w-full h-full object-cover" />
@@ -180,52 +225,56 @@ const ProductDetailPage = () => {
                     </div>
 
                     <div className="flex flex-col">
-                        <h1 className="text-5xl md:text-6xl font-heading text-brand-primary mb-4">{product.name}</h1>
-                        <p className="text-sm text-gray-500 mb-6 uppercase tracking-wider">Tusor Premium • Hecho a Mano</p>
-                        <div className="flex flex-col mb-6">
-                            <div className="flex items-baseline gap-3 mb-1">
-                                <span className="text-3xl font-bold text-green-700">${(product.price * 0.85).toLocaleString('es-AR')}</span>
-                                <span className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">-15% Transferencia</span>
+                        <h1 className="text-3xl md:text-4xl font-heading text-brand-primary mb-2">{product.name}</h1>
+                        <p className="text-[10px] text-gray-500 mb-3 uppercase tracking-wider">Productos Premium</p>
+                        <div className="flex flex-wrap items-baseline gap-4 mb-4">
+                            <span className="text-3xl font-bold text-gray-900" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.05)' }}>
+                                ${product.price?.toLocaleString('es-AR') || '0'} <span className="text-xs text-gray-400 font-normal ml-1">(Lista)</span>
+                            </span>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-xl font-medium text-green-700" style={{ textShadow: '0.5px 0.5px 1px rgba(0,0,0,0.1)' }}>
+                                    ${((product.price || 0) * 0.85).toLocaleString('es-AR')}
+                                </span>
+                                <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">-15% Transferencia</span>
                             </div>
-                            <span className="text-lg text-gray-500">${product.price.toLocaleString('es-AR')} (Precio de Lista / Mercado Pago)</span>
                         </div>
-                        <div className="bg-green-50 border border-green-100 rounded-lg p-3 flex items-center gap-3 mb-8">
-                            <Truck className="text-green-700 w-5 h-5" />
-                            <span className="text-green-800 text-sm font-medium">Envío Gratis incluido a todo el país.</span>
+                        <div className="bg-green-50 border border-green-100 rounded-lg p-2 flex items-center gap-2 mb-5">
+                            <Truck className="text-green-700 w-3.5 h-3.5" />
+                            <span className="text-green-800 text-[10px] font-medium">Envío Gratis a sucursal de Correo Argentino.</span>
                         </div>
-                        <p className="text-gray-600 leading-relaxed mb-8 text-lg font-light whitespace-pre-wrap">{product.description}</p>
+                        <p className="text-gray-600 leading-snug mb-5 text-sm font-light whitespace-pre-wrap">{product.description}</p>
 
                         {product.customizationOptions && (
-                            <div className="space-y-6 mb-8 border-t border-b border-gray-100 py-6">
+                            <div className="flex flex-col sm:flex-row gap-8 mb-6 border-t border-b border-gray-100 py-5">
                                 {product.customizationOptions.fabricColors?.length > 0 && (
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-900 mb-3">Color de Tela: <span className="text-gray-500 font-normal">{selectedFabricColor}</span></h3>
-                                        <div className="flex flex-wrap gap-3">
+                                    <div className="flex-1">
+                                        <h3 className="text-xs font-medium text-gray-900 mb-2">Color de Tela: <span className="text-gray-500 font-normal">{selectedFabricColor}</span></h3>
+                                        <div className="flex flex-wrap gap-2">
                                             {product.customizationOptions.fabricColors.map(color => {
                                                 const colorName = typeof color === 'object' ? color.name : color;
                                                 const colorHex = typeof color === 'object' ? color.hex : null;
                                                 const isSelected = selectedFabricColor === colorName;
                                                 return colorHex ? (
-                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
+                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`w-6 h-6 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
                                                 ) : (
-                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
+                                                    <button key={colorName} onClick={() => setSelectedFabricColor(colorName)} className={`px-3 py-1.5 border rounded-full text-xs transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
                                                 );
                                             })}
                                         </div>
                                     </div>
                                 )}
                                 {product.customizationOptions.embroideryColors?.length > 0 && (
-                                    <div>
-                                        <h3 className="text-sm font-medium text-gray-900 mb-3">Color de Bordado: <span className="text-gray-500 font-normal">{selectedEmbroideryColor}</span></h3>
-                                        <div className="flex flex-wrap gap-3">
+                                    <div className="flex-1">
+                                        <h3 className="text-xs font-medium text-gray-900 mb-2">Color de Bordado: <span className="text-gray-500 font-normal">{selectedEmbroideryColor}</span></h3>
+                                        <div className="flex flex-wrap gap-2">
                                             {product.customizationOptions.embroideryColors.map(color => {
                                                 const colorName = typeof color === 'object' ? color.name : color;
                                                 const colorHex = typeof color === 'object' ? color.hex : null;
                                                 const isSelected = selectedEmbroideryColor === colorName;
                                                 return colorHex ? (
-                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`w-8 h-8 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
+                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`w-6 h-6 rounded-full border border-gray-200 shadow-sm transition-all ${isSelected ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`} style={{ backgroundColor: colorHex }} />
                                                 ) : (
-                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`px-4 py-2 border rounded-full text-sm transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
+                                                    <button key={colorName} onClick={() => setSelectedEmbroideryColor(colorName)} className={`px-3 py-1.5 border rounded-full text-xs transition-all ${isSelected ? 'border-black bg-black text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}>{colorName}</button>
                                                 );
                                             })}
                                         </div>
@@ -235,13 +284,13 @@ const ProductDetailPage = () => {
                         )}
 
                         {product.customizationOptions?.allowInitials && (
-                            <div className="mb-8 p-6 bg-brand-secondary/10 rounded-2xl border border-brand-secondary/20">
-                                <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Personalización de Iniciales</h3>
+                            <div className="mb-6 p-5 bg-brand-secondary/10 rounded-2xl border border-brand-secondary/20">
+                                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">Personalización del Bordado</h3>
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-sm text-gray-600 block mb-2">Cantidad de iniciales:</label>
-                                        <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-end">
+                                    <div className="flex-shrink-0">
+                                        <label className="text-xs text-gray-600 block mb-2">Cantidad:</label>
+                                        <div className="flex gap-2">
                                             {[1, 2].map(num => (
                                                 <button
                                                     key={num}
@@ -249,74 +298,79 @@ const ProductDetailPage = () => {
                                                         setInitialsCount(num);
                                                         setInitialsValue("");
                                                     }}
-                                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${initialsCount === num ? 'bg-black text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:border-black'}`}
+                                                    className={`px-3 py-1 rounded-full text-[10px] font-medium transition-all ${initialsCount === num ? 'bg-black text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:border-black'}`}
                                                 >
-                                                    {num} {num === 1 ? 'Inicial' : 'Iniciales'}
+                                                    {num} {num === 1 ? 'Letra' : 'Letras'}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="text-sm text-gray-600 block mb-2">Ingresa las iniciales:</label>
-                                        <div className="flex flex-col sm:flex-row items-center gap-6">
-                                            <input
-                                                type="text"
-                                                maxLength={initialsCount}
-                                                value={initialsValue}
-                                                onChange={(e) => setInitialsValue(e.target.value.toUpperCase())}
-                                                placeholder={initialsCount === 1 ? "Eje: A" : "Eje: AB"}
-                                                className="w-full max-w-[200px] border-b-2 border-gray-200 focus:border-black py-2 text-3xl font-heading text-center focus:outline-none tracking-[0.5em] bg-transparent"
-                                                style={{ color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000' }}
-                                            />
+                                    <div className="flex-1 w-full">
+                                        <label className="text-xs text-gray-600 block mb-1.5">Iniciales:</label>
+                                        <input
+                                            type="text"
+                                            maxLength={initialsCount}
+                                            value={initialsValue}
+                                            onChange={(e) => setInitialsValue(e.target.value.toUpperCase())}
+                                            placeholder={initialsCount === 1 ? "Ej: A" : "Ej: AB"}
+                                            className="w-full border-b border-gray-200 focus:border-black py-1 text-lg focus:outline-none bg-transparent"
+                                            style={{
+                                                color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000',
+                                                fontFamily: selectedFont.value
+                                            }}
+                                        />
+                                    </div>
 
-                                            <div className="flex-1">
-                                                <label className="text-xs text-gray-400 block mb-2 uppercase">Color del bordado:</label>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {INITIALS_COLORS.map(color => (
-                                                        <button
-                                                            key={color.name}
-                                                            onClick={() => setSelectedInitialsColor(color.name)}
-                                                            className={`w-6 h-6 rounded-full border border-gray-200 transition-all ${selectedInitialsColor === color.name ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-110'}`}
-                                                            style={{ backgroundColor: color.hex }}
-                                                            title={color.name}
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <p className="text-[10px] text-gray-500 mt-1 italic">{selectedInitialsColor}</p>
-                                            </div>
+                                    <div className="flex-shrink-0">
+                                        <label className="text-[10px] text-gray-400 block mb-1.5 uppercase">Hilo:</label>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {INITIALS_COLORS.map(color => (
+                                                <button
+                                                    key={color.name}
+                                                    onClick={() => setSelectedInitialsColor(color.name)}
+                                                    className={`w-5 h-5 rounded-full border border-gray-200 transition-all ${selectedInitialsColor === color.name ? 'ring-2 ring-offset-1 ring-black scale-110' : 'hover:scale-110'}`}
+                                                    style={{ backgroundColor: color.hex }}
+                                                    title={color.name}
+                                                />
+                                            ))}
                                         </div>
-                                        <p className="text-[10px] text-gray-400 mt-2 uppercase text-center sm:text-left">Máximo {initialsCount} {initialsCount === 1 ? 'letra' : 'letras'}</p>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        <div className="flex flex-col sm:flex-row gap-4 mb-10 border-b border-gray-100 pb-10">
+                        <div className="flex flex-col sm:flex-row gap-3 mb-8 border-b border-gray-100 pb-8">
                             <div className="flex items-center border border-gray-300 w-max">
-                                <button onClick={handleDecrement} className="px-4 py-3 hover:bg-gray-50 text-black font-heading">-</button>
+                                <button onClick={handleDecrement} className="px-3 py-2 hover:bg-gray-50 text-black font-heading">-</button>
                                 <span className="w-8 text-center font-heading text-lg">{quantity}</span>
-                                <button onClick={handleIncrement} className="px-4 py-3 hover:bg-gray-50 text-black font-heading">+</button>
+                                <button onClick={handleIncrement} className="px-3 py-2 hover:bg-gray-50 text-black font-heading">+</button>
                             </div>
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleAddToCart}
                                 disabled={product.stock <= 0 || product.paused}
-                                className="flex-1 bg-transparent border border-black text-black font-heading uppercase tracking-widest text-sm py-3 px-8 hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-[90%] bg-black text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {product.paused ? 'Publicación Pausada' : product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
+                                {product.paused ? 'Pausada' : product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
                             </motion.button>
                         </div>
-                        <div className="space-y-4">
-                            <div className="flex gap-6 border-b border-gray-200 pb-2">
-                                {['materiales', 'cuidados', 'envios'].map((tab) => (
-                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-2 text-sm uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
+                        <div className="space-y-3">
+                            <div className="flex gap-4 border-b border-gray-200 pb-1.5">
+                                {['detalles', 'cuidados', 'envios'].map((tab) => (
+                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-1.5 text-xs uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
                                 ))}
                             </div>
-                            <div className="py-4 text-gray-600 text-sm leading-relaxed min-h-[100px]">
-                                {activeTab === 'materiales' && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
-                                {activeTab === 'cuidados' && <ul className="list-disc pl-5 space-y-1"><li>Lavar a mano o ciclo delicado (agua fría).</li><li>Secar a la sombra.</li></ul>}
+                            <div className="py-3 text-gray-600 text-xs leading-relaxed min-h-[80px]">
+                                {activeTab === 'detalles' && (
+                                    <div className="space-y-1.5">
+                                        {product.materials && <p><span className="font-semibold">Material:</span> {product.materials}</p>}
+                                        {product.measurements && <p><span className="font-semibold">Medidas:</span> {product.measurements}</p>}
+                                        {!product.materials && !product.measurements && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
+                                    </div>
+                                )}
+                                {activeTab === 'cuidados' && <ul className="list-disc pl-4 space-y-1"><li>Lavar a mano o ciclo delicado (agua fría).</li><li>Secar a la sombra.</li></ul>}
                                 {activeTab === 'envios' && <p>Despachamos por Correo Argentino dentro de las 48hs hábiles.</p>}
                             </div>
                         </div>
@@ -324,7 +378,7 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {hasImages && (
+            {hasImages && product.images && (
                 <Lightbox
                     open={isGalleryOpen}
                     close={() => setIsGalleryOpen(false)}

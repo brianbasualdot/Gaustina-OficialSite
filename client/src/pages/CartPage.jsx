@@ -46,6 +46,14 @@ const CartPage = () => {
 
         setLoadingCheckout(true);
 
+        // Consolidar dirección para el backend (que espera 'shippingAddress')
+        const consolidatedAddress = `${customerData.street} ${customerData.number}${customerData.floor ? `, Piso ${customerData.floor}` : ''}${customerData.apartment ? `, Depto ${customerData.apartment}` : ''}`;
+
+        const finalCustomerData = {
+            ...customerData,
+            shippingAddress: consolidatedAddress
+        };
+
         try {
             const response = await fetch(`${API_URL}/api/payment/create_preference`, {
                 method: 'POST',
@@ -53,7 +61,7 @@ const CartPage = () => {
                 body: JSON.stringify({
                     items: cartItems,
                     method: paymentMethod,
-                    customerData: customerData
+                    customerData: finalCustomerData
                 })
             });
 

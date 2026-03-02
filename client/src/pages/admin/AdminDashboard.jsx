@@ -39,6 +39,7 @@ const AdminDashboard = () => {
             if (res.ok) setProducts(await res.json());
         } catch (error) {
             console.error("Error fetching products:", error);
+            showToast("No se pudieron cargar los productos", "error");
         }
     };
 
@@ -48,9 +49,18 @@ const AdminDashboard = () => {
             const res = await fetch(`${API_URL}/api/orders`, {
                 headers: { 'Authorization': `Bearer ${session?.access_token}` }
             });
-            if (res.ok) setOrders(await res.json());
+
+            if (res.ok) {
+                const data = await res.json();
+                setOrders(data);
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                console.error("Orders fetch failed:", res.status, errorData);
+                showToast(`Error ${res.status}: No se pudieron cargar las ventas`, "error");
+            }
         } catch (error) {
             console.error("Error fetching orders:", error);
+            showToast("Error de conexión al cargar ventas", "error");
         }
     };
 
@@ -181,29 +191,42 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         const loadData = async () => {
+            setLoading(true);
             await Promise.all([fetchProducts(), fetchOrders()]);
             setLoading(false);
         };
         loadData();
     }, []);
 
+    // Re-cargar cuando se cambia de pestaña para asegurar datos frescos
+    useEffect(() => {
+        if (activeTab === 'orders') fetchOrders();
+        if (activeTab === 'products') fetchProducts();
+    }, [activeTab]);
+
     if (loading) return <div className="p-8 text-center">Cargando panel...</div>;
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="p-4 max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div>
-                    <h1 className="text-3xl font-heading text-brand-dark mb-2">Panel de Control</h1>
-                    <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg inline-flex">
+                    <h1 className="text-2xl font-heading text-brand-dark mb-2">Panel de Control</h1>
+                    <div className="flex space-x-1.5 bg-gray-100 p-1 rounded-lg inline-flex">
                         <button
-                            onClick={() => setActiveTab('products')}
+                            onClick={() => {
+                                setActiveTab('products');
+                                fetchProducts();
+                            }}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'products' ? 'bg-white shadow text-black' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Productos
                         </button>
                         <button
-                            onClick={() => setActiveTab('orders')}
+                            onClick={() => {
+                                setActiveTab('orders');
+                                fetchOrders();
+                            }}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'orders' ? 'bg-white shadow text-black' : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
@@ -222,9 +245,9 @@ const AdminDashboard = () => {
 
                     <Link
                         to="/admin/crear-producto"
-                        className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all shadow-md"
+                        className="bg-black text-white px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all shadow-md text-sm"
                     >
-                        <Plus size={20} /> Nuevo Producto
+                        <Plus size={18} /> Nuevo Producto
                     </Link>
                     <Link
                         to="/admin/categorias"
@@ -234,9 +257,9 @@ const AdminDashboard = () => {
                     </Link>
                     <Link
                         to="/admin/mensajes"
-                        className="bg-white text-black border border-gray-200 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm font-medium"
+                        className="bg-white text-black border border-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm font-medium text-sm"
                     >
-                        <Mail size={20} /> Mensajes
+                        <Mail size={18} /> Mensajes
                     </Link>
                 </div>
             </div>
@@ -244,27 +267,27 @@ const AdminDashboard = () => {
             {activeTab === 'products' ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 text-gray-600 uppercase text-sm font-medium">
+                        <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-medium">
                             <tr>
-                                <th className="p-4">Imagen</th>
-                                <th className="p-4">Nombre</th>
-                                <th className="p-4">Precio</th>
-                                <th className="p-4">Stock</th>
-                                <th className="p-4 text-center">Acciones</th>
+                                <th className="p-3">Imagen</th>
+                                <th className="p-3">Nombre</th>
+                                <th className="p-3">Precio</th>
+                                <th className="p-3">Stock</th>
+                                <th className="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {products.map((product) => (
                                 <tr key={product.id} className={`transition-all duration-300 border-b border-gray-100 ${product.paused ? 'opacity-50 grayscale hover:opacity-100 hover:grayscale-0 bg-gray-50' : 'hover:bg-gray-50'}`}>
-                                    <td className="p-4 relative group">
+                                    <td className="p-3 relative group">
                                         {product.paused && (
                                             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                                                <span className="bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span className="bg-black/70 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                                                     Pausado
                                                 </span>
                                             </div>
                                         )}
-                                        <div className="w-12 h-12 rounded bg-gray-100 overflow-hidden border border-gray-200">
+                                        <div className="w-10 h-10 rounded bg-gray-100 overflow-hidden border border-gray-200">
                                             <img
                                                 src={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/150?text=Sin+Foto"}
                                                 alt={product.name}
@@ -276,34 +299,34 @@ const AdminDashboard = () => {
                                             />
                                         </div>
                                     </td>
-                                    <td className="p-4 font-medium text-gray-800">{product.name}</td>
-                                    <td className="p-4 text-gray-900 font-bold">${product.price.toLocaleString('es-AR')}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded text-xs font-bold ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    <td className="p-3 font-medium text-gray-800 text-sm">{product.name}</td>
+                                    <td className="p-3 text-gray-900 font-bold text-sm">${product.price.toLocaleString('es-AR')}</td>
+                                    <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                             {product.stock} un.
                                         </span>
                                     </td>
-                                    <td className="p-4 text-center">
+                                    <td className="p-3 text-center">
                                         <button
                                             onClick={() => handleTogglePause(product)}
-                                            className={`transition-colors p-2 mr-2 ${product.paused ? 'text-green-500 hover:text-green-600' : 'text-orange-400 hover:text-orange-500'}`}
+                                            className={`transition-colors p-1.5 mr-1 ${product.paused ? 'text-green-500 hover:text-green-600' : 'text-orange-400 hover:text-orange-500'}`}
                                             title={product.paused ? "Reanudar publicación" : "Pausar publicación"}
                                         >
-                                            {product.paused ? <PlayCircle size={18} /> : <PauseCircle size={18} />}
+                                            {product.paused ? <PlayCircle size={16} /> : <PauseCircle size={16} />}
                                         </button>
                                         <button
                                             onClick={() => handleEditClick(product)}
-                                            className="text-gray-400 hover:text-blue-500 transition-colors p-2 mr-2"
+                                            className="text-gray-400 hover:text-blue-500 transition-colors p-1.5 mr-1"
                                             title="Editar producto"
                                         >
-                                            <Pencil size={18} />
+                                            <Pencil size={16} />
                                         </button>
                                         <button
                                             onClick={() => handleDeleteClick(product)}
-                                            className="text-gray-400 hover:text-red-500 transition-colors p-2"
+                                            className="text-gray-400 hover:text-red-500 transition-colors p-1.5"
                                             title="Eliminar producto"
                                         >
-                                            <Trash2 size={18} />
+                                            <Trash2 size={16} />
                                         </button>
                                     </td>
                                 </tr>
@@ -321,39 +344,39 @@ const AdminDashboard = () => {
             ) : (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 text-gray-600 uppercase text-sm font-medium">
+                        <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-medium">
                             <tr>
-                                <th className="p-4">ID</th>
-                                <th className="p-4">Cliente</th>
-                                <th className="p-4">Items</th>
-                                <th className="p-4">Total</th>
-                                <th className="p-4">Pago</th>
-                                <th className="p-4">Estado</th>
-                                <th className="p-4 text-center">Acciones</th>
+                                <th className="p-3">ID</th>
+                                <th className="p-3">Cliente</th>
+                                <th className="p-3">Items</th>
+                                <th className="p-3">Total</th>
+                                <th className="p-3">Pago</th>
+                                <th className="p-3">Estado</th>
+                                <th className="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {orders.map((order) => (
                                 <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 text-xs font-mono text-gray-500">
+                                    <td className="p-3 text-[11px] font-mono text-gray-500">
                                         {String(order.id).slice(0, 8)}
                                     </td>
-                                    <td className="p-4">
-                                        <div className="font-medium text-gray-800">
+                                    <td className="p-3">
+                                        <div className="font-medium text-gray-800 text-sm">
                                             {order.user?.name || order.customerName || 'Invitado'}
                                         </div>
                                         <div className="text-xs text-gray-500">
                                             {order.user?.email || order.customerEmail}
                                         </div>
                                     </td>
-                                    <td className="p-4">
+                                    <td className="p-3">
                                         <div className="text-sm font-medium text-gray-800">
                                             {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                                         </div>
                                         <div className="mt-1 space-y-2">
                                             {order.items.map((item, idx) => (
-                                                <div key={idx} className="text-[10px] leading-tight border-l-2 border-gray-100 pl-2 py-0.5">
-                                                    <div className="font-bold text-gray-700">{item.product.name}</div>
+                                                <div key={idx} className="text-[9px] leading-tight border-l-2 border-gray-100 pl-2 py-0.5">
+                                                    <div className="font-bold text-gray-700">{item.product?.name || "Producto desconocido"}</div>
                                                     {item.selectedCustomizations && (
                                                         <div className="text-gray-500 italic">
                                                             {item.selectedCustomizations.fabricColor && <span>Tela: {item.selectedCustomizations.fabricColor} </span>}
@@ -365,14 +388,14 @@ const AdminDashboard = () => {
                                             ))}
                                         </div>
                                     </td>
-                                    <td className="p-4 font-bold text-gray-900">
-                                        ${Number(order.total).toLocaleString('es-AR')}
+                                    <td className="p-3 font-bold text-gray-900 text-sm">
+                                        ${Number(order.totalAmount).toLocaleString('es-AR')}
                                     </td>
-                                    <td className="p-4 text-xs">
+                                    <td className="p-3 text-xs">
                                         {order.paymentMethod}
                                     </td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded text-xs font-bold 
+                                    <td className="p-3">
+                                        <span className={`px-2 py-0.5 rounded text-xs font-bold 
                                             ${order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
                                                 order.status === 'PAID' ? 'bg-green-100 text-green-800' :
                                                     order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
@@ -380,33 +403,31 @@ const AdminDashboard = () => {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4">
+                                    <td className="p-3">
                                         <div className="flex justify-center gap-1">
                                             <button
                                                 onClick={() => handleDownloadInvoice(order.id)}
                                                 className="p-1 text-gray-600 hover:bg-gray-100 rounded"
                                                 title="Descargar Factura"
                                             >
-                                                <FileText size={18} />
+                                                <FileText size={16} />
                                             </button>
-
                                             {order.status !== 'CANCELLED' && (
                                                 <button
                                                     onClick={() => handleStatusUpdate(order.id, 'CANCELLED')}
                                                     className="p-1 text-red-600 hover:bg-red-50 rounded"
                                                     title="Cancelar Orden"
                                                 >
-                                                    <XCircle size={18} />
+                                                    <XCircle size={16} />
                                                 </button>
                                             )}
-
                                             {order.status === 'PENDING' && (
                                                 <button
                                                     onClick={() => handleStatusUpdate(order.id, 'PAID')}
                                                     className="p-1 text-green-600 hover:bg-green-50 rounded"
                                                     title="Marcar como PAGADO"
                                                 >
-                                                    <CheckCircle size={18} />
+                                                    <CheckCircle size={16} />
                                                 </button>
                                             )}
                                             {order.status === 'PAID' && (
@@ -415,7 +436,7 @@ const AdminDashboard = () => {
                                                     className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                                                     title="Marcar como ENVIADO"
                                                 >
-                                                    <Truck size={18} />
+                                                    <Truck size={16} />
                                                 </button>
                                             )}
                                             {order.status === 'SHIPPED' && (
@@ -424,7 +445,7 @@ const AdminDashboard = () => {
                                                     className="p-1 text-purple-600 hover:bg-purple-50 rounded"
                                                     title="Marcar como ENTREGADO"
                                                 >
-                                                    <Package size={18} />
+                                                    <Package size={16} />
                                                 </button>
                                             )}
                                         </div>

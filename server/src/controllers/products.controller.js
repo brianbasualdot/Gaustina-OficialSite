@@ -12,6 +12,8 @@ const productSchema = z.object({
     images: z.array(z.string()).optional(), // Correcto: Array de URLs
     categoryId: z.number().int().optional(),
     paused: z.boolean().optional(),
+    materials: z.string().optional(),
+    measurements: z.string().optional(),
     customizationOptions: z.object({
         fabricColors: z.array(z.union([
             z.string(),
@@ -80,6 +82,8 @@ export const createProduct = async (req, res) => {
                 // Aquí guardamos el array de imágenes
                 images: body.images || [],
                 categoryId: body.categoryId || null,
+                materials: body.materials || null,
+                measurements: body.measurements || null,
                 customizationOptions: body.customizationOptions || null,
             }
         });
@@ -108,6 +112,8 @@ export const updateProduct = async (req, res) => {
             stock: body.stock,
             images: body.images,
             categoryId: body.categoryId,
+            materials: body.materials,
+            measurements: body.measurements,
             customizationOptions: body.customizationOptions,
             paused: body.paused,
             isDigital: body.isDigital

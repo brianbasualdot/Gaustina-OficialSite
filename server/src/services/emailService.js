@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import dotenv from 'dotenv';
+import { generateInvoicePDF } from '../utils/invoiceGenerator.js';
 
 dotenv.config();
 
@@ -9,7 +10,7 @@ const resend = RESEND_KEY ? new Resend(RESEND_KEY) : null;
 if (!resend) {
   console.warn("⚠️  RESEND_API_KEY is missing. Email service will be disabled.");
 }
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Gaustina <onboarding@resend.dev>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ? `Gaustina <${process.env.RESEND_FROM_EMAIL}>` : 'Gaustina <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.CONTACT_EMAIL || 'bgaustina@gmail.com';
 
 // --- HTML COMPONENTS ---
@@ -45,7 +46,7 @@ const getEmailFooter = () => `
 
 // --- HELPER FUNCTION ---
 
-const sendEmail = async ({ to, subject, html, reply_to }) => {
+const sendEmail = async ({ to, subject, html, reply_to, attachments }) => {
   try {
     if (!resend) {
       console.error('Email Service is disabled (missing API Key)');
@@ -57,11 +58,18 @@ const sendEmail = async ({ to, subject, html, reply_to }) => {
       to,
       subject,
       html,
+      attachments,
       reply_to: reply_to || ADMIN_EMAIL
     });
 
     if (error) {
-      console.error('Resend Error:', error);
+      console.error('Resend Error Details:', {
+        message: error.message,
+        name: error.name,
+        status: error.status,
+        from: FROM_EMAIL,
+        to
+      });
       return { success: false, error };
     }
     return { success: true, data };
@@ -71,6 +79,16 @@ const sendEmail = async ({ to, subject, html, reply_to }) => {
   }
 };
 
+const pdfToBuffer = (doc) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+    doc.end();
+  });
+};
+
 // --- SERVICES ---
 
 // 1. Order Confirmation (User)
@@ -78,52 +96,76 @@ export const sendOrderConfirmation = async (order) => {
   const shortId = order.id ? order.id.toString().slice(0, 8) : '???';
   const subject = `Confirmación de Orden #${shortId} | Gaustina`;
 
-  const itemsHtml = order.items.map(item => {
-    const productName = item.product ? item.product.name : 'Producto';
-    const customizations = item.selectedCustomizations
-      ? `<br><small style="color: #666;">${Object.values(item.selectedCustomizations).join(', ')}</small>`
-      : '';
+  try {
+    const itemsHtml = order.items.map(item => {
+      const productName = item.product ? item.product.name : 'Producto';
+      const customizations = item.selectedCustomizations
+        ? `<br><small style="color: #666;">${Object.values(item.selectedCustomizations).join(', ')}</small>`
+        : '';
 
-    return `
-        <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
-           <strong>${item.quantity}x</strong> ${productName} - $${item.price}
-           ${customizations}
-        </div>
-      `;
-  }).join('');
+      return `
+          <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+             <strong>${item.quantity}x</strong> ${productName} - $${item.price}
+             ${customizations}
+          </div>
+        `;
+    }).join('');
 
-  const html = `
-    ${getEmailHeader()}
-    <h1 style="color: #333; font-size: 20px;">¡Gracias por tu compra, ${order.customerName || 'Cliente'}!</h1>
-    <p style="color: #555;">Recibimos tu orden correctamente y la estamos procesando.</p>
-    
-    <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-top: 20px;">Detalle del Pedido:</h3>
-    ${itemsHtml}
-    
-    <p style="text-align: right; font-size: 18px;"><strong>Total: $${order.total}</strong></p>
-    
-    <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-top: 20px;">Datos de Envío:</h3>
-    <p style="color: #555;">
-      <strong>Dirección:</strong> ${order.shippingAddress || '-'}<br>
-      <strong>Ciudad:</strong> ${order.shippingCity || '-'}<br>
-      <strong>CP:</strong> ${order.shippingZip || '-'}<br>
-      <strong>Tel:</strong> ${order.shippingPhone || '-'}
-    </p>
-    
-    ${getEmailFooter()}
-  `;
+    const html = `
+      ${getEmailHeader()}
+      <h1 style="color: #333; font-size: 20px;">¡Gracias por tu compra, ${order.customerName || 'Cliente'}!</h1>
+      <p style="color: #555;">Recibimos tu orden correctamente y la estamos procesando.</p>
+      
+      <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-top: 20px;">Detalle del Pedido:</h3>
+      ${itemsHtml}
+      
+      <p style="text-align: right; font-size: 18px;"><strong>Total: $${order.totalAmount}</strong></p>
+      
+      <h3 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px; margin-top: 20px;">Datos de Envío:</h3>
+      <p style="color: #555;">
+        <strong>Dirección:</strong> ${order.shippingAddress || '-'}<br>
+        <strong>Ciudad:</strong> ${order.shippingCity || '-'}<br>
+        <strong>CP:</strong> ${order.postalCode || '-'}<br>
+        <strong>Tel:</strong> ${order.shippingPhone || '-'}
+      </p>
+      
+      ${getEmailFooter()}
+    `;
 
-  return sendEmail({ to: order.customerEmail, subject, html });
+    // --- GENERATE AND ATTACH PDF ---
+    let attachments = [];
+    try {
+      const doc = await generateInvoicePDF(order);
+      const buffer = await pdfToBuffer(doc);
+      attachments.push({
+        filename: `Orden-de-Compra-${order.id}.pdf`,
+        content: buffer
+      });
+    } catch (pdfError) {
+      console.error("Error generating PDF for email attachment:", pdfError);
+      // Continue without attachment if it fails
+    }
+
+    return sendEmail({
+      to: order.customerEmail,
+      subject,
+      html,
+      attachments
+    });
+  } catch (err) {
+    console.error(`Serious error in sendOrderConfirmation for order #${order.id}:`, err);
+    throw err;
+  }
 };
 
 // 2. New Order Notification (Admin)
 export const sendAdminNewOrderNotification = async (order) => {
   const shortId = order.id ? order.id.toString().slice(0, 8) : '???';
-  const subject = `💰 Nueva Venta #${shortId} - $${order.total}`;
+  const subject = `💰 Nueva Venta #${shortId} - $${order.totalAmount}`;
   const html = `
     <h1>¡Nueva Venta!</h1>
     <p><strong>Cliente:</strong> ${order.customerName} (${order.customerEmail})</p>
-    <p><strong>Total:</strong> $${order.total}</p>
+    <p><strong>Total:</strong> $${order.totalAmount}</p>
     <p>Revisa el dashboard para más detalles.</p>
   `;
   return sendEmail({ to: ADMIN_EMAIL, subject, html });
@@ -193,4 +235,39 @@ export const sendAbandonedCartEmail = async (order) => {
     ${getEmailFooter()}
   `;
   return sendEmail({ to: order.customerEmail, subject, html });
+};
+// 6. Shipping Notification
+export const sendShippingNotification = async (order) => {
+  const shortId = order.id ? order.id.toString().slice(0, 8) : '???';
+  const subject = `¡Tu pedido #${shortId} está en camino! 🚚 | Gaustina`;
+
+  try {
+    const html = `
+      ${getEmailHeader()}
+      <h1 style="color: #333; font-size: 20px;">¡Buenas noticias, ${order.customerName || 'Cliente'}!</h1>
+      <p style="color: #555;">Tu pedido ha sido despachado y ya está en camino.</p>
+      
+      <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
+        <h3 style="margin-top: 0; color: #333;">Detalles del Envío:</h3>
+        <p style="margin: 5px 0; color: #555;"><strong>Dirección:</strong> ${order.shippingAddress}</p>
+        <p style="margin: 5px 0; color: #555;"><strong>Ciudad:</strong> ${order.shippingCity} (${order.postalCode})</p>
+      </div>
+
+      <p style="color: #555;">Pronto recibirás más novedades sobre la entrega.</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.instagram.com/bgaustina" 
+           style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+           Ver Novedades en Instagram
+        </a>
+      </div>
+
+      ${getEmailFooter()}
+    `;
+
+    return sendEmail({ to: order.customerEmail, subject, html });
+  } catch (err) {
+    console.error(`Serious error in sendShippingNotification for order #${order.id}:`, err);
+    throw err;
+  }
 };

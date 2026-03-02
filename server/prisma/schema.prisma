@@ -19,6 +19,8 @@ model Product {
   isDigital            Boolean  @default(true)
   paused               Boolean  @default(false)
   customizationOptions Json?
+  materials            String?
+  measurements         String?
   categoryId           Int?
   createdAt            DateTime @default(now()) @db.Timestamptz(6)
   updatedAt            DateTime @default(now()) @db.Timestamptz(6)
