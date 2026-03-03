@@ -142,13 +142,21 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        // CORRECCIÓN: ID a Número
         await prisma.product.delete({
             where: { id: parseInt(id) }
         });
 
-        res.json({ message: 'Product deleted successfully' });
+        res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to delete product' });
+        console.error("Delete Product Error:", error);
+
+        // P2003 is Prisma's error code for foreign key constraint violation
+        if (error.code === 'P2003') {
+            return res.status(400).json({
+                error: 'No se puede eliminar un producto con ventas asociadas. Te sugerimos pausar la publicación.'
+            });
+        }
+
+        res.status(500).json({ error: 'Error al intentar eliminar el producto' });
     }
 };

@@ -79,7 +79,9 @@ const AdminDashboard = () => {
                 setProducts(products.filter(p => p.id !== itemToDelete.id));
                 showToast("Producto eliminado correctamente", "success");
             } else {
-                showToast("Error al eliminar el producto", "error");
+                const errorData = await res.json().catch(() => ({}));
+                const message = errorData.error || "Error al eliminar el producto";
+                showToast(message, "error");
             }
         } catch (error) {
             console.error(error);
