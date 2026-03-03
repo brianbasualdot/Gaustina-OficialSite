@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Loader, ArrowLeft, X } from 'lucide-react';
+import { Upload, Loader, ArrowLeft, X, Move, Maximize2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
 
@@ -21,6 +22,12 @@ const CreateProduct = () => {
     const [fabricColors, setFabricColors] = useState([]);
     const [embroideryColors, setEmbroideryColors] = useState([]);
     const [initialsColors, setInitialsColors] = useState([]);
+    const [svgFiles, setSvgFiles] = useState([]);
+    const [svgPreviews, setSvgPreviews] = useState([]);
+
+    // POSICIONAMIENTO Y ESCALA (Admin)
+    const [initialsConfig, setInitialsConfig] = useState({ x: 50, y: 50, scale: 1 });
+    const [svgConfig, setSvgConfig] = useState({ x: 50, y: 50, scale: 1 });
 
     // Inputs temporales para agregar color
     const [newFabricColorName, setNewFabricColorName] = useState('');
@@ -40,7 +47,8 @@ const CreateProduct = () => {
         categoryId: '',
         materials: '',
         measurements: '',
-        allowInitials: false
+        allowInitials: false,
+        allowSvg: false
     });
 
     const [categories, setCategories] = useState([]);
@@ -81,6 +89,21 @@ const CreateProduct = () => {
     const removeImage = (index) => {
         setImageFiles(prev => prev.filter((_, i) => i !== index));
         setPreviews(prev => prev.filter((_, i) => i !== index));
+    };
+
+    // MANEJAR SVGs
+    const handleSvgChange = (e) => {
+        if (e.target.files) {
+            const filesArray = Array.from(e.target.files);
+            setSvgFiles(prev => [...prev, ...filesArray]);
+            const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+            setSvgPreviews(prev => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeSvg = (index) => {
+        setSvgFiles(prev => prev.filter((_, i) => i !== index));
+        setSvgPreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     // HANDLERS PERSONALIZACIÓN
@@ -134,22 +157,18 @@ const CreateProduct = () => {
             if (imageFiles.length === 0) throw new Error("Debes seleccionar al menos una imagen");
             if (!session) throw new Error("No hay sesión activa");
 
-            // --- PROCESO DE SUBIDA MÚLTIPLE ---
+            // --- PROCESO DE SUBIDA MÚLTIPLE (IMÁGENES) ---
             const uploadedUrls = [];
-
-            // Recorremos cada archivo seleccionado
             for (const file of imageFiles) {
                 const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const fileName = `${Date.now()}-img-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-                // 1. Subir
                 const { error: uploadError } = await supabase.storage
                     .from('products')
                     .upload(fileName, file);
 
                 if (uploadError) throw uploadError;
 
-                // 2. Obtener URL
                 const { data: urlData } = supabase.storage
                     .from('products')
                     .getPublicUrl(fileName);
@@ -157,7 +176,26 @@ const CreateProduct = () => {
                 uploadedUrls.push(urlData.publicUrl);
             }
 
-            console.log("URLs generadas:", uploadedUrls);
+            // --- PROCESO DE SUBIDA MÚLTIPLE (SVGs) ---
+            const uploadedSvgUrls = [];
+            for (const file of svgFiles) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}-svg-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('products')
+                    .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = supabase.storage
+                    .from('products')
+                    .getPublicUrl(fileName);
+
+                uploadedSvgUrls.push(urlData.publicUrl);
+            }
+
+
 
             // 3. Guardar en Backend (Enviamos el array completo de URLs)
             const response = await fetch(`${API_URL}/api/products`, {
@@ -179,7 +217,11 @@ const CreateProduct = () => {
                         fabricColors,
                         embroideryColors,
                         initialsColors,
-                        allowInitials: form.allowInitials
+                        allowInitials: form.allowInitials,
+                        allowSvg: form.allowSvg,
+                        svgLibrary: uploadedSvgUrls,
+                        initialsConfig,
+                        svgConfig
                     }
                 })
             });
@@ -444,6 +486,182 @@ const CreateProduct = () => {
                             {initialsColors.length === 0 && (
                                 <p className="text-[10px] text-orange-600 mt-2">No has agregado colores específicos. Se usarán los predeterminados.</p>
                             )}
+                        </div>
+                    )}
+
+                    {/* PERSONALIZACIÓN CON SVG */}
+                    <div className="mt-8 p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                name="allowSvg"
+                                checked={form.allowSvg}
+                                onChange={handleChange}
+                                className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all"
+                            />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-gray-900">Permitir Personalización con Dibujos (SVG)</span>
+                                <span className="text-xs text-gray-500">Permite al cliente elegir un diseño de tu biblioteca.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    {form.allowSvg && (
+                        <div className="mt-4 bg-brand-secondary/5 p-4 rounded-lg border border-brand-secondary/20 animate-fade-in">
+                            <label className="block text-sm font-bold text-brand-dark mb-4">Biblioteca de Diseños (SVG)</label>
+
+                            <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-6 hover:bg-gray-50 transition-colors cursor-pointer text-center mb-4">
+                                <input
+                                    type="file"
+                                    accept=".svg"
+                                    multiple
+                                    onChange={handleSvgChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+                                <p className="text-xs text-gray-500">Subir archivos .svg para la biblioteca</p>
+                            </div>
+
+                            {svgPreviews.length > 0 && (
+                                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                    {svgPreviews.map((url, index) => (
+                                        <div key={index} className="relative aspect-square rounded-lg border border-gray-200 bg-white p-2 group">
+                                            <img src={url} alt="SVG Preview" className="w-full h-full object-contain" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSvg(index)}
+                                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100"
+                                            >
+                                                <X size={10} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* CONFIGURADOR VISUAL (Solo si hay al menos 2 imágenes y alguna personalización activa) */}
+                    {(form.allowInitials || form.allowSvg) && previews.length >= 2 && (
+                        <div className="mt-12 border-t pt-8">
+                            <h3 className="text-xl font-heading text-brand-dark mb-2">Posicionamiento Maestro</h3>
+                            <p className="text-sm text-gray-500 mb-6">Arrastrá los elementos sobre la <b>segunda imagen</b> para definir dónde aparecerán por defecto.</p>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                                {/* Canvas de Posicionamiento */}
+                                <div className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100">
+                                    <img src={previews[1]} alt="Canvas" className="w-full h-full object-cover opacity-60 pointer-events-none" />
+
+                                    {/* Marcador de Iniciales */}
+                                    {form.allowInitials && (
+                                        <motion.div
+                                            drag
+                                            dragMomentum={false}
+                                            onDragEnd={(e, info) => {
+                                                const rect = e.target.parentElement.getBoundingClientRect();
+                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
+                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                setInitialsConfig(prev => ({ ...prev, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) }));
+                                            }}
+                                            style={{
+                                                position: 'absolute',
+                                                left: `${initialsConfig.x}%`,
+                                                top: `${initialsConfig.y}%`,
+                                                transform: 'translate(-50%, -50%)',
+                                                cursor: 'grab',
+                                                fontSize: `${1 * initialsConfig.scale}rem`,
+                                                fontWeight: 'bold',
+                                                color: '#000',
+                                                background: 'rgba(255,255,255,0.4)',
+                                                padding: '2px 8px',
+                                                border: '1px dashed #000',
+                                                zIndex: 20
+                                            }}
+                                            whileDrag={{ cursor: 'grabbing', scale: 1.1 }}
+                                        >
+                                            AB
+                                        </motion.div>
+                                    )}
+
+                                    {/* Marcador de SVG */}
+                                    {form.allowSvg && (
+                                        <motion.div
+                                            drag
+                                            dragMomentum={false}
+                                            onDragEnd={(e, info) => {
+                                                const rect = e.target.parentElement.getBoundingClientRect();
+                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
+                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                setSvgConfig(prev => ({ ...prev, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) }));
+                                            }}
+                                            style={{
+                                                position: 'absolute',
+                                                left: `${svgConfig.x}%`,
+                                                top: `${svgConfig.y}%`,
+                                                transform: 'translate(-50%, -50%)',
+                                                cursor: 'grab',
+                                                width: `${40 * svgConfig.scale}px`,
+                                                height: `${40 * svgConfig.scale}px`,
+                                                border: '1px dashed #3b82f6',
+                                                background: 'rgba(59, 130, 246, 0.2)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                zIndex: 30
+                                            }}
+                                            whileDrag={{ cursor: 'grabbing', scale: 1.1 }}
+                                        >
+                                            <Maximize2 size={16} className="text-blue-600" />
+                                        </motion.div>
+                                    )}
+                                </div>
+
+                                {/* Controles de Escala */}
+                                <div className="space-y-6">
+                                    {form.allowInitials && (
+                                        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-2 mb-3 text-brand-dark font-bold">
+                                                <Move size={16} />
+                                                <h4>Tamaño Iniciales</h4>
+                                            </div>
+                                            <input
+                                                type="range" min="0.5" max="3" step="0.1"
+                                                value={initialsConfig.scale}
+                                                onChange={(e) => setInitialsConfig(prev => ({ ...prev, scale: parseFloat(e.target.value) }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
+                                            />
+                                            <div className="flex justify-between text-[10px] text-gray-400 mt-2">
+                                                <span>Chico</span>
+                                                <span>Grande</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {form.allowSvg && (
+                                        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                                            <div className="flex items-center gap-2 mb-3 text-brand-dark font-bold">
+                                                <Maximize2 size={16} />
+                                                <h4>Tamaño Dibujos (SVG)</h4>
+                                            </div>
+                                            <input
+                                                type="range" min="0.5" max="3" step="0.1"
+                                                value={svgConfig.scale}
+                                                onChange={(e) => setSvgConfig(prev => ({ ...prev, scale: parseFloat(e.target.value) }))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                            />
+                                            <div className="flex justify-between text-[10px] text-gray-400 mt-2">
+                                                <span>Chico</span>
+                                                <span>Grande</span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="p-4 bg-blue-50 text-blue-700 rounded-xl text-xs flex gap-3">
+                                        <div className="font-bold">TIP:</div>
+                                        <p>Arrastrá los recuadros en la imagen de la izquierda para fijar su posición.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

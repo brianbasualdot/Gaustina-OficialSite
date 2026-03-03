@@ -150,6 +150,9 @@ const CartPage = () => {
                                                 {item.selectedCustomizations.initials && (
                                                     <p>Iniciales: <span className="font-medium text-gray-700">{item.selectedCustomizations.initials} ({item.selectedCustomizations.initialsColor})</span></p>
                                                 )}
+                                                {item.selectedCustomizations.selectedSvg && (
+                                                    <p className="flex items-center gap-1">Diseño: <img src={item.selectedCustomizations.selectedSvg} alt="SVG" className="w-4 h-4 object-contain bg-gray-50 rounded p-0.5" /></p>
+                                                )}
                                             </div>
                                         )}
                                     </div>

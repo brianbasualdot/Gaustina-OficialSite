@@ -384,6 +384,7 @@ const AdminDashboard = () => {
                                                             {item.selectedCustomizations.fabricColor && <span>Tela: {item.selectedCustomizations.fabricColor} </span>}
                                                             {item.selectedCustomizations.embroideryColor && <span>Bord: {item.selectedCustomizations.embroideryColor} </span>}
                                                             {item.selectedCustomizations.initials && <span className="text-brand-primary font-bold">Inic: {item.selectedCustomizations.initials} ({item.selectedCustomizations.initialsColor})</span>}
+                                                            {item.selectedCustomizations.selectedSvg && <span className="flex items-center gap-1 mt-0.5">Dibujo: <img src={item.selectedCustomizations.selectedSvg} alt="SVG" className="w-4 h-4 object-contain bg-gray-50 rounded p-0.5" /></span>}
                                                         </div>
                                                     )}
                                                 </div>

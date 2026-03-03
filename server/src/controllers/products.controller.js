@@ -28,6 +28,18 @@ const productSchema = z.object({
             z.object({ name: z.string(), hex: z.string().nullable().optional() })
         ])).optional(),
         allowInitials: z.boolean().optional(),
+        allowSvg: z.boolean().optional(),
+        svgLibrary: z.array(z.string()).optional(),
+        initialsConfig: z.object({
+            x: z.number(),
+            y: z.number(),
+            scale: z.number().optional()
+        }).optional(),
+        svgConfig: z.object({
+            x: z.number(),
+            y: z.number(),
+            scale: z.number().optional()
+        }).optional(),
     }).optional(),
 });
 
@@ -35,7 +47,7 @@ const productSchema = z.object({
 export const getAllProducts = async (req, res) => {
     try {
         const isAdminRequest = req.headers.authorization;
-        
+
         const products = await prisma.product.findMany({
             where: isAdminRequest ? {} : { paused: false },
             include: {
@@ -63,7 +75,7 @@ export const getProductById = async (req, res) => {
         if (!product || (product.paused && !isAdminRequest)) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
-        
+
         res.json(product);
     } catch (error) {
         res.status(500).json({ error: error.message });

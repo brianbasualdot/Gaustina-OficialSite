@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import SeoHead from '../components/common/SeoHead';
+import NotFoundPage from './NotFoundPage';
 import { Truck, ZoomIn, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -57,8 +58,9 @@ const ProductDetailPage = () => {
     const [selectedEmbroideryColor, setSelectedEmbroideryColor] = useState(null);
     const [initialsCount, setInitialsCount] = useState(1);
     const [initialsValue, setInitialsValue] = useState("");
-    const [selectedInitialsColor, setSelectedInitialsColor] = useState('Negro'); // Default: Negr
+    const [selectedInitialsColor, setSelectedInitialsColor] = useState('Negro'); // Default: Negro
     const [selectedFont, setSelectedFont] = useState(FONTS[6]); // Default: Pinyon Script
+    const [selectedSvg, setSelectedSvg] = useState(null);
 
     // Helper para obtener colores de hilos (dinámicos o default)
     const getInitialsColors = () => {
@@ -103,6 +105,11 @@ const ProductDetailPage = () => {
                     } else {
                         setSelectedInitialsColor('Negro');
                     }
+
+                    // Auto-select first SVG if library exists
+                    if (data.customizationOptions?.svgLibrary?.length > 0) {
+                        setSelectedSvg(data.customizationOptions.svgLibrary[0]);
+                    }
                 }
             } catch (error) {
                 console.error("Error buscando producto:", error);
@@ -143,6 +150,9 @@ const ProductDetailPage = () => {
             customization.initials = initialsValue;
             customization.initialsColor = selectedInitialsColor;
             customization.font = selectedFont.name;
+        }
+        if (product.customizationOptions?.allowSvg && selectedSvg) {
+            customization.selectedSvg = selectedSvg;
         }
 
         const productToAdd = {
@@ -192,29 +202,54 @@ const ProductDetailPage = () => {
                                 <div className="relative w-full h-full" onClick={() => hasImages && setIsGalleryOpen(true)}>
                                     <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
 
-                                    {/* PREVISUALIZACIÓN DEL BORDADO */}
-                                    {product.customizationOptions?.allowInitials && initialsValue && product.images && product.images.length > 1 && selectedImage === product.images[1] && (
-                                        <div
-                                            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-                                            style={{
-                                                color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
-                                                fontFamily: selectedFont.value,
-                                                fontSize: '5.1rem',
-                                                opacity: 0.9,
-                                                transform: 'translateY(15%) rotate(-2deg)',
-                                                filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
-                                                textShadow: `
-                                                    0.5px 0.5px 0px rgba(255,255,255,0.2), 
-                                                    -0.5px -0.5px 0px rgba(0,0,0,0.2),
-                                                    0px 0px 2px rgba(0,0,0,0.1)
-                                                `,
-                                                letterSpacing: '0.05em'
-                                            }}
-                                        >
-                                            <span className="bg-transparent mix-blend-multiply italic">
-                                                {initialsValue}
-                                            </span>
-                                        </div>
+                                    {/* PREVISUALIZACIÓN DE PERSONALIZACIÓN (Solo en la segunda imagen) */}
+                                    {product.images && product.images.length > 1 && selectedImage === product.images[1] && (
+                                        <>
+                                            {/* INICIALES */}
+                                            {product.customizationOptions?.allowInitials && initialsValue && (
+                                                <div
+                                                    className="absolute pointer-events-none z-10"
+                                                    style={{
+                                                        left: `${product.customizationOptions.initialsConfig?.x || 50}%`,
+                                                        top: `${product.customizationOptions.initialsConfig?.y || 50}%`,
+                                                        transform: 'translate(-50%, -50%)',
+                                                        color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
+                                                        fontFamily: selectedFont.value,
+                                                        fontSize: `${5.1 * (product.customizationOptions.initialsConfig?.scale || 1)}rem`,
+                                                        opacity: 0.9,
+                                                        filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
+                                                        textShadow: `
+                                                            0.5px 0.5px 0px rgba(255,255,255,0.2), 
+                                                            -0.5px -0.5px 0px rgba(0,0,0,0.2),
+                                                            0px 0px 2px rgba(0,0,0,0.1)
+                                                        `,
+                                                        letterSpacing: '0.05em'
+                                                    }}
+                                                >
+                                                    <span className="bg-transparent mix-blend-multiply italic">
+                                                        {initialsValue}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* SVG */}
+                                            {product.customizationOptions?.allowSvg && selectedSvg && (
+                                                <div
+                                                    className="absolute pointer-events-none z-10"
+                                                    style={{
+                                                        left: `${product.customizationOptions.svgConfig?.x || 50}%`,
+                                                        top: `${product.customizationOptions.svgConfig?.y || 50}%`,
+                                                        transform: 'translate(-50%, -50%)',
+                                                        width: `${80 * (product.customizationOptions.svgConfig?.scale || 1)}px`,
+                                                        height: `${80 * (product.customizationOptions.svgConfig?.scale || 1)}px`,
+                                                        opacity: 0.8,
+                                                        filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))'
+                                                    }}
+                                                >
+                                                    <img src={selectedSvg} alt="Custom SVG" className="w-full h-full object-contain" style={{ filter: 'grayscale(1) contrast(1.2)' }} />
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}
@@ -363,6 +398,30 @@ const ProductDetailPage = () => {
                             </div>
                         )}
 
+                        {product.customizationOptions?.allowSvg && product.customizationOptions.svgLibrary?.length > 0 && (
+                            <div className="mb-6 p-5 bg-brand-secondary/10 rounded-2xl border border-brand-secondary/20">
+                                <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wider">Elegí tu Diseño</h3>
+                                <div className="flex flex-wrap gap-4">
+                                    {product.customizationOptions.svgLibrary.map((svgUrl, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => {
+                                                setSelectedSvg(svgUrl);
+                                                // Cambiar a la segunda imagen si existe para ver el preview
+                                                if (product.images?.length > 1) {
+                                                    setSelectedImage(product.images[1]);
+                                                }
+                                            }}
+                                            className={`w-14 h-14 p-2 rounded-xl bg-white border-2 transition-all ${selectedSvg === svgUrl ? 'border-brand-primary shadow-md scale-105' : 'border-transparent hover:border-gray-200'}`}
+                                        >
+                                            <img src={svgUrl} alt={`Opción ${idx}`} className="w-full h-full object-contain" />
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-3 italic">* El diseño se aplicará en la posición configurada para este producto.</p>
+                            </div>
+                        )}
+
                         <div className="flex flex-col sm:flex-row gap-3 mb-8 border-b border-gray-100 pb-8">
                             <div className="flex items-center border border-gray-300 w-max">
                                 <button onClick={handleDecrement} className="px-3 py-2 hover:bg-gray-50 text-black font-heading">-</button>
@@ -405,28 +464,30 @@ const ProductDetailPage = () => {
                 </div>
             </div>
 
-            {hasImages && product.images && (
-                <Lightbox
-                    open={isGalleryOpen}
-                    close={() => setIsGalleryOpen(false)}
-                    index={product.images.indexOf(selectedImage)}
-                    slides={product.images.map(imgUrl => isVideo(imgUrl) ? { type: "video", sources: [{ src: imgUrl, type: "video/mp4" }] } : { src: imgUrl })}
-                    render={{
-                        slide: ({ slide }) => {
-                            if (slide.type === "video") {
-                                return (
-                                    <video className="max-h-[80vh] max-w-[90vw] object-contain mx-auto" controls autoPlay muted={false} playsInline>
-                                        <source src={slide.sources[0].src} type="video/mp4" />
-                                        Tu navegador no soporta el elemento de video.
-                                    </video>
-                                );
+            {
+                hasImages && product.images && (
+                    <Lightbox
+                        open={isGalleryOpen}
+                        close={() => setIsGalleryOpen(false)}
+                        index={product.images.indexOf(selectedImage)}
+                        slides={product.images.map(imgUrl => isVideo(imgUrl) ? { type: "video", sources: [{ src: imgUrl, type: "video/mp4" }] } : { src: imgUrl })}
+                        render={{
+                            slide: ({ slide }) => {
+                                if (slide.type === "video") {
+                                    return (
+                                        <video className="max-h-[80vh] max-w-[90vw] object-contain mx-auto" controls autoPlay muted={false} playsInline>
+                                            <source src={slide.sources[0].src} type="video/mp4" />
+                                            Tu navegador no soporta el elemento de video.
+                                        </video>
+                                    );
+                                }
+                                return undefined;
                             }
-                            return undefined;
-                        }
-                    }}
-                />
-            )}
-        </div>
+                        }}
+                    />
+                )
+            }
+        </div >
     );
 };
 
