@@ -25,7 +25,7 @@ const HeroBanner = () => {
     }, [banners.length]);
 
     return (
-        <div className="relative h-[75vh] w-full flex items-center justify-center overflow-hidden bg-white">
+        <div className="relative h-[250px] sm:h-[400px] md:h-[75vh] w-full flex items-center justify-center overflow-hidden bg-white">
             {/* Carousel Images */}
             {banners.map((item, index) => (
                 <div
@@ -36,7 +36,7 @@ const HeroBanner = () => {
                     <img
                         src={item.url}
                         alt={`Bordados Hero ${index + 1}`}
-                        className="w-full h-full object-cover object-center"
+                        className="w-full h-full object-contain md:object-cover object-center"
                     />
                     {item.showOverlay && <div className="absolute inset-0 bg-black/30"></div>}
                 </div>

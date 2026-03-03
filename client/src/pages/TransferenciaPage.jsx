@@ -1,11 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Copy, ArrowLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 const TransferenciaPage = () => {
     const { getCartTotal } = useCart();
-    // Calculamos el total con 15% de descuento
-    const total = getCartTotal() * 0.85;
+    const location = useLocation();
+
+    // Priorizamos el total que viene del carrito (incluye el cálculo correcto y envío)
+    const total = location.state?.total || (getCartTotal() * 0.85);
 
     const copiarCBU = () => {
         navigator.clipboard.writeText("0140999803200074125413");

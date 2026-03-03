@@ -75,13 +75,13 @@ export const createPreference = async (req, res) => {
             return res.status(400).json({ error: "Faltan datos de envío o contacto." });
         }
 
-        let total = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+        let subtotal = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
         const shipping = parseFloat(shippingCost) || 0;
-        total += shipping;
+        let total = subtotal + shipping;
 
-        // APLICAR DESCUENTO TRANSFERENCIA (5%)
+        // APLICAR DESCUENTO TRANSFERENCIA (15% solo sobre productos)
         if (method === 'transferencia') {
-            total = total * 0.85;
+            total = (subtotal * 0.85) + shipping;
         }
 
         // --- TRANSACCIÓN ACID (Stock + Orden) ---

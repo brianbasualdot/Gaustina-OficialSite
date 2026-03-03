@@ -22,8 +22,8 @@ const CartPage = () => {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
     const shippingCost = customerData?.shippingMethod === 'domicilio' ? 6190 : 0;
     const totalWithShipping = subtotal + shippingCost;
-    const finalTotal = paymentMethod === 'transferencia' ? totalWithShipping * 0.85 : totalWithShipping;
-    const discountAmount = totalWithShipping - finalTotal;
+    const finalTotal = paymentMethod === 'transferencia' ? (subtotal * 0.85) + shippingCost : totalWithShipping;
+    const discountAmount = paymentMethod === 'transferencia' ? subtotal * 0.15 : 0;
 
     useEffect(() => {
         fetch(`${API_URL}/api/products`)
@@ -77,7 +77,7 @@ const CartPage = () => {
 
             if (paymentMethod === 'transferencia') {
                 if (data.orderId) {
-                    navigate('/checkout/transferencia');
+                    navigate('/checkout/transferencia', { state: { total: finalTotal } });
                 }
             } else {
                 if (data.init_point) {
