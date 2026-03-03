@@ -18,7 +18,7 @@ const isVideo = (url) => {
     return videoExtensions.some(ext => url.toLowerCase().includes(ext));
 };
 
-const INITIALS_COLORS = [
+const DEFAULT_INITIALS_COLORS = [
     { name: 'Blanco', hex: '#FFFFFF' },
     { name: 'Negro', hex: '#000000' },
     { name: 'Naranja', hex: '#E67E22' },
@@ -57,8 +57,16 @@ const ProductDetailPage = () => {
     const [selectedEmbroideryColor, setSelectedEmbroideryColor] = useState(null);
     const [initialsCount, setInitialsCount] = useState(1);
     const [initialsValue, setInitialsValue] = useState("");
-    const [selectedInitialsColor, setSelectedInitialsColor] = useState(INITIALS_COLORS[1].name); // Default: Negro
+    const [selectedInitialsColor, setSelectedInitialsColor] = useState('Negro'); // Default: Negro
     const [selectedFont, setSelectedFont] = useState(FONTS[6]); // Default: Pinyon Script
+
+    // Helper para obtener colores de hilos (dinámicos o default)
+    const getInitialsColors = () => {
+        if (product?.customizationOptions?.initialsColors?.length > 0) {
+            return product.customizationOptions.initialsColors.map(c => typeof c === 'string' ? { name: c, hex: null } : c);
+        }
+        return DEFAULT_INITIALS_COLORS;
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -85,6 +93,15 @@ const ProductDetailPage = () => {
                     if (data.customizationOptions?.embroideryColors?.length > 0) {
                         const first = data.customizationOptions.embroideryColors[0];
                         setSelectedEmbroideryColor(typeof first === 'object' ? first.name : first);
+                    }
+
+                    // Set default initials color based on available colors
+                    const initialsColors = data.customizationOptions?.initialsColors;
+                    if (initialsColors && initialsColors.length > 0) {
+                        const first = initialsColors[0];
+                        setSelectedInitialsColor(typeof first === 'object' ? first.name : first);
+                    } else {
+                        setSelectedInitialsColor('Negro');
                     }
                 }
             } catch (error) {
@@ -174,7 +191,7 @@ const ProductDetailPage = () => {
                                         <div
                                             className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
                                             style={{
-                                                color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000',
+                                                color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                 fontFamily: selectedFont.value,
                                                 fontSize: '5.1rem',
                                                 opacity: 0.9,
@@ -316,7 +333,7 @@ const ProductDetailPage = () => {
                                             placeholder={initialsCount === 1 ? "Ej: A" : "Ej: AB"}
                                             className="w-full border-b border-gray-200 focus:border-black py-1 text-lg focus:outline-none bg-transparent"
                                             style={{
-                                                color: INITIALS_COLORS.find(c => c.name === selectedInitialsColor)?.hex || '#000',
+                                                color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                 fontFamily: selectedFont.value
                                             }}
                                         />
@@ -325,7 +342,7 @@ const ProductDetailPage = () => {
                                     <div className="flex-shrink-0">
                                         <label className="text-[10px] text-gray-400 block mb-1.5 uppercase">Hilo:</label>
                                         <div className="flex flex-wrap gap-1.5">
-                                            {INITIALS_COLORS.map(color => (
+                                            {getInitialsColors().map(color => (
                                                 <button
                                                     key={color.name}
                                                     onClick={() => setSelectedInitialsColor(color.name)}
@@ -358,7 +375,7 @@ const ProductDetailPage = () => {
                         </div>
                         <div className="space-y-3">
                             <div className="flex gap-4 border-b border-gray-200 pb-1.5">
-                                {['detalles', 'cuidados', 'envios'].map((tab) => (
+                                {['detalles', 'envios'].map((tab) => (
                                     <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-1.5 text-xs uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
                                 ))}
                             </div>
@@ -370,7 +387,6 @@ const ProductDetailPage = () => {
                                         {!product.materials && !product.measurements && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
                                     </div>
                                 )}
-                                {activeTab === 'cuidados' && <ul className="list-disc pl-4 space-y-1"><li>Lavar a mano o ciclo delicado (agua fría).</li><li>Secar a la sombra.</li></ul>}
                                 {activeTab === 'envios' && <p>Despachamos por Correo Argentino dentro de las 48hs hábiles.</p>}
                             </div>
                         </div>

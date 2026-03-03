@@ -23,6 +23,11 @@ const productSchema = z.object({
             z.string(),
             z.object({ name: z.string(), hex: z.string().nullable().optional() })
         ])).optional(),
+        initialsColors: z.array(z.union([
+            z.string(),
+            z.object({ name: z.string(), hex: z.string().nullable().optional() })
+        ])).optional(),
+        allowInitials: z.boolean().optional(),
     }).optional(),
 });
 

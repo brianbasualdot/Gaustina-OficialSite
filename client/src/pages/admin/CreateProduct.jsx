@@ -20,6 +20,7 @@ const CreateProduct = () => {
     // PERSONALIZACIÓN
     const [fabricColors, setFabricColors] = useState([]);
     const [embroideryColors, setEmbroideryColors] = useState([]);
+    const [initialsColors, setInitialsColors] = useState([]);
 
     // Inputs temporales para agregar color
     const [newFabricColorName, setNewFabricColorName] = useState('');
@@ -27,6 +28,9 @@ const CreateProduct = () => {
 
     const [newEmbroideryColorName, setNewEmbroideryColorName] = useState('');
     const [newEmbroideryColorHex, setNewEmbroideryColorHex] = useState('#000000');
+
+    const [newInitialsColorName, setNewInitialsColorName] = useState('');
+    const [newInitialsColorHex, setNewInitialsColorHex] = useState('#000000');
 
     const [form, setForm] = useState({
         name: '',
@@ -108,6 +112,20 @@ const CreateProduct = () => {
         setEmbroideryColors(embroideryColors.filter((_, i) => i !== index));
     };
 
+    const addInitialsColor = (e) => {
+        e.preventDefault();
+        const name = newInitialsColorName.trim();
+        if (name && !initialsColors.some(c => c.name === name)) {
+            setInitialsColors([...initialsColors, { name, hex: newInitialsColorHex }]);
+            setNewInitialsColorName('');
+            setNewInitialsColorHex('#000000');
+        }
+    };
+
+    const removeInitialsColor = (index) => {
+        setInitialsColors(initialsColors.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -160,6 +178,7 @@ const CreateProduct = () => {
                     customizationOptions: {
                         fabricColors,
                         embroideryColors,
+                        initialsColors,
                         allowInitials: form.allowInitials
                     }
                 })
@@ -389,6 +408,44 @@ const CreateProduct = () => {
                             </div>
                         </label>
                     </div>
+
+                    {/* Colores de Hilos para Iniciales (Solo si allowInitials es true) */}
+                    {form.allowInitials && (
+                        <div className="mt-4 bg-brand-secondary/5 p-4 rounded-lg border border-brand-secondary/20 animate-fade-in">
+                            <label className="block text-sm font-bold text-brand-dark mb-2">Colores de Hilos para Iniciales</label>
+                            <p className="text-xs text-gray-500 mb-4 font-light">Define qué colores de hilo estarán disponibles específicamente para el bordado de personalización.</p>
+
+                            <div className="flex gap-2 mb-3 items-center">
+                                <input
+                                    type="color"
+                                    value={newInitialsColorHex}
+                                    onChange={(e) => setNewInitialsColorHex(e.target.value)}
+                                    className="h-10 w-10 p-1 rounded border border-gray-300 cursor-pointer"
+                                />
+                                <input
+                                    type="text"
+                                    value={newInitialsColorName}
+                                    onChange={(e) => setNewInitialsColorName(e.target.value)}
+                                    placeholder="Ej: Dorado, Blanco..."
+                                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+                                />
+                                <button onClick={addInitialsColor} type="button" className="bg-black text-white hover:bg-gray-800 px-3 py-2 rounded text-sm font-medium">+</button>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                {initialsColors.map((color, idx) => (
+                                    <span key={idx} className="inline-flex items-center px-2 py-1 rounded bg-white border border-gray-200 text-sm gap-2">
+                                        <div className="w-4 h-4 rounded-full border border-gray-300 shadow-sm" style={{ backgroundColor: color.hex }}></div>
+                                        {color.name}
+                                        <button type="button" onClick={() => removeInitialsColor(idx)} className="ml-1 text-red-500 hover:text-red-700">×</button>
+                                    </span>
+                                ))}
+                            </div>
+                            {initialsColors.length === 0 && (
+                                <p className="text-[10px] text-orange-600 mt-2">No has agregado colores específicos. Se usarán los predeterminados.</p>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <button

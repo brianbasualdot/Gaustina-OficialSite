@@ -5,7 +5,6 @@ const ProductInfo = () => {
 
     const tabs = [
         { id: 'materiales', label: 'Materiales' },
-        { id: 'cuidados', label: 'Cuidados' },
         { id: 'envios', label: 'Envíos' }
     ];
 
@@ -19,18 +18,6 @@ const ProductInfo = () => {
                             <li>Tejido pre-lavado (no achica).</li>
                             <li>Textura arrugada natural que no necesita planchado.</li>
                             <li>Hilos de alta resistencia para el bordado.</li>
-                        </ul>
-                    </div>
-                );
-            case 'cuidados':
-                return (
-                    <div className="text-gray-600 font-body leading-relaxed">
-                        <p>Para mantener tus piezas impecables por más tiempo:</p>
-                        <ul className="list-disc pl-5 mt-2 space-y-1">
-                            <li>Lavar a mano o en ciclo delicado con agua fría.</li>
-                            <li>No usar blanqueadores ni lavandina.</li>
-                            <li>Secar a la sombra para preservar el color.</li>
-                            <li>Si deseas planchar, hacerlo del revés para proteger el bordado.</li>
                         </ul>
                     </div>
                 );
