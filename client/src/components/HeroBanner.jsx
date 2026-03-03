@@ -10,7 +10,7 @@ const HeroBanner = () => {
         {
             url: "https://tamyyvryopjvppkjauqa.supabase.co/storage/v1/object/public/products/banner%20celeste%20(1920%20x%201080%20px)%20(1690%20x%20590px).png",
             showContent: false,
-            showOverlay: true
+            showOverlay: false
         }
     ];
 
@@ -44,7 +44,7 @@ const HeroBanner = () => {
 
             {/* Content - Only shown if showContent is true for current slide */}
             {banners[currentSlide].showContent && (
-                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto transition-opacity duration-500 transform translate-y-24">
+                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto transition-all duration-700 ease-out transform translate-y-12 md:translate-y-24">
                     <h1 className="text-5xl md:text-7xl font-heading text-white mb-4 tracking-wide drop-shadow-md">
 
                     </h1>

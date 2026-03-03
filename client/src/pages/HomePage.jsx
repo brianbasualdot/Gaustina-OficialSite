@@ -60,9 +60,20 @@ const HomePage = () => {
                                     <h3 className="text-lg font-heading text-gray-900 group-hover:text-gray-600 transition-colors">
                                         {product.name}
                                     </h3>
-                                    <p className="text-brand-primary font-medium mt-1">
-                                        ${product.price.toLocaleString('es-AR')}
-                                    </p>
+                                    <div className="flex flex-col items-start gap-1 mt-1">
+                                        <p className="text-gray-500 font-body text-xs tracking-wide">
+                                            ${product.price.toLocaleString('es-AR')}{" "}
+                                            <span className="text-[10px] text-gray-400 uppercase">
+                                                (Lista)
+                                            </span>
+                                        </p>
+                                        <p className="text-brand-primary font-body text-sm font-semibold tracking-wider">
+                                            ${(product.price * 0.85).toLocaleString('es-AR')}{" "}
+                                            <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded-full font-bold ml-1 uppercase border border-green-100">
+                                                Transferencia
+                                            </span>
+                                        </p>
+                                    </div>
                                 </Link>
                             </div>
                         ))
