@@ -187,7 +187,7 @@ const ProductDetailPage = () => {
                                     <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
 
                                     {/* PREVISUALIZACIÓN DEL BORDADO */}
-                                    {product.customizationOptions?.allowInitials && initialsValue && product.images && product.images.length > 0 && selectedImage === product.images[0] && (
+                                    {product.customizationOptions?.allowInitials && initialsValue && product.images && product.images.length > 1 && selectedImage === product.images[1] && (
                                         <div
                                             className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
                                             style={{
@@ -257,7 +257,7 @@ const ProductDetailPage = () => {
                         </div>
                         <div className="bg-green-50 border border-green-100 rounded-lg p-2 flex items-center gap-2 mb-5">
                             <Truck className="text-green-700 w-3.5 h-3.5" />
-                            <span className="text-green-800 text-[10px] font-medium">Envío Gratis a sucursal de Correo Argentino.</span>
+                            <span className="text-green-800 text-[11px] font-medium">Envío Gratis a sucursal de Correo Argentino.</span>
                         </div>
                         <p className="text-gray-600 leading-snug mb-5 text-sm font-light whitespace-pre-wrap">{product.description}</p>
 
@@ -390,7 +390,7 @@ const ProductDetailPage = () => {
                                 {activeTab === 'envios' && (
                                     <div className="space-y-1.5">
                                         <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
-                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190).</p>
+                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6473).</p>
                                     </div>
                                 )}
                             </div>

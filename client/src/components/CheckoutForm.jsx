@@ -198,7 +198,7 @@ const CheckoutForm = ({ onDataChange }) => {
                                     <p className="text-xs text-gray-500">Correo Argentino entrega en tu puerta</p>
                                 </div>
                             </div>
-                            <span className="font-bold text-gray-900 text-sm">$6.190</span>
+                            <span className="font-bold text-gray-900 text-sm">$6.473</span>
                         </label>
                     </div>
                 </div>

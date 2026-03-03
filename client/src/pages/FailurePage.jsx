@@ -27,12 +27,12 @@ const FailurePage = () => {
                         Reintentar Pago <RefreshCw size={14} />
                     </Link>
                     <a
-                        href="https://wa.me/5491100000000" // Reemplazar con el real
+                        href="https://wa.me/5492215791290"
                         target="_blank"
                         rel="noreferrer"
                         className="w-full border border-gray-200 text-gray-700 font-heading uppercase tracking-widest text-xs py-4 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                     >
-                        Contactar Soporte <MessageCircle size={14} />
+                        Contactar Soporte | Gaustina <MessageCircle size={14} />
                     </a>
                 </div>
 

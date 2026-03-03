@@ -20,7 +20,7 @@ const CartPage = () => {
     const [isFormValid, setIsFormValid] = useState(false);
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-    const shippingCost = customerData?.shippingMethod === 'domicilio' ? 6190 : 0;
+    const shippingCost = customerData?.shippingMethod === 'domicilio' ? 6473 : 0;
     const totalWithShipping = subtotal + shippingCost;
     const finalTotal = paymentMethod === 'transferencia' ? (subtotal * 0.85) + shippingCost : totalWithShipping;
     const discountAmount = paymentMethod === 'transferencia' ? subtotal * 0.15 : 0;

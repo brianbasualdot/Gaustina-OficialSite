@@ -44,7 +44,7 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Cuáles son las opciones de envío?",
-                    a: "Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190)."
+                    a: "Ofreceamos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6473)."
                 },
                 {
                     q: "¿Cuánto tarda en llegar mi pedido?",
