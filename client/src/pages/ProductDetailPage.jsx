@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
                                                         transform: 'translate(-50%, -50%)',
                                                         color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                         fontFamily: selectedFont.value,
-                                                        fontSize: `${5.1 * (product.customizationOptions.initialsConfig?.scale || 1)}rem`,
+                                                        fontSize: `${3.5 * (product.customizationOptions.initialsConfig?.scale || 1)}rem`,
                                                         opacity: 0.9,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
                                                         textShadow: `
