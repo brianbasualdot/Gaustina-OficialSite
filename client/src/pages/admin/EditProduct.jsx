@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, Loader, ArrowLeft, X, Trash2, Move, Maximize2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -16,6 +15,7 @@ const EditProduct = () => {
     const [fetching, setFetching] = useState(true);
     const [session, setSession] = useState(null);
     const { showToast } = useToast();
+    const containerRef = useRef(null);
 
     // IMÁGENES
     const [existingImages, setExistingImages] = useState([]); // URLs ya guardadas
@@ -659,7 +659,7 @@ const EditProduct = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                                 {/* Canvas de Posicionamiento */}
-                                <div className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100">
+                                <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100">
                                     <img
                                         src={[...existingImages, ...newPreviews][1]}
                                         alt="Canvas"
@@ -671,13 +671,23 @@ const EditProduct = () => {
                                         <motion.div
                                             drag
                                             dragMomentum={false}
+                                            dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
-                                                const rect = e.target.parentElement.getBoundingClientRect();
+                                                const rect = containerRef.current.getBoundingClientRect();
                                                 const x = ((info.point.x - rect.left) / rect.width) * 100;
                                                 const y = ((info.point.y - rect.top) / rect.height) * 100;
-                                                setInitialsConfig(prev => ({ ...prev, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) }));
+                                                setInitialsConfig(prev => ({
+                                                    ...prev,
+                                                    x: Math.max(0, Math.min(100, x)),
+                                                    y: Math.max(0, Math.min(100, y))
+                                                }));
                                             }}
-                                            animate={{ left: `${initialsConfig.x}%`, top: `${initialsConfig.y}%` }}
+                                            animate={{
+                                                left: `${initialsConfig.x}%`,
+                                                top: `${initialsConfig.y}%`,
+                                                x: 0,
+                                                y: 0
+                                            }}
                                             style={{
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
@@ -701,13 +711,23 @@ const EditProduct = () => {
                                         <motion.div
                                             drag
                                             dragMomentum={false}
+                                            dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
-                                                const rect = e.target.parentElement.getBoundingClientRect();
+                                                const rect = containerRef.current.getBoundingClientRect();
                                                 const x = ((info.point.x - rect.left) / rect.width) * 100;
                                                 const y = ((info.point.y - rect.top) / rect.height) * 100;
-                                                setSvgConfig(prev => ({ ...prev, x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) }));
+                                                setSvgConfig(prev => ({
+                                                    ...prev,
+                                                    x: Math.max(0, Math.min(100, x)),
+                                                    y: Math.max(0, Math.min(100, y))
+                                                }));
                                             }}
-                                            animate={{ left: `${svgConfig.x}%`, top: `${svgConfig.y}%` }}
+                                            animate={{
+                                                left: `${svgConfig.x}%`,
+                                                top: `${svgConfig.y}%`,
+                                                x: 0,
+                                                y: 0
+                                            }}
                                             style={{
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
