@@ -44,7 +44,7 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Cuáles son las opciones de envío?",
-                    a: "Ofrecemos Envío GRATIS a cualquier sucursal de Correo Argentino del país. También contamos con Envío a Domicilio con un costo fijo de $6.000 para cualquier punto de Argentina."
+                    a: "Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190)."
                 },
                 {
                     q: "¿Cuánto tarda en llegar mi pedido?",

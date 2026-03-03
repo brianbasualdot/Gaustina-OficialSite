@@ -24,12 +24,8 @@ const ProductInfo = () => {
             case 'envios':
                 return (
                     <div className="text-gray-600 font-body leading-relaxed">
-                        <p>Nosotros nos hacemos cargo del costo. Tu pedido viaja asegurado y sin cargo extra por <strong>Correo Argentino</strong>.</p>
-                        <ul className="list-disc pl-5 mt-2 space-y-1">
-                            <li>Envíos a todo el país.</li>
-                            <li>Tiempo estimado de entrega: 3 a 6 días hábiles una vez despachado.</li>
-                            <li>Recibirás un código de seguimiento por email.</li>
-                        </ul>
+                        <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
+                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190).</p>
                     </div>
                 );
             default:

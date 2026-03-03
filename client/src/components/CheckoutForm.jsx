@@ -10,7 +10,8 @@ const CheckoutForm = ({ onDataChange }) => {
         floor: '',
         apartment: '',
         shippingCity: '',
-        shippingZip: ''
+        shippingZip: '',
+        shippingMethod: 'sucursal'
     });
 
     const [errors, setErrors] = useState({});
@@ -157,6 +158,48 @@ const CheckoutForm = ({ onDataChange }) => {
                             placeholder="CP"
                             className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                         />
+                    </div>
+                </div>
+
+                {/* Método de Envío */}
+                <div className="pt-4 border-t border-gray-100">
+                    <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Método de Envío</label>
+                    <div className="space-y-3">
+                        <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${formData.shippingMethod === 'sucursal' ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="radio"
+                                    name="shippingMethod"
+                                    value="sucursal"
+                                    checked={formData.shippingMethod === 'sucursal'}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-black focus:ring-black border-gray-300"
+                                />
+                                <div className="text-left">
+                                    <p className="font-medium text-gray-900">Retiro en Sucursal Correo Argentino</p>
+                                    <p className="text-xs text-gray-500">Llega a la sucursal más cercana a tu domicilio</p>
+                                </div>
+                            </div>
+                            <span className="font-bold text-green-700 text-sm italic">GRATIS</span>
+                        </label>
+
+                        <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${formData.shippingMethod === 'domicilio' ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-200'}`}>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="radio"
+                                    name="shippingMethod"
+                                    value="domicilio"
+                                    checked={formData.shippingMethod === 'domicilio'}
+                                    onChange={handleChange}
+                                    className="w-4 h-4 text-black focus:ring-black border-gray-300"
+                                />
+                                <div className="text-left">
+                                    <p className="font-medium text-gray-900">Envío a Domicilio</p>
+                                    <p className="text-xs text-gray-500">Correo Argentino entrega en tu puerta</p>
+                                </div>
+                            </div>
+                            <span className="font-bold text-gray-900 text-sm">$6.190</span>
+                        </label>
                     </div>
                 </div>
             </div>

@@ -68,7 +68,7 @@ const createOrderTransaction = async (items, total, type, customerData) => {
 // 2. ENDPOINT: INICIAR PAGO (Preference)
 export const createPreference = async (req, res) => {
     try {
-        const { items, method, customerData } = req.body;
+        const { items, method, customerData, shippingCost } = req.body;
 
         // Validar datos básicos
         if (!customerData || !customerData.customerEmail || !customerData.shippingAddress) {
@@ -76,6 +76,8 @@ export const createPreference = async (req, res) => {
         }
 
         let total = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+        const shipping = parseFloat(shippingCost) || 0;
+        total += shipping;
 
         // APLICAR DESCUENTO TRANSFERENCIA (5%)
         if (method === 'transferencia') {
@@ -112,17 +114,28 @@ export const createPreference = async (req, res) => {
         // Por ahora, el stock ya se descontó. Si no pagan, habría que reponerlo (webhook failure/pending expiry).
         // Simplificamos asumiendo éxito o webhook de cancelación manual.
 
+        const shippingItem = shipping > 0 ? {
+            title: "Envío a Domicilio",
+            quantity: 1,
+            unit_price: shipping,
+            currency_id: 'ARS'
+        } : null;
+
+        const preferenceItems = items.map(item => ({
+            title: item.selectedCustomizations
+                ? `${item.name} (${Object.values(item.selectedCustomizations).join(', ')})`
+                : item.name,
+            quantity: parseInt(item.quantity) || 1,
+            unit_price: Math.round(item.price * 100) / 100, // Round to 2 decimals
+            currency_id: 'ARS',
+            picture_url: item.images?.[0] || ''
+        }));
+
+        if (shippingItem) preferenceItems.push(shippingItem);
+
         const result = await preference.create({
             body: {
-                items: items.map(item => ({
-                    title: item.selectedCustomizations
-                        ? `${item.name} (${Object.values(item.selectedCustomizations).join(', ')})`
-                        : item.name,
-                    quantity: parseInt(item.quantity) || 1,
-                    unit_price: Math.round(item.price * 100) / 100, // Round to 2 decimals
-                    currency_id: 'ARS',
-                    picture_url: item.images?.[0] || ''
-                })),
+                items: preferenceItems,
                 payer: {
                     name: customerData.customerName,
                     email: customerData.customerEmail,

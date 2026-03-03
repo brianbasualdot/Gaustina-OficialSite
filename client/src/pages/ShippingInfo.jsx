@@ -38,7 +38,7 @@ const ShippingInfo = () => {
                                 </div>
                                 <h2 className="font-heading text-xl text-brand-dark mb-4">Envío a Domicilio</h2>
                                 <p className="text-gray-600 text-sm leading-relaxed">
-                                    Si prefieres recibir el paquete en la puerta de tu casa, podrás seleccionar esta opción al finalizar tu compra. Este servicio cuenta con un costo fijo de <strong>$6.000</strong> a cualquier punto del país.
+                                    Si prefieres recibir el paquete en la puerta de tu casa, podrás seleccionar esta opción al finalizar tu compra. Este servicio cuenta con un costo fijo de <strong>$6.190</strong> a cualquier punto del país.
                                 </p>
                             </section>
                         </div>

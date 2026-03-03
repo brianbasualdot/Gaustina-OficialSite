@@ -387,7 +387,12 @@ const ProductDetailPage = () => {
                                         {!product.materials && !product.measurements && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
                                     </div>
                                 )}
-                                {activeTab === 'envios' && <p>Despachamos por Correo Argentino dentro de las 48hs hábiles.</p>}
+                                {activeTab === 'envios' && (
+                                    <div className="space-y-1.5">
+                                        <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
+                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190).</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

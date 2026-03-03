@@ -20,8 +20,10 @@ const CartPage = () => {
     const [isFormValid, setIsFormValid] = useState(false);
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-    const finalTotal = paymentMethod === 'transferencia' ? subtotal * 0.85 : subtotal;
-    const discountAmount = subtotal - finalTotal;
+    const shippingCost = customerData?.shippingMethod === 'domicilio' ? 6190 : 0;
+    const totalWithShipping = subtotal + shippingCost;
+    const finalTotal = paymentMethod === 'transferencia' ? totalWithShipping * 0.85 : totalWithShipping;
+    const discountAmount = totalWithShipping - finalTotal;
 
     useEffect(() => {
         fetch(`${API_URL}/api/products`)
@@ -61,7 +63,8 @@ const CartPage = () => {
                 body: JSON.stringify({
                     items: cartItems,
                     method: paymentMethod,
-                    customerData: finalCustomerData
+                    customerData: finalCustomerData,
+                    shippingCost: shippingCost
                 })
             });
 
@@ -213,7 +216,11 @@ const CartPage = () => {
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span>Envío</span>
-                                    <span className="text-black font-bold text-xs bg-white border border-gray-200 px-2 py-1">GRATIS</span>
+                                    {shippingCost > 0 ? (
+                                        <span className="font-medium">${shippingCost.toLocaleString('es-AR')}</span>
+                                    ) : (
+                                        <span className="text-black font-bold text-xs bg-white border border-gray-200 px-2 py-1">GRATIS</span>
+                                    )}
                                 </div>
                                 <AnimatePresence>
                                     {paymentMethod === 'transferencia' && (
