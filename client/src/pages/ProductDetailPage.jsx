@@ -40,7 +40,7 @@ const FONTS = [
 
 const ProductDetailPage = () => {
     const { id } = useParams();
-    const { addToCart } = useCart();
+    const { cartItems, addToCart } = useCart();
     const { showToast } = useToast();
 
     const [product, setProduct] = useState(null);
@@ -57,7 +57,7 @@ const ProductDetailPage = () => {
     const [selectedEmbroideryColor, setSelectedEmbroideryColor] = useState(null);
     const [initialsCount, setInitialsCount] = useState(1);
     const [initialsValue, setInitialsValue] = useState("");
-    const [selectedInitialsColor, setSelectedInitialsColor] = useState('Negro'); // Default: Negro
+    const [selectedInitialsColor, setSelectedInitialsColor] = useState('Negro'); // Default: Negr
     const [selectedFont, setSelectedFont] = useState(FONTS[6]); // Default: Pinyon Script
 
     // Helper para obtener colores de hilos (dinámicos o default)
@@ -113,11 +113,24 @@ const ProductDetailPage = () => {
         fetchProduct();
     }, [id]);
 
-    const handleIncrement = () => setQuantity(prev => prev + 1);
+    const handleIncrement = () => setQuantity(prev => (prev < (product?.stock || 0) ? prev + 1 : prev));
     const handleDecrement = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
     const handleAddToCart = () => {
         if (!product) return;
+
+        // Validar stock real considerando lo que ya hay en el carrito
+        const unitsInCart = cartItems.filter(item => item.id === product.id).length;
+        const availableStock = product.stock - unitsInCart;
+
+        if (quantity > availableStock) {
+            if (availableStock <= 0) {
+                showToast(`Ya no queda más stock de ${product.name} disponible para agregar.`, "error");
+            } else {
+                showToast(`Solo quedan ${availableStock} unidades disponibles de ${product.name}.`, "error");
+            }
+            return;
+        }
 
         const customization = {};
         if (product.customizationOptions?.fabricColors?.length > 0) {
@@ -390,7 +403,7 @@ const ProductDetailPage = () => {
                                 {activeTab === 'envios' && (
                                     <div className="space-y-1.5">
                                         <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
-                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6473).</p>
+                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional.</p>
                                     </div>
                                 )}
                             </div>

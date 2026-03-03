@@ -25,7 +25,7 @@ const ProductInfo = () => {
                 return (
                     <div className="text-gray-600 font-body leading-relaxed">
                         <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
-                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6190).</p>
+                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional.</p>
                     </div>
                 );
             default:
