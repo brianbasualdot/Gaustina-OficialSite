@@ -21,6 +21,7 @@ import CreateProduct from './pages/admin/CreateProduct';
 import EditProduct from './pages/admin/EditProduct';
 import CategoryManager from './pages/admin/CategoryManager';
 import AdminMessages from './pages/admin/AdminMessages';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
     return (
@@ -55,7 +56,7 @@ function App() {
 
                             <Route
                                 path="*"
-                                element={<div>Página no encontrada</div>}
+                                element={<NotFoundPage />}
                             />
                         </Routes>
                     </Layout>

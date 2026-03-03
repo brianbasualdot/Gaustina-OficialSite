@@ -34,7 +34,10 @@ const productSchema = z.object({
 // GET All (Obtener todos)
 export const getAllProducts = async (req, res) => {
     try {
+        const isAdminRequest = req.headers.authorization;
+        
         const products = await prisma.product.findMany({
+            where: isAdminRequest ? {} : { paused: false },
             include: {
                 orderItems: true,
                 category: true // Incluimos la categoría para agrupar en el frontend
@@ -50,12 +53,17 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
-        // CORRECCIÓN: Convertir ID a Número
+        const isAdminRequest = req.headers.authorization;
+
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) }
         });
 
-        if (!product) return res.status(404).json({ error: 'Product not found' });
+        // Si el producto no existe, o está pausado y no es una petición de admin
+        if (!product || (product.paused && !isAdminRequest)) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+        
         res.json(product);
     } catch (error) {
         res.status(500).json({ error: error.message });

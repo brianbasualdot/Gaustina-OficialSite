@@ -161,14 +161,7 @@ const ProductDetailPage = () => {
         </div>
     );
 
-    if (!product) return (
-        <div className="pt-24 container mx-auto px-4 py-24 text-center">
-            <h2 className="text-2xl font-heading mb-4">Producto no encontrado</h2>
-            <Link to="/productos" className="bg-black text-white px-6 py-2 rounded-full">
-                Volver
-            </Link>
-        </div>
-    );
+    if (!product) return <NotFoundPage />;
 
     const hasImages = product.images && product.images.length > 0;
     const mainImageSrc = selectedImage || "https://via.placeholder.com/600?text=Sin+Imagen";
