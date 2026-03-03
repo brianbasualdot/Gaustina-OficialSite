@@ -674,8 +674,12 @@ const EditProduct = () => {
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
                                                 const rect = containerRef.current.getBoundingClientRect();
-                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
-                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                // Corregimos para que siempre sea relativo al viewport, evitando saltos por scroll
+                                                const clientX = e.clientX || (e.changedTouches?.[0]?.clientX) || info.point.x;
+                                                const clientY = e.clientY || (e.changedTouches?.[0]?.clientY) || info.point.y;
+
+                                                const x = ((clientX - rect.left) / rect.width) * 100;
+                                                const y = ((clientY - rect.top) / rect.height) * 100;
                                                 setInitialsConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -688,6 +692,7 @@ const EditProduct = () => {
                                                 x: 0,
                                                 y: 0
                                             }}
+                                            transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
@@ -714,8 +719,11 @@ const EditProduct = () => {
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
                                                 const rect = containerRef.current.getBoundingClientRect();
-                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
-                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                const clientX = e.clientX || (e.changedTouches?.[0]?.clientX) || info.point.x;
+                                                const clientY = e.clientY || (e.changedTouches?.[0]?.clientY) || info.point.y;
+
+                                                const x = ((clientX - rect.left) / rect.width) * 100;
+                                                const y = ((clientY - rect.top) / rect.height) * 100;
                                                 setSvgConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -728,6 +736,7 @@ const EditProduct = () => {
                                                 x: 0,
                                                 y: 0
                                             }}
+                                            transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
