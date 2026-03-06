@@ -195,38 +195,39 @@ const ProductDetailPage = () => {
                     <div className="space-y-4">
                         <div
                             className="aspect-square rounded-2xl overflow-hidden bg-gray-100 shadow-sm relative group cursor-zoom-in"
+                            style={{ containerType: 'inline-size' }}
+                            onClick={() => !isVideo(mainImageSrc) && hasImages && setIsGalleryOpen(true)}
                         >
                             {isVideo(mainImageSrc) ? (
                                 <video src={mainImageSrc} className="w-full h-full object-cover" controls autoPlay muted loop playsInline />
                             ) : (
-                                <div className="relative w-full h-full" onClick={() => hasImages && setIsGalleryOpen(true)} style={{ containerType: 'inline-size' }}>
-                                    <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
+                                <>
+                                    <img
+                                        src={mainImageSrc}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                                    />
 
                                     {/* PREVISUALIZACIÓN DE PERSONALIZACIÓN (Solo en la segunda imagen) */}
                                     {product.images && product.images.length > 1 && selectedImage === product.images[1] && (
-                                        <>
+                                        <div className="absolute inset-0 pointer-events-none">
                                             {/* INICIALES */}
                                             {product.customizationOptions?.allowInitials && initialsValue && (
                                                 <div
                                                     className="absolute pointer-events-none z-10"
                                                     style={{
-                                                        left: `${product.customizationOptions.initialsConfig?.x || 50}%`,
-                                                        top: `${product.customizationOptions.initialsConfig?.y || 50}%`,
+                                                        left: `${parseFloat(product.customizationOptions.initialsConfig?.x) || 50}%`,
+                                                        top: `${parseFloat(product.customizationOptions.initialsConfig?.y) || 50}%`,
                                                         transform: 'translate(-50%, -50%)',
                                                         color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                         fontFamily: selectedFont.value,
-                                                        fontSize: `calc(${7 * (product.customizationOptions.initialsConfig?.scale || 1)}cqw)`,
+                                                        fontSize: `calc(${7 * (parseFloat(product.customizationOptions.initialsConfig?.scale) || 1)}cqw)`,
                                                         opacity: 0.9,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
-                                                        textShadow: `
-                                                            0.5px 0.5px 0px rgba(255,255,255,0.2), 
-                                                            -0.5px -0.5px 0px rgba(0,0,0,0.2),
-                                                            0px 0px 2px rgba(0,0,0,0.1)
-                                                        `,
+                                                        textShadow: '0.5px 0.5px 0px rgba(255,255,255,0.2), -0.5px -0.5px 0px rgba(0,0,0,0.2)',
                                                         letterSpacing: '0.05em',
                                                         lineHeight: 1,
                                                         whiteSpace: 'nowrap',
-                                                        padding: '0',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center'
@@ -243,11 +244,11 @@ const ProductDetailPage = () => {
                                                 <div
                                                     className="absolute pointer-events-none z-10"
                                                     style={{
-                                                        left: `${product.customizationOptions.svgConfig?.x || 50}%`,
-                                                        top: `${product.customizationOptions.svgConfig?.y || 50}%`,
+                                                        left: `${parseFloat(product.customizationOptions.svgConfig?.x) || 50}%`,
+                                                        top: `${parseFloat(product.customizationOptions.svgConfig?.y) || 50}%`,
                                                         transform: 'translate(-50%, -50%)',
-                                                        width: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`,
-                                                        height: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`,
+                                                        width: `calc(${15 * (parseFloat(product.customizationOptions.svgConfig?.scale) || 1)}cqw)`,
+                                                        height: `calc(${15 * (parseFloat(product.customizationOptions.svgConfig?.scale) || 1)}cqw)`,
                                                         opacity: 0.8,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))',
                                                         display: 'flex',
@@ -258,9 +259,9 @@ const ProductDetailPage = () => {
                                                     <img src={selectedSvg} alt="Custom SVG" className="w-full h-full object-contain" style={{ filter: 'grayscale(1) contrast(1.2)' }} />
                                                 </div>
                                             )}
-                                        </>
+                                        </div>
                                     )}
-                                </div>
+                                </>
                             )}
                             {hasImages && !isVideo(mainImageSrc) && (
                                 <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full text-gray-700 opacity-0 group-hover:opacity-100 transition-opacity">
