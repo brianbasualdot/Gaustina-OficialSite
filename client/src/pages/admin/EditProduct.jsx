@@ -98,10 +98,20 @@ const EditProduct = () => {
                 setExistingSvgs(product.customizationOptions?.svgLibrary || []);
 
                 if (product.customizationOptions?.initialsConfig) {
-                    setInitialsConfig(product.customizationOptions.initialsConfig);
+                    const config = product.customizationOptions.initialsConfig;
+                    setInitialsConfig({
+                        x: parseFloat(config.x) || 50,
+                        y: parseFloat(config.y) || 50,
+                        scale: parseFloat(config.scale) || 1
+                    });
                 }
                 if (product.customizationOptions?.svgConfig) {
-                    setSvgConfig(product.customizationOptions.svgConfig);
+                    const config = product.customizationOptions.svgConfig;
+                    setSvgConfig({
+                        x: parseFloat(config.x) || 50,
+                        y: parseFloat(config.y) || 50,
+                        scale: parseFloat(config.scale) || 1
+                    });
                 }
 
                 if (product.customizationOptions) {
@@ -661,7 +671,7 @@ const EditProduct = () => {
                                 {/* Canvas de Posicionamiento */}
                                 <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100" style={{ containerType: 'inline-size' }}>
                                     <img
-                                        src={[...existingImages, ...newPreviews][1]}
+                                        src={[...existingImages, ...newPreviews] && [...existingImages, ...newPreviews].length >= 2 ? [...existingImages, ...newPreviews][1] : [...existingImages, ...newPreviews][0]}
                                         alt="Canvas"
                                         className="w-full h-full object-cover opacity-60 pointer-events-none"
                                     />
@@ -686,13 +696,12 @@ const EditProduct = () => {
                                             animate={{
                                                 left: `${initialsConfig.x}%`,
                                                 top: `${initialsConfig.y}%`,
-                                                x: 0,
-                                                y: 0
+                                                x: '-50%',
+                                                y: '-50%'
                                             }}
                                             transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
-                                                transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
                                                 fontSize: `calc(${7 * initialsConfig.scale}cqw)`, // 7% del ancho del contenedor REAL
                                                 fontWeight: 'bold',
@@ -730,13 +739,12 @@ const EditProduct = () => {
                                             animate={{
                                                 left: `${svgConfig.x}%`,
                                                 top: `${svgConfig.y}%`,
-                                                x: 0,
-                                                y: 0
+                                                x: '-50%',
+                                                y: '-50%'
                                             }}
                                             transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
-                                                transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
                                                 width: `calc(${15 * svgConfig.scale}cqw)`, // 15% del ancho del contenedor REAL
                                                 height: `calc(${15 * svgConfig.scale}cqw)`,

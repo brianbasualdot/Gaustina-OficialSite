@@ -574,13 +574,12 @@ const CreateProduct = () => {
                                             animate={{
                                                 left: `${initialsConfig.x}%`,
                                                 top: `${initialsConfig.y}%`,
-                                                x: 0,
-                                                y: 0
+                                                x: '-50%',
+                                                y: '-50%'
                                             }}
                                             transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
-                                                transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
                                                 fontSize: `calc(${7 * initialsConfig.scale}cqw)`, // 7% del ancho del contenedor REAL
                                                 fontWeight: 'bold',
@@ -618,13 +617,12 @@ const CreateProduct = () => {
                                             animate={{
                                                 left: `${svgConfig.x}%`,
                                                 top: `${svgConfig.y}%`,
-                                                x: 0,
-                                                y: 0
+                                                x: '-50%',
+                                                y: '-50%'
                                             }}
                                             transition={{ type: 'just' }}
                                             style={{
                                                 position: 'absolute',
-                                                transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
                                                 width: `calc(${15 * svgConfig.scale}cqw)`, // 15% del ancho del contenedor REAL
                                                 height: `calc(${15 * svgConfig.scale}cqw)`,
