@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
                                                         transform: 'translate(-50%, -50%)',
                                                         color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                         fontFamily: selectedFont.value,
-                                                        fontSize: `${3.5 * (product.customizationOptions.initialsConfig?.scale || 1)}rem`,
+                                                        fontSize: `${7 * (product.customizationOptions.initialsConfig?.scale || 1)}%`, // Base 7% del ancho del contenedor
                                                         opacity: 0.9,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
                                                         textShadow: `
@@ -223,7 +223,13 @@ const ProductDetailPage = () => {
                                                             -0.5px -0.5px 0px rgba(0,0,0,0.2),
                                                             0px 0px 2px rgba(0,0,0,0.1)
                                                         `,
-                                                        letterSpacing: '0.05em'
+                                                        letterSpacing: '0.05em',
+                                                        lineHeight: 1,
+                                                        width: '100%',
+                                                        textAlign: 'center',
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center'
                                                     }}
                                                 >
                                                     <span className="bg-transparent mix-blend-multiply italic">
@@ -240,8 +246,8 @@ const ProductDetailPage = () => {
                                                         left: `${product.customizationOptions.svgConfig?.x || 50}%`,
                                                         top: `${product.customizationOptions.svgConfig?.y || 50}%`,
                                                         transform: 'translate(-50%, -50%)',
-                                                        width: `${80 * (product.customizationOptions.svgConfig?.scale || 1)}px`,
-                                                        height: `${80 * (product.customizationOptions.svgConfig?.scale || 1)}px`,
+                                                        width: `${15 * (product.customizationOptions.svgConfig?.scale || 1)}%`, // Base 15% del ancho del contenedor
+                                                        height: `${15 * (product.customizationOptions.svgConfig?.scale || 1)}%`,
                                                         opacity: 0.8,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))'
                                                     }}

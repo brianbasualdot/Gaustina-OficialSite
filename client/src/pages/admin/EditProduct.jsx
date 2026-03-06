@@ -674,12 +674,8 @@ const EditProduct = () => {
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
                                                 const rect = containerRef.current.getBoundingClientRect();
-                                                // Corregimos para que siempre sea relativo al viewport, evitando saltos por scroll
-                                                const clientX = e.clientX || (e.changedTouches?.[0]?.clientX) || info.point.x;
-                                                const clientY = e.clientY || (e.changedTouches?.[0]?.clientY) || info.point.y;
-
-                                                const x = ((clientX - rect.left) / rect.width) * 100;
-                                                const y = ((clientY - rect.top) / rect.height) * 100;
+                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
+                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
                                                 setInitialsConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -697,13 +693,14 @@ const EditProduct = () => {
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
-                                                fontSize: `${3.5 * initialsConfig.scale}rem`,
+                                                fontSize: `${7 * initialsConfig.scale}%`, // Base 7% del ancho del contenedor
                                                 fontWeight: 'bold',
                                                 color: '#000',
                                                 background: 'rgba(255,255,255,0.2)',
-                                                padding: '0px 4px',
+                                                padding: '0.1% 0.5%',
                                                 border: '1px dashed rgba(0,0,0,0.3)',
-                                                zIndex: 20
+                                                zIndex: 20,
+                                                lineHeight: 1
                                             }}
                                             whileDrag={{ cursor: 'grabbing', scale: 1.1 }}
                                         >
@@ -719,11 +716,8 @@ const EditProduct = () => {
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
                                                 const rect = containerRef.current.getBoundingClientRect();
-                                                const clientX = e.clientX || (e.changedTouches?.[0]?.clientX) || info.point.x;
-                                                const clientY = e.clientY || (e.changedTouches?.[0]?.clientY) || info.point.y;
-
-                                                const x = ((clientX - rect.left) / rect.width) * 100;
-                                                const y = ((clientY - rect.top) / rect.height) * 100;
+                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
+                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
                                                 setSvgConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -741,8 +735,8 @@ const EditProduct = () => {
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
-                                                width: `${80 * svgConfig.scale}px`,
-                                                height: `${80 * svgConfig.scale}px`,
+                                                width: `${15 * svgConfig.scale}%`, // Base 15% del ancho del contenedor
+                                                height: `${15 * svgConfig.scale}%`,
                                                 border: '1px dashed rgba(59, 130, 246, 0.5)',
                                                 background: 'rgba(59, 130, 246, 0.1)',
                                                 display: 'flex',
