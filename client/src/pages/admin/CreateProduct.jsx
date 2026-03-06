@@ -560,10 +560,15 @@ const CreateProduct = () => {
                                             dragMomentum={false}
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
-                                                const rect = containerRef.current.getBoundingClientRect();
-                                                // Usamos point relativo al viewport y restamos el rect del contenedor
-                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
-                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                const containerRect = containerRef.current.getBoundingClientRect();
+                                                const elementRect = e.target.getBoundingClientRect();
+
+                                                // Calcular el centro del elemento relativo al contenedor
+                                                const centerX = elementRect.left + elementRect.width / 2;
+                                                const centerY = elementRect.top + elementRect.height / 2;
+
+                                                const x = ((centerX - containerRect.left) / containerRect.width) * 100;
+                                                const y = ((centerY - containerRect.top) / containerRect.height) * 100;
 
                                                 setInitialsConfig(prev => ({
                                                     ...prev,
@@ -581,15 +586,18 @@ const CreateProduct = () => {
                                             style={{
                                                 position: 'absolute',
                                                 cursor: 'grab',
-                                                fontSize: `calc(${7 * initialsConfig.scale}cqw)`, // 7% del ancho del contenedor REAL
+                                                fontSize: `calc(${7 * initialsConfig.scale}cqw)`,
                                                 fontWeight: 'bold',
                                                 color: '#000',
-                                                background: 'rgba(255,255,255,0.2)',
-                                                padding: '0.5cqw 1cqw',
+                                                background: 'transparent',
+                                                padding: '0',
                                                 border: '1px dashed rgba(0,0,0,0.3)',
                                                 zIndex: 20,
                                                 lineHeight: 1,
-                                                whiteSpace: 'nowrap'
+                                                whiteSpace: 'nowrap',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
                                             }}
                                             whileDrag={{ cursor: 'grabbing', scale: 1.1 }}
                                         >
@@ -604,9 +612,14 @@ const CreateProduct = () => {
                                             dragMomentum={false}
                                             dragConstraints={containerRef}
                                             onDragEnd={(e, info) => {
-                                                const rect = containerRef.current.getBoundingClientRect();
-                                                const x = ((info.point.x - rect.left) / rect.width) * 100;
-                                                const y = ((info.point.y - rect.top) / rect.height) * 100;
+                                                const containerRect = containerRef.current.getBoundingClientRect();
+                                                const elementRect = e.target.getBoundingClientRect();
+
+                                                const centerX = elementRect.left + elementRect.width / 2;
+                                                const centerY = elementRect.top + elementRect.height / 2;
+
+                                                const x = ((centerX - containerRect.left) / containerRect.width) * 100;
+                                                const y = ((centerY - containerRect.top) / containerRect.height) * 100;
 
                                                 setSvgConfig(prev => ({
                                                     ...prev,

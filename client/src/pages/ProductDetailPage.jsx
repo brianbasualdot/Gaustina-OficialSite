@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
                                                         transform: 'translate(-50%, -50%)',
                                                         color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                         fontFamily: selectedFont.value,
-                                                        fontSize: `calc(${7 * (product.customizationOptions.initialsConfig?.scale || 1)}cqw)`, // 7% del ancho del contenedor REAL
+                                                        fontSize: `calc(${7 * (product.customizationOptions.initialsConfig?.scale || 1)}cqw)`,
                                                         opacity: 0.9,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
                                                         textShadow: `
@@ -225,7 +225,11 @@ const ProductDetailPage = () => {
                                                         `,
                                                         letterSpacing: '0.05em',
                                                         lineHeight: 1,
-                                                        whiteSpace: 'nowrap'
+                                                        whiteSpace: 'nowrap',
+                                                        padding: '0',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
                                                     }}
                                                 >
                                                     <span className="bg-transparent mix-blend-multiply italic">
@@ -242,10 +246,13 @@ const ProductDetailPage = () => {
                                                         left: `${product.customizationOptions.svgConfig?.x || 50}%`,
                                                         top: `${product.customizationOptions.svgConfig?.y || 50}%`,
                                                         transform: 'translate(-50%, -50%)',
-                                                        width: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`, // 15% del ancho del contenedor REAL
+                                                        width: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`,
                                                         height: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`,
                                                         opacity: 0.8,
-                                                        filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))'
+                                                        filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
                                                     }}
                                                 >
                                                     <img src={selectedSvg} alt="Custom SVG" className="w-full h-full object-contain" style={{ filter: 'grayscale(1) contrast(1.2)' }} />
