@@ -199,7 +199,7 @@ const ProductDetailPage = () => {
                             {isVideo(mainImageSrc) ? (
                                 <video src={mainImageSrc} className="w-full h-full object-cover" controls autoPlay muted loop playsInline />
                             ) : (
-                                <div className="relative w-full h-full" onClick={() => hasImages && setIsGalleryOpen(true)}>
+                                <div className="relative w-full h-full" onClick={() => hasImages && setIsGalleryOpen(true)} style={{ containerType: 'inline-size' }}>
                                     <img src={mainImageSrc} alt={product.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
 
                                     {/* PREVISUALIZACIÓN DE PERSONALIZACIÓN (Solo en la segunda imagen) */}
@@ -215,7 +215,7 @@ const ProductDetailPage = () => {
                                                         transform: 'translate(-50%, -50%)',
                                                         color: getInitialsColors().find(c => c.name === selectedInitialsColor)?.hex || '#000',
                                                         fontFamily: selectedFont.value,
-                                                        fontSize: `${7 * (product.customizationOptions.initialsConfig?.scale || 1)}%`, // Base 7% del ancho del contenedor
+                                                        fontSize: `calc(${7 * (product.customizationOptions.initialsConfig?.scale || 1)}cqw)`, // 7% del ancho del contenedor REAL
                                                         opacity: 0.9,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.3))',
                                                         textShadow: `
@@ -225,11 +225,7 @@ const ProductDetailPage = () => {
                                                         `,
                                                         letterSpacing: '0.05em',
                                                         lineHeight: 1,
-                                                        width: '100%',
-                                                        textAlign: 'center',
-                                                        display: 'flex',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center'
+                                                        whiteSpace: 'nowrap'
                                                     }}
                                                 >
                                                     <span className="bg-transparent mix-blend-multiply italic">
@@ -246,8 +242,8 @@ const ProductDetailPage = () => {
                                                         left: `${product.customizationOptions.svgConfig?.x || 50}%`,
                                                         top: `${product.customizationOptions.svgConfig?.y || 50}%`,
                                                         transform: 'translate(-50%, -50%)',
-                                                        width: `${15 * (product.customizationOptions.svgConfig?.scale || 1)}%`, // Base 15% del ancho del contenedor
-                                                        height: `${15 * (product.customizationOptions.svgConfig?.scale || 1)}%`,
+                                                        width: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`, // 15% del ancho del contenedor REAL
+                                                        height: `calc(${15 * (product.customizationOptions.svgConfig?.scale || 1)}cqw)`,
                                                         opacity: 0.8,
                                                         filter: 'drop-shadow(0px 1px 1px rgba(0,0,0,0.2))'
                                                     }}

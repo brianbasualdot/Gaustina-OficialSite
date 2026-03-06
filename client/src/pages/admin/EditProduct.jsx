@@ -659,7 +659,7 @@ const EditProduct = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                                 {/* Canvas de Posicionamiento */}
-                                <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100">
+                                <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100" style={{ containerType: 'inline-size' }}>
                                     <img
                                         src={[...existingImages, ...newPreviews][1]}
                                         alt="Canvas"
@@ -676,6 +676,7 @@ const EditProduct = () => {
                                                 const rect = containerRef.current.getBoundingClientRect();
                                                 const x = ((info.point.x - rect.left) / rect.width) * 100;
                                                 const y = ((info.point.y - rect.top) / rect.height) * 100;
+
                                                 setInitialsConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -693,14 +694,15 @@ const EditProduct = () => {
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
-                                                fontSize: `${7 * initialsConfig.scale}%`, // Base 7% del ancho del contenedor
+                                                fontSize: `calc(${7 * initialsConfig.scale}cqw)`, // 7% del ancho del contenedor REAL
                                                 fontWeight: 'bold',
                                                 color: '#000',
                                                 background: 'rgba(255,255,255,0.2)',
-                                                padding: '0.1% 0.5%',
+                                                padding: '0.5cqw 1cqw',
                                                 border: '1px dashed rgba(0,0,0,0.3)',
                                                 zIndex: 20,
-                                                lineHeight: 1
+                                                lineHeight: 1,
+                                                whiteSpace: 'nowrap'
                                             }}
                                             whileDrag={{ cursor: 'grabbing', scale: 1.1 }}
                                         >
@@ -718,6 +720,7 @@ const EditProduct = () => {
                                                 const rect = containerRef.current.getBoundingClientRect();
                                                 const x = ((info.point.x - rect.left) / rect.width) * 100;
                                                 const y = ((info.point.y - rect.top) / rect.height) * 100;
+
                                                 setSvgConfig(prev => ({
                                                     ...prev,
                                                     x: Math.max(0, Math.min(100, x)),
@@ -735,8 +738,8 @@ const EditProduct = () => {
                                                 position: 'absolute',
                                                 transform: 'translate(-50%, -50%)',
                                                 cursor: 'grab',
-                                                width: `${15 * svgConfig.scale}%`, // Base 15% del ancho del contenedor
-                                                height: `${15 * svgConfig.scale}%`,
+                                                width: `calc(${15 * svgConfig.scale}cqw)`, // 15% del ancho del contenedor REAL
+                                                height: `calc(${15 * svgConfig.scale}cqw)`,
                                                 border: '1px dashed rgba(59, 130, 246, 0.5)',
                                                 background: 'rgba(59, 130, 246, 0.1)',
                                                 display: 'flex',
