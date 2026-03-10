@@ -10,6 +10,8 @@ import { motion } from 'framer-motion';
 // 1. IMPORTAR LA LIBRERÍA Y SUS ESTILOS
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -310,7 +312,18 @@ const ProductDetailPage = () => {
                             <Truck className="text-green-700 w-3.5 h-3.5" />
                             <span className="text-green-800 text-[11px] font-medium">Envío Gratis a sucursal de Correo Argentino.</span>
                         </div>
-                        <p className="text-gray-600 leading-snug mb-5 text-sm font-light whitespace-pre-wrap">{product.description}</p>
+                        <div className="text-gray-600 mb-5 text-sm font-light">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                                p: ({ node, ...props }) => <p className="mb-2 leading-snug whitespace-pre-wrap" {...props} />,
+                                strong: ({ node, ...props }) => <strong className="font-bold text-gray-900" {...props} />,
+                                em: ({ node, ...props }) => <em className="italic" {...props} />,
+                                del: ({ node, ...props }) => <del className="line-through opacity-70" {...props} />,
+                                ul: ({ node, ...props }) => <ul className="list-disc ml-4 mb-2" {...props} />,
+                                li: ({ node, ...props }) => <li className="mb-1" {...props} />
+                            }}>
+                                {product.description}
+                            </ReactMarkdown>
+                        </div>
 
                         <div className="space-y-3 mb-8">
                             <div className="flex gap-4 border-b border-gray-200 pb-1.5">

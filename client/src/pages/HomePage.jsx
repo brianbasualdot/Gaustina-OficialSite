@@ -24,8 +24,8 @@ const HomePage = () => {
     return (
         <div className="bg-white min-h-screen font-body">
             <SeoHead
-                title="Gaustina | Necessers & Bordados"
-                description="Diseños únicos en tusor, hechos a mano en Argentina."
+                title="Gaustina | Neceseres Bordados"
+                description="Diseños únicos, hechos en Argentina."
             />
 
             <HeroBanner />
