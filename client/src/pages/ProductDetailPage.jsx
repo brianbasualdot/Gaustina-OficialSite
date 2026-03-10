@@ -312,6 +312,29 @@ const ProductDetailPage = () => {
                         </div>
                         <p className="text-gray-600 leading-snug mb-5 text-sm font-light whitespace-pre-wrap">{product.description}</p>
 
+                        <div className="space-y-3 mb-8">
+                            <div className="flex gap-4 border-b border-gray-200 pb-1.5">
+                                {['detalles', 'envios'].map((tab) => (
+                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-1.5 text-xs uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
+                                ))}
+                            </div>
+                            <div className="py-1 text-gray-600 text-xs leading-relaxed min-h-[60px]">
+                                {activeTab === 'detalles' && (
+                                    <div className="space-y-1.5">
+                                        {product.materials && <p><span className="font-semibold">Material:</span> {product.materials}</p>}
+                                        {product.measurements && <p><span className="font-semibold">Medidas:</span> {product.measurements}</p>}
+                                        {!product.materials && !product.measurements && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
+                                    </div>
+                                )}
+                                {activeTab === 'envios' && (
+                                    <div className="space-y-1.5">
+                                        <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
+                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {product.customizationOptions && (
                             <div className="flex flex-col sm:flex-row gap-8 mb-6 border-t border-b border-gray-100 py-5">
                                 {product.customizationOptions.fabricColors?.length > 0 && (
@@ -448,28 +471,7 @@ const ProductDetailPage = () => {
                                 {product.paused ? 'Pausada' : product.stock > 0 ? 'Agregar al Carrito' : 'Sin Stock'}
                             </motion.button>
                         </div>
-                        <div className="space-y-3">
-                            <div className="flex gap-4 border-b border-gray-200 pb-1.5">
-                                {['detalles', 'envios'].map((tab) => (
-                                    <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-1.5 text-xs uppercase tracking-wide transition-colors ${activeTab === tab ? 'border-b-2 border-black text-black font-medium' : 'text-gray-400 hover:text-gray-600'}`}>{tab}</button>
-                                ))}
-                            </div>
-                            <div className="py-3 text-gray-600 text-xs leading-relaxed min-h-[80px]">
-                                {activeTab === 'detalles' && (
-                                    <div className="space-y-1.5">
-                                        {product.materials && <p><span className="font-semibold">Material:</span> {product.materials}</p>}
-                                        {product.measurements && <p><span className="font-semibold">Medidas:</span> {product.measurements}</p>}
-                                        {!product.materials && !product.measurements && <p>Confeccionado en Tusor 100% algodón de alto gramaje.</p>}
-                                    </div>
-                                )}
-                                {activeTab === 'envios' && (
-                                    <div className="space-y-1.5">
-                                        <p>Ofrecemos envió gratis a sucursal de correo argentino en cualquier punto del país.</p>
-                                        <p>Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -480,6 +482,7 @@ const ProductDetailPage = () => {
                         open={isGalleryOpen}
                         close={() => setIsGalleryOpen(false)}
                         index={product.images.indexOf(selectedImage)}
+                        className="custom-lightbox"
                         slides={product.images.map(imgUrl => isVideo(imgUrl) ? { type: "video", sources: [{ src: imgUrl, type: "video/mp4" }] } : { src: imgUrl })}
                         render={{
                             slide: ({ slide }) => {
