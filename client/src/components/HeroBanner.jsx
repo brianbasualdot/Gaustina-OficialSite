@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const HeroBanner = () => {
     const banners = [
@@ -51,9 +52,11 @@ const HeroBanner = () => {
                     <p className="text-lg md:text-xl font-heading font-light text-gray-100 mb-10 max-w-2xl mx-auto tracking-wider uppercase">
 
                     </p>
-                    <button className="bg-transparent border border-white text-white px-10 py-3 font-heading font-normal uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-brand-primary transition-all duration-500 ease-in-out">
-                        Personaliza el tuyo
-                    </button>
+                    <Link to="/productos" className="inline-block">
+                        <button className="bg-transparent border border-white text-white px-10 py-3 font-heading font-normal uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-brand-primary transition-all duration-500 ease-in-out">
+                            Personaliza el tuyo
+                        </button>
+                    </Link>
                 </div>
             )}
 
