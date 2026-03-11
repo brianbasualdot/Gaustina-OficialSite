@@ -1,0 +1,19 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Permitir específicamente a Pinterest
+User-agent: Pinterestbot
+Allow: /
+
+# Permitir explícitamente a Google
+User-agent: Googlebot
+Allow: /
+User-agent: Googlebot-Image
+Allow: /
+
+# Permitir explícitamente a Meta (Facebook/Instagram)
+User-agent: facebookexternalhit
+Allow: /
+User-agent: Facebot
+Allow: /
