@@ -1,19 +1,37 @@
-# https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Allow: /
-
-# Permitir específicamente a Pinterest
+# 1. BOTS ESPECÍFICOS (Permitidos para SEO, Redes y Ventas)
 User-agent: Pinterestbot
 Allow: /
 
-# Permitir explícitamente a Google
 User-agent: Googlebot
-Allow: /
 User-agent: Googlebot-Image
 Allow: /
 
-# Permitir explícitamente a Meta (Facebook/Instagram)
 User-agent: facebookexternalhit
-Allow: /
 User-agent: Facebot
 Allow: /
+
+User-agent: TikTokBot
+Allow: /
+
+# Permitir a Mercado Libre (verificación de Ads y links)
+User-agent: MeliCrawler
+User-agent: MercadoBot
+Allow: /
+
+# 2. BOTS DE IA ESPECÍFICOS (Bloqueados para proteger tu contenido)
+User-agent: Amazonbot
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: CCBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: GPTBot
+User-agent: meta-externalagent
+Disallow: /
+
+# 3. REGLA GENERAL PARA TODOS LOS DEMÁS
+# BEGIN Cloudflare Managed content
+User-agent: *
+Content-Signal: search=yes,ai-train=no
+Allow: /
+# END Cloudflare Managed Content
