@@ -1,4 +1,17 @@
 {
+    "redirects": [
+        {
+            "source": "/(.*)",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "gaustina.com.ar"
+                }
+            ],
+            "destination": "https://www.gaustina.com.ar/$1",
+            "permanent": true
+        }
+    ],
     "headers": [
         {
             "source": "/robots.txt",
