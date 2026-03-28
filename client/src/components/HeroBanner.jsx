@@ -36,7 +36,7 @@ const HeroBanner = () => {
                 >
                     <img
                         src={item.url}
-                        alt={`Bordados Hero ${index + 1}`}
+                        alt={`Gaustina - Neceseres y Bolsos Bordados Personalizados - Hero ${index + 1}`}
                         className="w-full h-full object-contain md:object-cover object-center"
                     />
                     {item.showOverlay && <div className="absolute inset-0 bg-black/30"></div>}
@@ -47,10 +47,10 @@ const HeroBanner = () => {
             {banners[currentSlide].showContent && (
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto transition-all duration-700 ease-out transform translate-y-12 md:translate-y-24">
                     <h1 className="text-5xl md:text-7xl font-heading text-white mb-4 tracking-wide drop-shadow-md">
-
+                        Gaustina
                     </h1>
                     <p className="text-lg md:text-xl font-heading font-light text-gray-100 mb-10 max-w-2xl mx-auto tracking-wider uppercase">
-
+                        Neceseres & Bolsos Bordados
                     </p>
                     <Link to="/productos" className="inline-block">
                         <button className="bg-transparent border border-white text-white px-10 py-3 font-heading font-normal uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-brand-primary transition-all duration-500 ease-in-out">

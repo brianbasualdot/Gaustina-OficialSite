@@ -34,8 +34,9 @@ const ProductsPage = () => {
     return (
         <div className="pt-20 bg-white min-h-screen">
             <SeoHead
-                title="Colección | Gaustina"
-                description="Explora nuestra colección completa de necessers y accesorios personalizados."
+                title="Catálogo de Neceseres Bordados | Colección Gaustina"
+                description="Explorá nuestra colección completa de neceseres y bolsos bordados. Personalización exclusiva, diseños únicos en tusor 100% algodón. Envíos a todo el país."
+                url="/productos"
             />
 
             <div className="container mx-auto px-4 py-16 max-w-6xl">

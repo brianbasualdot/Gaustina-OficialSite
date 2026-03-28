@@ -24,8 +24,9 @@ const HomePage = () => {
     return (
         <div className="bg-white min-h-screen font-body">
             <SeoHead
-                title="Gaustina | Neceseres Bordados"
-                description="Diseños únicos, hechos en Argentina."
+                title="Gaustina | Neceseres & Bolsos Bordados Personalizados"
+                description="Descubrí nuestra colección de neceseres y bolsos bordados a mano. Diseños únicos, 100% algodón, hechos en Argentina. Personalizá el tuyo con iniciales."
+                url="/"
             />
 
             <HeroBanner />
@@ -48,7 +49,7 @@ const HomePage = () => {
                                     <div className="overflow-hidden mb-4 relative aspect-[4/5] bg-gray-100">
                                         <img
                                             src={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/300"}
-                                            alt={product.name}
+                                            alt={`${product.name} - Neceser Bordado Gaustina`}
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
                                         {product.stock <= 0 && (

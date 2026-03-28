@@ -35,3 +35,5 @@ User-agent: *
 Content-Signal: search=yes,ai-train=no
 Allow: /
 # END Cloudflare Managed Content
+
+Sitemap: https://gaustina.com.ar/sitemap.xml

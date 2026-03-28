@@ -181,9 +181,10 @@ const ProductDetailPage = () => {
     return (
         <div className="pt-8 md:pt-12">
             <SeoHead
-                title={`${product.name} | Gaustina`}
-                description={`Compra ${product.name}. Tusor premium bordado a mano.`}
+                title={`${product.name} | Neceseres Bordados | Gaustina`}
+                description={`Comprá ${product.name}. Tusor 100% algodón, bordado a mano en Argentina. Personalizá tu producto con iniciales y envíos gratis a todo el país.`}
                 image={selectedImage}
+                url={`/producto/${id}`}
             />
 
             <div className="max-w-7xl mx-auto px-4 pt-0 pb-12 md:pb-20">
@@ -206,7 +207,7 @@ const ProductDetailPage = () => {
                                 <>
                                     <img
                                         src={mainImageSrc}
-                                        alt={product.name}
+                                        alt={`${product.name} - ${product.category?.name || 'Neceseres Bordados'} - Gaustina`}
                                         className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                                     />
 
@@ -286,7 +287,7 @@ const ProductDetailPage = () => {
                                                 <Play size={20} className="text-white relative z-10" fill="currentColor" />
                                             </div>
                                         ) : (
-                                            <img src={img} alt={`Vista ${index}`} className="w-full h-full object-cover" />
+                                            <img src={img} alt={`${product.name} - Vista ${index + 1}`} className="w-full h-full object-cover" />
                                         )}
                                     </button>
                                 ))}
