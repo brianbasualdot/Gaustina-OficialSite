@@ -118,7 +118,10 @@ const MaintenancePage = () => {
     ];
 
     return (
-        <div className="min-h-screen w-full bg-[#fdfdfd] relative overflow-hidden flex items-center justify-center font-heading">
+        <div 
+            className="min-h-screen w-full bg-[#fdfdfd] relative overflow-hidden flex items-center justify-center font-heading"
+            style={{ cursor: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size: 30px;'><text y='30'>🪄</text></svg>") 0 30, auto` }}
+        >
             {/* ✨ Interactive Sparkle Effect (Mouse Follow) */}
             <SparkleCanvas />
 
