@@ -2,6 +2,8 @@
 import express from 'express';
 import * as Sentry from "@sentry/node";
 import cors from 'cors';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 import dotenv from 'dotenv';
 import paymentRoutes from './routes/payment.routes.js';
 
@@ -33,6 +35,29 @@ Sentry.init({
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
+
+// 1.5. Security Middlewares (Helmet & Rate Limit)
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "https://tamyyvryopjvppkjauqa.supabase.co", "https://images.unsplash.com", "https://via.placeholder.com"],
+            "media-src": ["'self'", "https://tamyyvryopjvppkjauqa.supabase.co"],
+            "connect-src": ["'self'", "https://tamyyvryopjvppkjauqa.supabase.co", "https://api.mercadopago.com", "*.sentry.io"]
+        },
+    },
+}));
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // Límite de 100 peticiones por IP por ventana
+    standardHeaders: true, 
+    legacyHeaders: false,
+    message: { error: 'Demasiadas peticiones desde esta IP, por favor intenta de nuevo en 15 minutos.' }
+});
+
+// Aplicar el limitador a todas las rutas de la API
+app.use('/api/', limiter);
 
 // 2. CORS and JSON middleware
 const allowedOrigins = [

@@ -210,6 +210,11 @@ const ProductDetailPage = () => {
                                         alt={`${product.name} - ${product.category?.name || 'Neceseres Bordados'} - Gaustina`}
                                         className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
                                     />
+                                    {/* Invisible protection layer */}
+                                    <div 
+                                        className="absolute inset-0 z-10 bg-transparent" 
+                                        onContextMenu={(e) => e.preventDefault()}
+                                    />
 
                                     {/* PREVISUALIZACIÓN DE PERSONALIZACIÓN (Solo en la segunda imagen) */}
                                     {product.images && product.images.length > 1 && selectedImage === product.images[1] && (

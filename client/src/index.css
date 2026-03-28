@@ -63,3 +63,20 @@
 .custom-lightbox .yarl__button:hover {
   opacity: 1;
 }
+
+/* 🛡️ Image protection */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: auto; /* Allow click to open detail but prevent dragging */
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

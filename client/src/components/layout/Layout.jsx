@@ -7,6 +7,17 @@ import AnnouncementBar from './AnnouncementBar';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+
+    React.useEffect(() => {
+        const handleContextMenu = (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        };
+        document.addEventListener('contextmenu', handleContextMenu);
+        return () => document.removeEventListener('contextmenu', handleContextMenu);
+    }, []);
+
     const isHomePage = location.pathname === '/';
 
     return (

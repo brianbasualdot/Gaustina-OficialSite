@@ -1,4 +1,5 @@
 import React from 'react';
+import confetti from 'canvas-confetti';
 
 const ContactPage = () => {
     const [formData, setFormData] = React.useState({
@@ -35,6 +36,14 @@ const ContactPage = () => {
 
             setStatus({ loading: false, error: null, success: true });
             setFormData({ name: '', email: '', message: '' });
+
+            // 🎉 Animación de celebración para el contacto
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#333333', '#a855f7', '#FFD700']
+            });
 
             // Reset success message after 5 seconds
             setTimeout(() => {
