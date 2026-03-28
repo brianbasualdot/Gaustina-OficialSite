@@ -94,7 +94,7 @@ const MaintenancePage = () => {
         {
             name: 'Instagram',
             icon: Instagram,
-            url: 'https://www.instagram.com/gaustina/',
+            url: 'https://www.instagram.com/bgaustina/',
             color: 'hover:text-pink-500'
         },
         {
