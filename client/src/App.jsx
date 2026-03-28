@@ -23,43 +23,51 @@ import CategoryManager from './pages/admin/CategoryManager';
 import AdminMessages from './pages/admin/AdminMessages';
 import NotFoundPage from './pages/NotFoundPage';
 
+import MaintenancePage from './pages/MaintenancePage';
+
 function App() {
+    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+
     return (
         <ToastProvider>
             <CartProvider>
                 <BrowserRouter>
-                    <Layout>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/productos" element={<ProductsPage />} />
-                            <Route path="/producto/:id" element={<ProductDetailPage />} />
-                            <Route path="/contacto" element={<ContactPage />} />
-                            <Route path="/preguntas-frecuentes" element={<FAQPage />} />
-                            <Route path="/politica-devoluciones" element={<ReturnsPolicy />} />
-                            <Route path="/informacion-envios" element={<ShippingInfo />} />
-                            <Route path="/carrito" element={<CartPage />} />
-                            <Route path="/checkout/transferencia" element={<TransferenciaPage />} />
-                            <Route path="/checkout/success" element={<SuccessPage />} />
-                            <Route path="/checkout/failure" element={<FailurePage />} />
-                            <Route path="/checkout/pending" element={<SuccessPage />} />
+                    {isMaintenanceMode && !window.location.pathname.startsWith('/admin') ? (
+                        <MaintenancePage />
+                    ) : (
+                        <Layout>
+                            <Routes>
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/productos" element={<ProductsPage />} />
+                                <Route path="/producto/:id" element={<ProductDetailPage />} />
+                                <Route path="/contacto" element={<ContactPage />} />
+                                <Route path="/preguntas-frecuentes" element={<FAQPage />} />
+                                <Route path="/politica-devoluciones" element={<ReturnsPolicy />} />
+                                <Route path="/informacion-envios" element={<ShippingInfo />} />
+                                <Route path="/carrito" element={<CartPage />} />
+                                <Route path="/checkout/transferencia" element={<TransferenciaPage />} />
+                                <Route path="/checkout/success" element={<SuccessPage />} />
+                                <Route path="/checkout/failure" element={<FailurePage />} />
+                                <Route path="/checkout/pending" element={<SuccessPage />} />
 
-                            {/* Admin Routes */}
-                            <Route path="/admin/login" element={<AdminLogin />} />
+                                {/* Admin Routes */}
+                                <Route path="/admin/login" element={<AdminLogin />} />
 
-                            <Route element={<ProtectedRoute />}>
-                                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                                <Route path="/admin/crear-producto" element={<CreateProduct />} />
-                                <Route path="/admin/editar-producto/:id" element={<EditProduct />} />
-                                <Route path="/admin/categorias" element={<CategoryManager />} />
-                                <Route path="/admin/mensajes" element={<AdminMessages />} />
-                            </Route>
+                                <Route element={<ProtectedRoute />}>
+                                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                                    <Route path="/admin/crear-producto" element={<CreateProduct />} />
+                                    <Route path="/admin/editar-producto/:id" element={<EditProduct />} />
+                                    <Route path="/admin/categorias" element={<CategoryManager />} />
+                                    <Route path="/admin/mensajes" element={<AdminMessages />} />
+                                </Route>
 
-                            <Route
-                                path="*"
-                                element={<NotFoundPage />}
-                            />
-                        </Routes>
-                    </Layout>
+                                <Route
+                                    path="*"
+                                    element={<NotFoundPage />}
+                                />
+                            </Routes>
+                        </Layout>
+                    )}
                 </BrowserRouter>
             </CartProvider>
         </ToastProvider>

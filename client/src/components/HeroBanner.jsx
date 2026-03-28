@@ -43,17 +43,17 @@ const HeroBanner = () => {
                 </div>
             ))}
 
-            {/* Content - Only shown if showContent is true for current slide */}
+            {/* Content for SEO and Screen Readers (Visually Hidden) */}
             {banners[currentSlide].showContent && (
-                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto transition-all duration-700 ease-out transform translate-y-12 md:translate-y-24">
-                    <h1 className="text-5xl md:text-7xl font-heading text-white mb-4 tracking-wide drop-shadow-md">
-                        Gaustina
+                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                    <h1 className="sr-only">
+                        Gaustina | Neceseres & Bolsos Bordados
                     </h1>
-                    <p className="text-lg md:text-xl font-heading font-light text-gray-100 mb-10 max-w-2xl mx-auto tracking-wider uppercase">
-                        Neceseres & Bolsos Bordados
+                    <p className="sr-only">
+                        Diseños únicos y personalizados, hechos a mano en Argentina.
                     </p>
-                    <Link to="/productos" className="inline-block">
-                        <button className="bg-transparent border border-white text-white px-10 py-3 font-heading font-normal uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-brand-primary transition-all duration-500 ease-in-out">
+                    <Link to="/productos" className="inline-block transition-all duration-700 ease-out transform translate-y-6 md:translate-y-24">
+                        <button className="bg-transparent border border-white text-white px-8 md:px-10 py-3 font-heading font-normal uppercase tracking-[0.2em] text-[10px] md:text-xs hover:bg-white hover:text-brand-primary transition-all duration-500 ease-in-out shadow-lg backdrop-blur-sm">
                             Personaliza el tuyo
                         </button>
                     </Link>
