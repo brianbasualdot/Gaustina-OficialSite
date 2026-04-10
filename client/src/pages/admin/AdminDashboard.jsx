@@ -13,6 +13,8 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [ordersPage, setOrdersPage] = useState(1);
+    const [ordersTotalPages, setOrdersTotalPages] = useState(1);
     const [activeTab, setActiveTab] = useState('products');
     const [loading, setLoading] = useState(true);
 
@@ -45,16 +47,24 @@ const AdminDashboard = () => {
         }
     };
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (page = 1) => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const res = await fetch(`${API_URL}/api/orders`, {
+            const res = await fetch(`${API_URL}/api/orders?page=${page}&limit=20`, {
                 headers: { 'Authorization': `Bearer ${session?.access_token}` }
             });
 
             if (res.ok) {
                 const data = await res.json();
-                setOrders(data);
+                if (data.data && data.meta) {
+                    // New Paginated Format
+                    setOrders(data.data);
+                    setOrdersPage(data.meta.page);
+                    setOrdersTotalPages(data.meta.totalPages);
+                } else {
+                    // Fallback to old format
+                    setOrders(data);
+                }
             } else {
                 const errorData = await res.json().catch(() => ({}));
                 console.error("Orders fetch failed:", res.status, errorData);
@@ -205,7 +215,7 @@ const AdminDashboard = () => {
     // Escuchar nuevas notificaciones del socket para refrescar la lista
     useEffect(() => {
         if (notifications.length > 0) {
-            fetchOrders();
+            fetchOrders(1); // Reset a page 1 al tener nueva orden
             const latest = notifications[0];
             showToast(`¡Nueva Venta! #${latest.id} de ${latest.customer}`, "success");
         }
@@ -213,7 +223,7 @@ const AdminDashboard = () => {
 
     // Re-cargar cuando se cambia de pestaña para asegurar datos frescos
     useEffect(() => {
-        if (activeTab === 'orders') fetchOrders();
+        if (activeTab === 'orders') fetchOrders(ordersPage);
         if (activeTab === 'products') fetchProducts();
     }, [activeTab]);
 
@@ -238,7 +248,7 @@ const AdminDashboard = () => {
                         <button
                             onClick={() => {
                                 setActiveTab('orders');
-                                fetchOrders();
+                                fetchOrders(1);
                             }}
                             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'orders' ? 'bg-white shadow text-black' : 'text-gray-500 hover:text-gray-700'
                                 }`}
@@ -489,6 +499,29 @@ const AdminDashboard = () => {
                         <div className="p-12 text-center text-gray-400 flex flex-col items-center">
                             <ShoppingBag size={48} className="mb-4 opacity-20" />
                             <p>No hay ventas registradas todavía.</p>
+                        </div>
+                    )}
+
+                    {/* Controles de Paginación */}
+                    {ordersTotalPages > 1 && (
+                        <div className="p-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
+                            <button 
+                                onClick={() => fetchOrders(ordersPage - 1)}
+                                disabled={ordersPage === 1}
+                                className="px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors shadow-sm"
+                            >
+                                Anterior
+                            </button>
+                            <span className="text-sm font-medium text-gray-600">
+                                Página {ordersPage} de {ordersTotalPages}
+                            </span>
+                            <button 
+                                onClick={() => fetchOrders(ordersPage + 1)}
+                                disabled={ordersPage === ordersTotalPages}
+                                className="px-4 py-2 text-sm font-medium bg-white border border-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-100 transition-colors shadow-sm"
+                            >
+                                Siguiente
+                            </button>
                         </div>
                     )}
                 </div>

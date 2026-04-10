@@ -2,22 +2,41 @@ import prisma from '../utils/prisma.js';
 import { generateInvoicePDF } from '../utils/invoiceGenerator.js';
 import { sendOrderConfirmation, sendShippingNotification } from '../services/emailService.js';
 
-// Get all orders (Admin only)
+// Get all orders (Admin only) - PAGINATED
 export const getAllOrders = async (req, res) => {
     try {
-        const orders = await prisma.order.findMany({
-            orderBy: {
-                createdAt: 'desc'
-            },
-            include: {
-                items: {
-                    include: {
-                        product: true
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        // Use Prisma transaction to get both total count and paginated items efficiently
+        const [totalCount, orders] = await prisma.$transaction([
+            prisma.order.count(),
+            prisma.order.findMany({
+                skip,
+                take: limit,
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                include: {
+                    items: {
+                        include: {
+                            product: true
+                        }
                     }
                 }
+            })
+        ]);
+
+        res.json({
+            data: orders,
+            meta: {
+                total: totalCount,
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(totalCount / limit)
             }
         });
-        res.json(orders);
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).json({ error: 'Failed to fetch orders' });
