@@ -1,17 +1,15 @@
-// server/src/app.js
+import dotenv from 'dotenv';
+// 1. Initialize dotenv before anything else
+dotenv.config();
+
 import express from 'express';
 import * as Sentry from "@sentry/node";
 import cors from 'cors';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
-import dotenv from 'dotenv';
 import paymentRoutes from './routes/payment.routes.js';
 import { createServer } from 'http';
 import { initSocket } from './utils/socket.js';
-
-
-// Initialize dotenv before anything else
-dotenv.config();
 
 // Import routes and middlewares
 import { validate } from './middlewares/validationMiddleware.js';
@@ -23,6 +21,9 @@ import seoRoutes from './routes/seo.routes.js';
 import categoriesRoutes from './routes/categories.routes.js';
 
 const app = express();
+
+// Required for Render/Proxies
+app.set('trust proxy', 1);
 
 // Health check endpoint (Placed here to bypass heavy middleware)
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
@@ -39,7 +40,7 @@ const allowedOrigins = [
 app.use(cors({
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'sentry-trace', 'baggage'],
     credentials: true
 }));
 
