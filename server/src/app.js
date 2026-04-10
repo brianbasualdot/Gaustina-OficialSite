@@ -27,6 +27,27 @@ const app = express();
 // Health check endpoint (Placed here to bypass heavy middleware)
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
+// 1. CORS Configuration (Must be early to handle preflight requests)
+const allowedOrigins = [
+    'https://gaustina.com.ar',
+    'https://www.gaustina.com.ar',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // 1. Sentry Initialization (Must be first)
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -64,26 +85,6 @@ const limiter = rateLimit({
 // Aplicar el limitador a todas las rutas de la API
 app.use('/api/', limiter);
 
-// 2. CORS and JSON middleware
-const allowedOrigins = [
-    'https://gaustina.com.ar',
-    'https://www.gaustina.com.ar',
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL
-].filter(Boolean);
-
-app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 // 2. JSON middleware
 app.use(express.json());
 
