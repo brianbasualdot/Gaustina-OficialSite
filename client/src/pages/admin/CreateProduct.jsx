@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, Loader, ArrowLeft, X, Move, Maximize2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
 
@@ -16,8 +16,7 @@ const CreateProduct = () => {
     const containerRef = useRef(null);
 
     // ESTADO PARA MÚLTIPLES IMÁGENES
-    const [imageFiles, setImageFiles] = useState([]); // Array de archivos
-    const [previews, setPreviews] = useState([]);     // Array de URLs locales para verlas
+    const [managedImages, setManagedImages] = useState([]); // [{id, url, file}]
 
     // PERSONALIZACIÓN
     const [fabricColors, setFabricColors] = useState([]);
@@ -75,21 +74,19 @@ const CreateProduct = () => {
     // MANEJAR SELECCIÓN MÚLTIPLE
     const handleImageChange = (e) => {
         if (e.target.files) {
-            const filesArray = Array.from(e.target.files); // Convertir a array real
-
-            // 1. Guardar archivos para subir luego
-            setImageFiles(prev => [...prev, ...filesArray]);
-
-            // 2. Generar previsualizaciones
-            const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-            setPreviews(prev => [...prev, ...newPreviews]);
+            const filesArray = Array.from(e.target.files);
+            const newItems = filesArray.map(file => ({
+                id: `${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                file: file,
+                url: URL.createObjectURL(file)
+            }));
+            setManagedImages(prev => [...prev, ...newItems]);
         }
     };
 
     // BORRAR UNA IMAGEN DE LA LISTA
-    const removeImage = (index) => {
-        setImageFiles(prev => prev.filter((_, i) => i !== index));
-        setPreviews(prev => prev.filter((_, i) => i !== index));
+    const removeImage = (id) => {
+        setManagedImages(prev => prev.filter(img => img.id !== id));
     };
 
     // MANEJAR SVGs
@@ -155,12 +152,14 @@ const CreateProduct = () => {
         setLoading(true);
 
         try {
-            if (imageFiles.length === 0) throw new Error("Debes seleccionar al menos una imagen");
+            if (managedImages.length === 0) throw new Error("Debes seleccionar al menos una imagen");
             if (!session) throw new Error("No hay sesión activa");
 
             // --- PROCESO DE SUBIDA MÚLTIPLE (IMÁGENES) ---
-            const uploadedUrls = [];
-            for (const file of imageFiles) {
+            // IMPORTANTE: Subimos en el orden de managedImages
+            const finalImageUrls = [];
+            for (const item of managedImages) {
+                const { file } = item;
                 const fileExt = file.name.split('.').pop();
                 const fileName = `${Date.now()}-img-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
@@ -174,7 +173,7 @@ const CreateProduct = () => {
                     .from('products')
                     .getPublicUrl(fileName);
 
-                uploadedUrls.push(urlData.publicUrl);
+                finalImageUrls.push(urlData.publicUrl);
             }
 
             // --- PROCESO DE SUBIDA MÚLTIPLE (SVGs) ---
@@ -196,9 +195,7 @@ const CreateProduct = () => {
                 uploadedSvgUrls.push(urlData.publicUrl);
             }
 
-
-
-            // 3. Guardar en Backend (Enviamos el array completo de URLs)
+            // 3. Guardar en Backend
             const response = await fetch(`${API_URL}/api/products`, {
                 method: 'POST',
                 headers: {
@@ -206,14 +203,11 @@ const CreateProduct = () => {
                     'Authorization': `Bearer ${session.access_token}`
                 },
                 body: JSON.stringify({
-                    name: form.name,
-                    description: form.description,
+                    ...form, // simplificamos si los campos coinciden
                     price: parseFloat(form.price),
                     stock: parseInt(form.stock),
-                    images: uploadedUrls,
+                    images: finalImageUrls,
                     categoryId: parseInt(form.categoryId) || null,
-                    materials: form.materials,
-                    measurements: form.measurements,
                     customizationOptions: {
                         fabricColors,
                         embroideryColors,
@@ -252,14 +246,19 @@ const CreateProduct = () => {
 
                 {/* ZONA DE CARGA DE IMÁGENES */}
                 <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">Galería de Imágenes</label>
+                    <div className="flex justify-between items-center">
+                        <label className="block text-sm font-medium text-gray-700">Galería de Imágenes</label>
+                        {managedImages.length > 0 && (
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest">Arrastrá para reordenar</span>
+                        )}
+                    </div>
 
                     {/* Área de Drop/Click */}
                     <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 hover:bg-gray-50 transition-colors cursor-pointer text-center group">
                         <input
                             type="file"
                             accept="image/*"
-                            multiple  // <--- ¡ESTO PERMITE SELECCIONAR VARIAS!
+                            multiple
                             onChange={handleImageChange}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         />
@@ -269,23 +268,45 @@ const CreateProduct = () => {
                         </p>
                     </div>
 
-                    {/* Grilla de Previsualización */}
-                    {previews.length > 0 && (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-4">
-                            {previews.map((url, index) => (
-                                <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                                    <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(index)}
-                                        className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {/* Grilla de Previsualización Reordenable */}
+                    <motion.div layout>
+                        <motion.div 
+                            className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4"
+                            component={motion.div}
+                        >
+                            <motion.div className="contents">
+                                <Reorder.Group 
+                                    axis="y" 
+                                    values={managedImages} 
+                                    onReorder={setManagedImages}
+                                    className="grid grid-cols-3 sm:grid-cols-4 gap-4 col-span-full"
+                                >
+                                    {managedImages.map((item) => (
+                                        <Reorder.Item 
+                                            key={item.id} 
+                                            value={item}
+                                            className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group bg-white cursor-grab active:cursor-grabbing"
+                                        >
+                                            <img src={item.url} alt="Preview" className="w-full h-full object-cover pointer-events-none" />
+                                            <div className="absolute top-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-none">
+                                                {managedImages.indexOf(item) === 0 ? 'PORTADA' : managedImages.indexOf(item) + 1}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeImage(item.id);
+                                                }}
+                                                className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </Reorder.Item>
+                                    ))}
+                                </Reorder.Group>
+                            </motion.div>
+                        </motion.div>
+                    </motion.div>
                 </div>
 
                 {/* Campos de Texto */}
@@ -543,7 +564,7 @@ const CreateProduct = () => {
                     )}
 
                     {/* CONFIGURADOR VISUAL (Solo si hay al menos 2 imágenes y alguna personalización activa) */}
-                    {(form.allowInitials || form.allowSvg) && previews.length >= 2 && (
+                    {(form.allowInitials || form.allowSvg) && managedImages.length >= 2 && (
                         <div className="mt-12 border-t pt-8">
                             <h3 className="text-xl font-heading text-brand-dark mb-2">Posicionamiento Maestro</h3>
                             <p className="text-sm text-gray-500 mb-6">Arrastrá los elementos sobre la <b>segunda imagen</b> para definir dónde aparecerán por defecto.</p>
@@ -551,7 +572,7 @@ const CreateProduct = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                                 {/* Canvas de Posicionamiento */}
                                 <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100" style={{ containerType: 'inline-size' }}>
-                                    <img src={previews[1]} alt="Canvas" className="w-full h-full object-cover opacity-60 pointer-events-none" />
+                                    <img src={managedImages[1]?.url || managedImages[0]?.url} alt="Canvas" className="w-full h-full object-cover opacity-60 pointer-events-none" />
 
                                     {/* Marcador de Iniciales */}
                                     {form.allowInitials && (
@@ -707,7 +728,7 @@ const CreateProduct = () => {
                     type="submit" disabled={loading}
                     className="w-full bg-black text-white font-medium py-4 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
                 >
-                    {loading ? <><Loader className="animate-spin" /> Subiendo {imageFiles.length} imágenes...</> : 'Publicar Producto'}
+                    {loading ? <><Loader className="animate-spin" /> Subiendo {managedImages.length} imágenes...</> : 'Publicar Producto'}
                 </button>
             </form >
         </div >

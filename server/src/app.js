@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import dotenv from 'dotenv';
 import paymentRoutes from './routes/payment.routes.js';
+import { createServer } from 'http';
+import { initSocket } from './utils/socket.js';
 
 
 // Initialize dotenv before anything else
@@ -89,7 +91,8 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/messages', messagesRoutes);
-app.use('/', seoRoutes);
+app.use('/api/seo', seoRoutes); // For catalog CSV and other SEO tools
+app.use('/', seoRoutes); // For sitemap.xml at root
 
 // General API Routes (including contact and webhooks)
 import apiRoutes from './routes/api.js';
@@ -110,9 +113,13 @@ app.use((err, req, res, next) => {
 
 // CONFIGURACIÓN DEL PUERTO Y ARRANQUE DEL SERVIDOR
 const PORT = process.env.PORT || 3000;
+const httpServer = createServer(app);
 
-app.listen(PORT, () => {
-    console.log(`✅ Server is running on port ${PORT}`);
+// Initialize Socket.io
+initSocket(httpServer);
+
+httpServer.listen(PORT, () => {
+    console.log(`✅ Server and Socket.io are running on port ${PORT}`);
 });
 
 // --- CÓDIGO DE DEBUG TEMPORAL REMOVIDO ---

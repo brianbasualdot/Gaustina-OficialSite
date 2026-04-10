@@ -13,6 +13,11 @@ if (!resend) {
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ? `Gaustina <${process.env.RESEND_FROM_EMAIL}>` : 'Gaustina <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.CONTACT_EMAIL || 'bgaustina@gmail.com';
 
+// Specialized senders
+const SENDER_VENTAS = 'ventas@gaustina.com.ar';
+const SENDER_DEVOLUCIONES = 'devoluciones@gaustina.com.ar';
+const SENDER_CONTACTO = 'contacto@gaustina.com.ar';
+
 // --- HTML COMPONENTS ---
 
 const getEmailHeader = () => `
@@ -54,12 +59,12 @@ const sendEmail = async ({ to, subject, html, reply_to, attachments }) => {
     }
 
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: from || FROM_EMAIL,
       to,
       subject,
       html,
       attachments,
-      reply_to: reply_to || ADMIN_EMAIL
+      reply_to: reply_to || (from || ADMIN_EMAIL)
     });
 
     if (error) {
@@ -147,6 +152,7 @@ export const sendOrderConfirmation = async (order) => {
     }
 
     return sendEmail({
+      from: `Gaustina Ventas <${SENDER_VENTAS}>`,
       to: order.customerEmail,
       subject,
       html,
@@ -168,7 +174,12 @@ export const sendAdminNewOrderNotification = async (order) => {
     <p><strong>Total:</strong> $${order.totalAmount}</p>
     <p>Revisa el dashboard para más detalles.</p>
   `;
-  return sendEmail({ to: ADMIN_EMAIL, subject, html });
+  return sendEmail({ 
+    from: `Gaustina Ventas <${SENDER_VENTAS}>`,
+    to: ADMIN_EMAIL, 
+    subject, 
+    html 
+  });
 };
 
 // 3. Contact Form Confirmation (User)
@@ -186,7 +197,12 @@ export const sendContactEmail = async ({ name, email, message }) => {
     <p style="color: #555;">Saludos,<br>El equipo de Gaustina</p>
     ${getEmailFooter()}
   `;
-  return sendEmail({ to: email, subject, html });
+  return sendEmail({ 
+    from: `Gaustina Contacto <${SENDER_CONTACTO}>`,
+    to: email, 
+    subject, 
+    html 
+  });
 };
 
 // 4. Admin Reply to Contact Message (User)
@@ -213,7 +229,12 @@ export const sendAdminReplyEmail = async ({ to, name, originalMessage, replyMess
     ${getEmailFooter()}
   `;
 
-  return sendEmail({ to, subject, html });
+  let sender = `Gaustina <${SENDER_CONTACTO}>`;
+  if (templateType === 'RETURNS') {
+    sender = `Gaustina Devoluciones <${SENDER_DEVOLUCIONES}>`;
+  }
+
+  return sendEmail({ from: sender, to, subject, html });
 };
 
 // 5. Abandoned Cart Recovery
@@ -234,7 +255,12 @@ export const sendAbandonedCartEmail = async (order) => {
 
     ${getEmailFooter()}
   `;
-  return sendEmail({ to: order.customerEmail, subject, html });
+  return sendEmail({ 
+    from: `Gaustina Ventas <${SENDER_VENTAS}>`,
+    to: order.customerEmail, 
+    subject, 
+    html 
+  });
 };
 // 6. Shipping Notification
 export const sendShippingNotification = async (order) => {
@@ -265,7 +291,12 @@ export const sendShippingNotification = async (order) => {
       ${getEmailFooter()}
     `;
 
-    return sendEmail({ to: order.customerEmail, subject, html });
+    return sendEmail({ 
+      from: `Gaustina Ventas <${SENDER_VENTAS}>`,
+      to: order.customerEmail, 
+      subject, 
+      html 
+    });
   } catch (err) {
     console.error(`Serious error in sendShippingNotification for order #${order.id}:`, err);
     throw err;

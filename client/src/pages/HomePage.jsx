@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import HeroBanner from '../components/HeroBanner';
 import InfoSection from '../components/InfoSection';
+import ProductCard from '../components/ProductCard';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/common/SeoHead';
 
@@ -44,39 +45,14 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {featuredProducts.length > 0 ? (
                         featuredProducts.map((product) => (
-                            <div key={product.id} className="group cursor-pointer">
-                                <Link to={`/producto/${product.id}`}>
-                                    <div className="overflow-hidden mb-4 relative aspect-[4/5] bg-gray-100">
-                                        <img
-                                            src={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/300"}
-                                            alt={`${product.name} - Neceser Bordado Gaustina`}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                        />
-                                        {product.stock <= 0 && (
-                                            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                                                <span className="bg-black text-white text-xs font-bold px-2 py-1">AGOTADO</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <h3 className="text-lg font-heading text-gray-900 group-hover:text-gray-600 transition-colors">
-                                        {product.name}
-                                    </h3>
-                                    <div className="flex flex-col items-start gap-1 mt-1">
-                                        <p className="text-gray-500 font-body text-xs tracking-wide">
-                                            ${product.price.toLocaleString('es-AR')}{" "}
-                                            <span className="text-[10px] text-gray-400 uppercase">
-                                                (Lista)
-                                            </span>
-                                        </p>
-                                        <p className="text-brand-primary font-body text-sm font-semibold tracking-wider">
-                                            ${(product.price * 0.85).toLocaleString('es-AR')}{" "}
-                                            <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded-full font-bold ml-1 uppercase border border-green-100">
-                                                Transferencia
-                                            </span>
-                                        </p>
-                                    </div>
-                                </Link>
-                            </div>
+                            <ProductCard
+                                key={product.id}
+                                id={product.id}
+                                name={product.name}
+                                price={product.price}
+                                images={product.images}
+                                stock={product.stock}
+                            />
                         ))
                     ) : (
                         <div className="col-span-full text-center py-10">

@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import dotenv from 'dotenv';
 import { sendOrderConfirmation, sendAdminNewOrderNotification } from '../services/emailService.js';
+import { getIO } from '../utils/socket.js';
 
 dotenv.config();
 const prisma = new PrismaClient();
@@ -100,6 +101,18 @@ export const createPreference = async (req, res) => {
 
             // Notify Admin
             await sendAdminNewOrderNotification(newOrder);
+
+            // Real-time notification
+            try {
+                getIO().emit('new-order', {
+                    id: newOrder.id,
+                    total: newOrder.totalAmount,
+                    customer: newOrder.customerName,
+                    method: 'TRANSFERENCIA'
+                });
+            } catch (ioErr) {
+                console.error("Socket error emitting new-order:", ioErr.message);
+            }
 
             return res.json({
                 orderId: newOrder.id,
@@ -201,6 +214,18 @@ export const handlePaymentWebhook = async (req, res) => {
 
                 // Notify Admin
                 await sendAdminNewOrderNotification(updatedOrder);
+
+                // Real-time notification
+                try {
+                    getIO().emit('new-order', {
+                        id: updatedOrder.id,
+                        total: updatedOrder.totalAmount,
+                        customer: updatedOrder.customerName,
+                        method: 'MERCADO_PAGO'
+                    });
+                } catch (ioErr) {
+                    console.error("Socket error emitting new-order:", ioErr.message);
+                }
 
                 console.log(`Orden #${orderId} pagada y confirmada.`);
             }

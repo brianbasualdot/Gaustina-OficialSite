@@ -1,0 +1,23 @@
+{
+  "short_name": "Gaustina",
+  "name": "Gaustina | Neceseres & Bolsos Bordados",
+  "icons": [
+    {
+      "src": "/GaustinaLogo.webp",
+      "type": "image/webp",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/GaustinaLogo.webp",
+      "type": "image/webp",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "description": "Gaustina - Neceseres y bolsos bordados a mano con diseños exclusivos. Hecho en Argentina."
+}

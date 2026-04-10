@@ -185,6 +185,30 @@ const ProductDetailPage = () => {
                 description={`Comprá ${product.name}. Tusor 100% algodón, bordado a mano en Argentina. Personalizá tu producto con iniciales y envíos gratis a todo el país.`}
                 image={selectedImage}
                 url={`/producto/${id}`}
+                type="product"
+                productData={{
+                    price: product.price,
+                    stock: product.stock
+                }}
+                jsonLd={{
+                    "@context": "https://schema.org/",
+                    "@type": "Product",
+                    "name": product.name,
+                    "image": product.images,
+                    "description": product.description.replace(/(\r\n|\n|\r)/gm, " "),
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "Gaustina"
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "url": `https://gaustina.com.ar/producto/${id}`,
+                        "priceCurrency": "ARS",
+                        "price": product.price,
+                        "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                        "itemCondition": "https://schema.org/NewCondition"
+                    }
+                }}
             />
 
             <div className="max-w-7xl mx-auto px-4 pt-0 pb-12 md:pb-20">

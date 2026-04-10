@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
@@ -27,6 +27,31 @@ import MaintenancePage from './pages/MaintenancePage';
 
 function App() {
     const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+
+    useEffect(() => {
+        const handleContextMenu = (e) => {
+            if (e.target.tagName === 'IMG') {
+                e.preventDefault();
+            }
+        };
+
+        const handleKeyDown = (e) => {
+            // Prevent Ctrl+S, Ctrl+U, etc. on images if focused
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'u')) {
+                if (document.activeElement.tagName === 'IMG') {
+                    e.preventDefault();
+                }
+            }
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     return (
         <ToastProvider>

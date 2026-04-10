@@ -37,6 +37,16 @@ const ProductsPage = () => {
                 title="Catálogo de Neceseres Bordados | Colección Gaustina"
                 description="Explorá nuestra colección completa de neceseres y bolsos bordados. Personalización exclusiva, diseños únicos en tusor 100% algodón. Envíos a todo el país."
                 url="/productos"
+                jsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "itemListElement": products.map((p, index) => ({
+                        "@type": "ListItem",
+                        "position": index + 1,
+                        "url": `https://gaustina.com.ar/producto/${p.id}`,
+                        "name": p.name
+                    }))
+                }}
             />
 
             <div className="container mx-auto px-4 py-16 max-w-6xl">
@@ -63,8 +73,9 @@ const ProductsPage = () => {
                                     key={product.id}
                                     id={product.id}
                                     name={product.name}
-                                    price={typeof product.price === 'number' ? product.price.toLocaleString('es-AR') : product.price}
-                                    image={(product.images && product.images.length > 0) ? product.images[0] : "https://via.placeholder.com/300"}
+                                    price={product.price}
+                                    images={product.images}
+                                    stock={product.stock}
                                 />
                             ))}
                         </div>

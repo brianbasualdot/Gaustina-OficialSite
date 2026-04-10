@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Agrupamos useNavigate aquí
-import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle } from 'lucide-react';
+import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle, Download, Bell } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import ConfirmationModal from '../../components/ui/ConfirmationModal';
 import { useToast } from '../../context/ToastContext';
+import { useNotifications } from '../../hooks/useNotifications';
 
 // URL Inteligente
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -19,6 +20,7 @@ const AdminDashboard = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
     const { showToast } = useToast();
+    const { notifications, requestPermission } = useNotifications();
 
     // Estado para Edición
     // const [editingProduct, setEditingProduct] = useState(null);
@@ -200,6 +202,15 @@ const AdminDashboard = () => {
         loadData();
     }, []);
 
+    // Escuchar nuevas notificaciones del socket para refrescar la lista
+    useEffect(() => {
+        if (notifications.length > 0) {
+            fetchOrders();
+            const latest = notifications[0];
+            showToast(`¡Nueva Venta! #${latest.id} de ${latest.customer}`, "success");
+        }
+    }, [notifications]);
+
     // Re-cargar cuando se cambia de pestaña para asegurar datos frescos
     useEffect(() => {
         if (activeTab === 'orders') fetchOrders();
@@ -263,6 +274,23 @@ const AdminDashboard = () => {
                     >
                         <Mail size={18} /> Mensajes
                     </Link>
+
+                    <button
+                        onClick={requestPermission}
+                        className="bg-brand-light/20 text-brand-dark border border-brand-light/30 px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-brand-light/40 transition-all shadow-sm font-medium text-sm"
+                        title="Activar Notificaciones de Navegador"
+                    >
+                        <Bell size={18} /> Activar Notificaciones
+                    </button>
+
+                    <a
+                        href={`${API_URL}/api/seo/marketing/catalog.csv`}
+                        download
+                        className="bg-green-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-all shadow-sm font-medium text-sm"
+                        title="Descargar Catálogo para Meta/Google Ads"
+                    >
+                        <Download size={18} /> Exportar CSV
+                    </a>
                 </div>
             </div>
 

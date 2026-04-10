@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload, Loader, ArrowLeft, X, Trash2, Move, Maximize2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, Reorder } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
 
@@ -17,10 +17,8 @@ const EditProduct = () => {
     const { showToast } = useToast();
     const containerRef = useRef(null);
 
-    // IMÁGENES
-    const [existingImages, setExistingImages] = useState([]); // URLs ya guardadas
-    const [newImageFiles, setNewImageFiles] = useState([]);   // Nuevos archivos a subir
-    const [newPreviews, setNewPreviews] = useState([]);       // Previews de nuevos archivos
+    // IMÁGENES REORDENABLES
+    const [managedImages, setManagedImages] = useState([]); // [{id, url, file, isNew}]
 
     // SVGs
     const [existingSvgs, setExistingSvgs] = useState([]);     // URLs ya guardadas
@@ -94,7 +92,12 @@ const EditProduct = () => {
                     allowSvg: product.customizationOptions?.allowSvg || false
                 });
 
-                setExistingImages(product.images || []);
+                setManagedImages((product.images || []).map((url, i) => ({
+                    id: `existing-${i}`,
+                    url,
+                    file: null,
+                    isNew: false
+                })));
                 setExistingSvgs(product.customizationOptions?.svgLibrary || []);
 
                 if (product.customizationOptions?.initialsConfig) {
@@ -143,31 +146,24 @@ const EditProduct = () => {
         setForm({ ...form, [e.target.name]: value });
     };
 
-    // --- IMÁGENES ---
-
     // 1. Nuevas
     const handleImageChange = (e) => {
         if (e.target.files) {
             const filesArray = Array.from(e.target.files);
-            setNewImageFiles(prev => [...prev, ...filesArray]);
-
-            const previewsArray = filesArray.map(file => URL.createObjectURL(file));
-            setNewPreviews(prev => [...prev, ...previewsArray]);
+            const newItems = filesArray.map(file => ({
+                id: `new-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                file: file,
+                url: URL.createObjectURL(file),
+                isNew: true
+            }));
+            setManagedImages(prev => [...prev, ...newItems]);
         }
     };
 
-    // 2. Borrar Nueva (antes de subir)
-    const removeNewImage = (index) => {
-        setNewImageFiles(prev => prev.filter((_, i) => i !== index));
-        setNewPreviews(prev => prev.filter((_, i) => i !== index));
-    };
-
-    // 3. Borrar Existente (se borra al guardar o visualmente ahora?)
-    // Lo borramos visualmente del array que se enviará.
-    const removeExistingImage = (index) => {
-        if (window.confirm("¿Eliminar esta imagen del producto?")) {
-            setExistingImages(prev => prev.filter((_, i) => i !== index));
-        }
+    // 2. Borrar Imagen
+    const removeImage = (id, isNew) => {
+        if (!isNew && !window.confirm("¿Eliminar esta imagen del producto?")) return;
+        setManagedImages(prev => prev.filter(img => img.id !== id));
     };
 
     // --- SVGs ---
@@ -244,30 +240,35 @@ const EditProduct = () => {
         setLoading(true);
 
         try {
-            if (existingImages.length === 0 && newImageFiles.length === 0) {
+            if (managedImages.length === 0) {
                 throw new Error("El producto debe tener al menos una imagen");
             }
 
-            // A. Subir nuevas imágenes
-            const uploadedUrls = [];
-            for (const file of newImageFiles) {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            // A. Procesar imágenes (Respetar el orden de managedImages)
+            const finalImages = [];
+            for (const item of managedImages) {
+                if (!item.isNew) {
+                    finalImages.push(item.url);
+                } else {
+                    const file = item.file;
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-                const { error: uploadError } = await supabase.storage
-                    .from('products')
-                    .upload(fileName, file);
+                    const { error: uploadError } = await supabase.storage
+                        .from('products')
+                        .upload(fileName, file);
 
-                if (uploadError) throw uploadError;
+                    if (uploadError) throw uploadError;
 
-                const { data: urlData } = supabase.storage
-                    .from('products')
-                    .getPublicUrl(fileName);
+                    const { data: urlData } = supabase.storage
+                        .from('products')
+                        .getPublicUrl(fileName);
 
-                uploadedUrls.push(urlData.publicUrl);
+                    finalImages.push(urlData.publicUrl);
+                }
             }
 
-            // A2. Subir nuevos SVGs
+            // B. Múltiples SVGs
             const uploadedSvgUrls = [];
             for (const file of newSvgFiles) {
                 const fileExt = file.name.split('.').pop();
@@ -286,8 +287,6 @@ const EditProduct = () => {
                 uploadedSvgUrls.push(urlData.publicUrl);
             }
 
-            // B. Combinar URLs
-            const finalImages = [...existingImages, ...uploadedUrls];
             const finalSvgs = [...existingSvgs, ...uploadedSvgUrls];
 
             // C. Actualizar Producto
@@ -346,37 +345,43 @@ const EditProduct = () => {
 
                 {/* IMÁGENES */}
                 <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">Galería de Imágenes</label>
-
-                    {/* Lista de Existentes + Previews Nuevas */}
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4">
-                        {existingImages.map((url, idx) => (
-                            <div key={`exist-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-green-200 group">
-                                <img src={url} alt="Producto" className="w-full h-full object-cover" />
-                                <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-xs text-center py-1">Guardada</div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeExistingImage(idx)}
-                                    className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        ))}
-                        {newPreviews.map((url, idx) => (
-                            <div key={`new-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-blue-200 group">
-                                <img src={url} alt="Preview" className="w-full h-full object-cover opacity-80" />
-                                <div className="absolute inset-x-0 bottom-0 bg-blue-500/50 text-white text-xs text-center py-1">Nueva</div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeNewImage(idx)}
-                                    className="absolute top-1 right-1 bg-white/80 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        ))}
+                    <div className="flex justify-between items-center">
+                        <label className="block text-sm font-medium text-gray-700">Galería de Imágenes</label>
+                        {managedImages.length > 0 && (
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest">Arrastrá para reordenar</span>
+                        )}
                     </div>
+
+                    {/* Grilla Reordenable */}
+                    <Reorder.Group 
+                        axis="y" 
+                        values={managedImages} 
+                        onReorder={setManagedImages}
+                        className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4"
+                    >
+                        {managedImages.map((item) => (
+                            <Reorder.Item 
+                                key={item.id} 
+                                value={item}
+                                className={`relative aspect-square rounded-lg overflow-hidden border group bg-white cursor-grab active:cursor-grabbing ${item.isNew ? 'border-blue-200' : 'border-green-200'}`}
+                            >
+                                <img src={item.url} alt="Producto" className="w-full h-full object-cover pointer-events-none" />
+                                <div className={`absolute inset-x-0 bottom-0 text-[9px] text-center py-0.5 backdrop-blur-sm text-white ${item.managedIdx === 0 ? 'bg-black/70' : 'bg-black/40'} pointer-events-none`}>
+                                    {managedImages.indexOf(item) === 0 ? '¡PORTADA!' : managedImages.indexOf(item) + 1}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeImage(item.id, item.isNew);
+                                    }}
+                                    className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                >
+                                    {item.isNew ? <X size={14} /> : <Trash2 size={14} />}
+                                </button>
+                            </Reorder.Item>
+                        ))}
+                    </Reorder.Group>
 
                     {/* Uploader */}
                     <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 hover:bg-gray-50 transition-colors cursor-pointer text-center group">
@@ -671,7 +676,7 @@ const EditProduct = () => {
                                 {/* Canvas de Posicionamiento */}
                                 <div ref={containerRef} className="relative aspect-square rounded-2xl overflow-hidden border shadow-inner bg-gray-100" style={{ containerType: 'inline-size' }}>
                                     <img
-                                        src={[...existingImages, ...newPreviews] && [...existingImages, ...newPreviews].length >= 2 ? [...existingImages, ...newPreviews][1] : [...existingImages, ...newPreviews][0]}
+                                        src={managedImages.length >= 2 ? managedImages[1].url : managedImages[0]?.url}
                                         alt="Canvas"
                                         className="w-full h-full object-cover opacity-60 pointer-events-none"
                                     />
