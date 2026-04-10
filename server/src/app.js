@@ -22,6 +22,20 @@ import categoriesRoutes from './routes/categories.routes.js';
 
 const app = express();
 
+// 1. Sentry Initialization (Must be first to catch native Node crashes)
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    integrations: [
+        new Sentry.Integrations.Http({ tracing: true }),
+        new Sentry.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0,
+});
+
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 // Required for Render/Proxies
 app.set('trust proxy', 1);
 
@@ -58,21 +72,8 @@ app.use(cors({
 // Handle preflight requests for all routes
 app.options('*', cors());
 
-// 1. Sentry Initialization (Must be first)
-Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Sentry.Integrations.Express({ app }),
-    ],
-    tracesSampleRate: 1.0,
-});
-
-// The request handler must be the first middleware on the app
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
-
 // 1.5. Security Middlewares (Helmet & Rate Limit)
+
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {

@@ -12,16 +12,20 @@ const isAdmin = async (req, res, next) => {
         const token = authHeader.split(' ')[1];
 
         // 1. Verificar Token con Supabase (La Nube)
+        console.time('[isAdmin] Supabase Auth');
         const { data: { user }, error } = await supabase.auth.getUser(token);
+        console.timeEnd('[isAdmin] Supabase Auth');
 
         if (error || !user) {
             return res.status(401).json({ error: 'Invalid token or session expired' });
         }
 
         // 2. Verificar Rol en Base de Datos Local (Prisma)
+        console.time('[isAdmin] Prisma fetch');
         let dbUser = await prisma.user.findUnique({
             where: { email: user.email }
         });
+        console.timeEnd('[isAdmin] Prisma fetch');
 
         // --- MAGIA: AUTO-CREACIÓN SI NO EXISTE ---
         if (!dbUser) {
