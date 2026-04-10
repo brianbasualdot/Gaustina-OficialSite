@@ -2,8 +2,8 @@ name: Keep Alive
 
 on:
   schedule:
-    # Se ejecuta cada 14 minutos (Render se duerme a los 15 min de inactividad)
-    - cron: '*/15 * * * *'
+    # Se ejecuta cada 12 minutos (Render se duerme a los 15 min de inactividad)
+    - cron: '*/12 * * * *'
   workflow_dispatch: # Para probarlo manualmente
 
 jobs:

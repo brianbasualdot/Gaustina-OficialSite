@@ -24,6 +24,9 @@ import categoriesRoutes from './routes/categories.routes.js';
 
 const app = express();
 
+// Health check endpoint (Placed here to bypass heavy middleware)
+app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
 // 1. Sentry Initialization (Must be first)
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -81,10 +84,8 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// 2. JSON middleware
 app.use(express.json());
-
-// Ruta básica de salud
-app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
 // 3. Setup Routes
 app.use('/api/categories', categoriesRoutes);
