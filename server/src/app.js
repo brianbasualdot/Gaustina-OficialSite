@@ -28,20 +28,31 @@ app.set('trust proxy', 1);
 // Health check endpoint (Placed here to bypass heavy middleware)
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
-// 1. CORS Configuration (Must be early to handle preflight requests)
-const allowedOrigins = [
-    'https://gaustina.com.ar',
-    'https://www.gaustina.com.ar',
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL
-].filter(Boolean);
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+        console.log(`[CORS Debug] Incoming Origin: ${origin}`);
+    }
+    next();
+});
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow if no origin (like mobile apps/postman) or if it's our domain/localhost
+        if (!origin || 
+            origin.includes('gaustina.com.ar') || 
+            origin.includes('localhost') || 
+            origin.includes('127.0.0.1')) {
+            callback(null, true);
+        } else {
+            console.warn(`[CORS Blocked] Origin not allowed: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'sentry-trace', 'baggage'],
-    credentials: true
+    credentials: true,
+    maxAge: 7200 // Cache preflight response for 2h (conservative but efficient)
 }));
 
 // Handle preflight requests for all routes
