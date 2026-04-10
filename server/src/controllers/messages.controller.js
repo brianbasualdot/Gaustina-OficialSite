@@ -1,8 +1,6 @@
 
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { sendAdminReplyEmail } from '../services/emailService.js';
-
-const prisma = new PrismaClient();
 
 // Get all messages (ordered by newest)
 export const getMessages = async (req, res) => {

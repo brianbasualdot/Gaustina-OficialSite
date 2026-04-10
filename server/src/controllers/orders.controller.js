@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { generateInvoicePDF } from '../utils/invoiceGenerator.js';
 import { sendOrderConfirmation, sendShippingNotification } from '../services/emailService.js';
-
-const prisma = new PrismaClient();
 
 // Get all orders (Admin only)
 export const getAllOrders = async (req, res) => {

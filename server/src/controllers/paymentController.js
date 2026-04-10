@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import dotenv from 'dotenv';
 import { sendOrderConfirmation, sendAdminNewOrderNotification } from '../services/emailService.js';
 import { getIO } from '../utils/socket.js';
 
 dotenv.config();
-const prisma = new PrismaClient();
 
 // Configurar Mercado Pago
 if (!process.env.MP_ACCESS_TOKEN) {

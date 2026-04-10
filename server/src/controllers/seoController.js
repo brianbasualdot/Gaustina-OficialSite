@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma.js';
 const SITE_URL = "https://gaustina.com.ar";
 
 export const getSitemap = async (req, res) => {

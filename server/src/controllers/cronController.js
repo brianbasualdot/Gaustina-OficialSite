@@ -1,9 +1,7 @@
 // server/src/controllers/cronController.js
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import * as Sentry from "@sentry/node";
 import { sendAbandonedCartEmail } from '../services/emailService.js';
-
-const prisma = new PrismaClient();
 
 /**
  * Controller for recovering abandoned carts.
