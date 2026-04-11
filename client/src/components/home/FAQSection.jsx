@@ -13,16 +13,20 @@ const FAQSection = () => {
             category: "Sobre nuestros Productos",
             questions: [
                 {
-                    q: "¿De qué material están hechos los productos?",
-                    a: "Utilizamos telas de alta calidad. Es una tela pre-lavada, con arrugas naturales y muy resistente, ideal para el uso diario."
+                    q: "¿De qué material están hechos los necesers y bolsos?",
+                    a: "Están confeccionados con telas de alta calidad (como nuestra tela pre-lavada de arrugas naturales), elegidas por su resistencia y estética. Todos cuentan con forrería interna para darles mayor estructura y durabilidad."
                 },
                 {
-                    q: "¿Los productos vienen bordados?",
-                    a: "¡Sí! Cada pieza de Gaustina cuenta con bordados exclusivos, diseñados y realizados minuciosamente en nuestro taller."
+                    q: "¿Puedo personalizar el bordado de mi neceser o bolso?",
+                    a: "¡Sí! En los productos que lo permiten, podés personalizarlo eligiendo que bordemos tus iniciales o seleccionando colores de tela y bordado. Cada pieza es diseñada de forma exclusiva en nuestro taller."
                 },
                 {
-                    q: "¿Hacen trabajos personalizados?",
-                    a: "Podés elegir los colores de tela y bordado en los productos que lo permitan. Para pedidos especiales de eventos o regalos empresariales, contactanos por WhatsApp."
+                    q: "¿Dónde puedo ver las medidas de los productos?",
+                    a: "Las medidas exactas de cada neceser y bolso están detalladas en la descripción de cada producto. ¡Están pensados para ser súper funcionales y que entre todo lo indispensable!"
+                },
+                {
+                    q: "¿Hacen pedidos por mayor para eventos o regalos empresariales?",
+                    a: "Sí, realizamos pedidos especiales por cantidad. Son ideales para regalos empresariales, souvenirs o eventos. Contactanos por WhatsApp para contarnos tu idea y recibir asesoramiento."
                 }
             ]
         },
@@ -30,12 +34,12 @@ const FAQSection = () => {
             category: "Cuidados de las Piezas",
             questions: [
                 {
-                    q: "¿Cómo debo lavar mis productos?",
-                    a: "Recomendamos lavar a mano con agua fría o en lavarropas con programa delicado. No usar blanqueadores y secar a la sombra para preservar los colores y el bordado."
+                    q: "¿Cómo debo lavar mi neceser o bolso?",
+                    a: "Para mantener la forma del producto y cuidar los detalles del bordado, recomendamos lavar a mano con agua fría y jabón neutro. En caso de usar lavarropas, asegurate de utilizar un programa muy delicado."
                 },
                 {
-                    q: "¿Es necesario planchar los productos?",
-                    a: "Si preferís plancharlo, recomendamos hacerlo cuando la prenda esté ligeramente húmeda y la plancha lo mas tibia posible."
+                    q: "¿Cómo es el secado y planchado?",
+                    a: "Secalos siempre a la sombra y sin retorcer para preservar los colores y la estructura. Si preferís plancharlo, te sugerimos hacerlo del lado del revés, con la tela ligeramente húmeda y la plancha a temperatura tibia."
                 }
             ]
         },
@@ -44,15 +48,15 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Cuáles son las opciones de envío?",
-                    a: "Ofreceamos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional."
+                    a: "Ofrecemos envío gratis a sucursal de Correo Argentino en cualquier punto del país. Si preferís el envío directamente a tu domicilio, lo podés seleccionar al finalizar la compra (esta última opción tiene un costo adicional)."
                 },
                 {
                     q: "¿Cuánto tarda en llegar mi pedido?",
-                    a: "Preparamos tu pedido dentro de las 24-48hs hábiles. El tiempo de viaje del correo suele ser de 3 a 7 días hábiles adicionales según la zona."
+                    a: "Como muchos de nuestros productos se bordan especialmente a pedido, solemos despachar en 24-48hs hábiles (o según el tiempo indicado de confección). Una vez en viaje, el correo suele demorar entre 3 a 7 días hábiles según la zona."
                 },
                 {
-                    q: "¿Cómo realizo el seguimiento?",
-                    a: "Una vez despachado, recibirás un email con tu Tracking ID para que puedas seguir el recorrido desde la web oficial del correo."
+                    q: "¿Cómo realizo el seguimiento de mi paquete?",
+                    a: "Una vez despachado el pedido, vas a recibir un email con tu Número de Seguimiento (Tracking ID) para que puedas seguir el recorrido desde la web oficial del correo."
                 }
             ]
         },
@@ -61,11 +65,11 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Qué medios de pago aceptan?",
-                    a: "Aceptamos Mercado Pago y Transferencia Bancaria (esta última cuenta con un 15% de descuento extra en toda tu compra)."
+                    a: "Aceptamos Mercado Pago y Transferencias Bancarias. ¡Recordá que abonando por transferencia tenés un 15% de descuento extra en toda tu compra!"
                 },
                 {
                     q: "¿Cómo confirmo mi pago por transferencia?",
-                    a: "Es muy importante que nos envíes el comprobante por WhatsApp o Email dentro de las 48hs de realizada la compra para que podamos procesar tu pedido. Pasado ese tiempo, la orden se cancela automáticamente."
+                    a: "Es muy importante que nos envíes el comprobante por WhatsApp o Email dentro de las 48hs de realizada la compra para poder procesar tu pedido. Pasado ese tiempo sin confirmación, la orden se cancela automáticamente."
                 }
             ]
         },
@@ -73,12 +77,12 @@ const FAQSection = () => {
             category: "Cambios y Devoluciones",
             questions: [
                 {
-                    q: "¿Puedo realizar un cambio?",
-                    a: "Sí, para productos de catálogo estándar tenés 30 días corridos desde la recepción. El producto debe estar sin uso y con sus etiquetas originales."
+                    q: "¿Puedo realizar un cambio o devolución?",
+                    a: "Sí, para productos de catálogo estándar (no personalizados) tenés 30 días corridos desde que lo recibís para realizar cambios, y 10 días para devoluciones. El producto siempre debe estar sin uso y en sus condiciones originales."
                 },
                 {
-                    q: "¿Qué es el derecho de arrepentimiento?",
-                    a: "Si te arrepentís de tu compra (en productos no personalizados), tenés 10 días corridos para solicitar la devolución total del dinero gestionándolo por nuestros canales de contacto."
+                    q: "¿Tienen cambio los productos personalizados con iniciales?",
+                    a: "Los productos que son personalizados especialmente para vos (por ejemplo, con el bordado de tus iniciales) no tienen cambio ni devolución, a menos que presenten alguna falla de fabricación."
                 }
             ]
         }
