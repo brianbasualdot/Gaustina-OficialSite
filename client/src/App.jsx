@@ -26,7 +26,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import MaintenancePage from './pages/MaintenancePage';
 
 function App() {
-    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'false';
 
     useEffect(() => {
         const handleContextMenu = (e) => {
@@ -46,7 +46,7 @@ function App() {
 
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('keydown', handleKeyDown);
-        
+
         return () => {
             document.removeEventListener('contextmenu', handleContextMenu);
             document.removeEventListener('keydown', handleKeyDown);

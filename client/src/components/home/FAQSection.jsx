@@ -14,11 +14,11 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿De qué material están hechos los productos?",
-                    a: "Utilizamos Tusor 100% algodón de alta calidad. Es una tela pre-lavada, con arrugas naturales y muy resistente, ideal para el uso diario en el hogar."
+                    a: "Utilizamos telas de alta calidad. Es una tela pre-lavada, con arrugas naturales y muy resistente, ideal para el uso diario."
                 },
                 {
                     q: "¿Los productos vienen bordados?",
-                    a: "¡Sí! Cada pieza de Gaustina cuenta con bordados artesanales exclusivos, diseñados y realizados minuciosamente en nuestro taller."
+                    a: "¡Sí! Cada pieza de Gaustina cuenta con bordados exclusivos, diseñados y realizados minuciosamente en nuestro taller."
                 },
                 {
                     q: "¿Hacen trabajos personalizados?",
@@ -30,12 +30,12 @@ const FAQSection = () => {
             category: "Cuidados de las Piezas",
             questions: [
                 {
-                    q: "¿Cómo debo lavar mis productos de Tusor?",
+                    q: "¿Cómo debo lavar mis productos?",
                     a: "Recomendamos lavar a mano con agua fría o en lavarropas con programa delicado. No usar blanqueadores y secar a la sombra para preservar los colores y el bordado."
                 },
                 {
-                    q: "¿Es necesario planchar el Tusor?",
-                    a: "El Tusor se caracteriza por su apariencia rústica y arrugada. Si preferís plancharlo, recomendamos hacerlo cuando la prenda esté ligeramente húmeda."
+                    q: "¿Es necesario planchar los productos?",
+                    a: "Si preferís plancharlo, recomendamos hacerlo cuando la prenda esté ligeramente húmeda y la plancha lo mas tibia posible."
                 }
             ]
         },
@@ -44,11 +44,11 @@ const FAQSection = () => {
             questions: [
                 {
                     q: "¿Cuáles son las opciones de envío?",
-                    a: "Ofreceamos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional de tarifa plana ($6473)."
+                    a: "Ofreceamos envió gratis a sucursal de correo argentino en cualquier punto del país. Si preferís envió a tu domicilio lo podes seleccionar al finalizar la compra, este ultimo tiene un costo adicional."
                 },
                 {
                     q: "¿Cuánto tarda en llegar mi pedido?",
-                    a: "Preparamos tu pedido dentro de las 24-48hs hábiles. El tiempo de viaje del correo suele ser de 3 a 6 días hábiles adicionales según la zona."
+                    a: "Preparamos tu pedido dentro de las 24-48hs hábiles. El tiempo de viaje del correo suele ser de 3 a 7 días hábiles adicionales según la zona."
                 },
                 {
                     q: "¿Cómo realizo el seguimiento?",
