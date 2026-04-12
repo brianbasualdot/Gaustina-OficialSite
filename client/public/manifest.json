@@ -15,7 +15,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "/admin/dashboard",
   "background_color": "#ffffff",
   "display": "standalone",
   "theme_color": "#000000",
