@@ -7,6 +7,8 @@ import AnnouncementBar from './AnnouncementBar';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const pathToCheck = location.pathname || window.location.pathname || '';
+    const isAdminRoute = pathToCheck.toLowerCase().includes('/admin');
 
     React.useEffect(() => {
         const handleContextMenu = (e) => {
@@ -22,15 +24,15 @@ const Layout = ({ children }) => {
 
     return (
         <div className="flex flex-col min-h-screen font-sans text-gray-900 bg-white">
-            <AnnouncementBar />
-            <Navbar />
+            {!isAdminRoute && <AnnouncementBar />}
+            {!isAdminRoute && <Navbar />}
 
             <main className="flex-grow">
                 {children}
             </main>
 
-            <FloatingWhatsApp />
-            <Footer />
+            {!isAdminRoute && <FloatingWhatsApp />}
+            {!isAdminRoute && <Footer />}
         </div>
     );
 };
