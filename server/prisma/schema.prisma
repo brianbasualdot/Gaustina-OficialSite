@@ -48,6 +48,15 @@ model Order {
   shippingCity    String?
   shippingPhone   String?
   postalCode      String?
+  
+  // Nuevos campos
+  shippingCost    Float?
+  shippingMethod  String?
+  shippingType    String?
+  discountAmount  Float?
+  couponId        Int?
+  coupon          Coupon?  @relation(fields: [couponId], references: [id])
+
   createdAt       DateTime @default(now()) @db.Timestamptz(6)
   updatedAt       DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
@@ -58,12 +67,29 @@ model OrderItem {
   id        Int   @id @default(autoincrement())
   quantity  Int   @default(1)
   price     Float
+  pack      String? // Nuevo campo
   orderId                Int
   productId              Int
   selectedCustomizations Json?
 
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+}
+
+model Coupon {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  type            String    // 'PERCENTAGE', 'FIXED', or 'FREE_SHIPPING'
+  value           Float     // 10 for 10%, 5000 for $5000 (0 for FREE_SHIPPING)
+  minItems        Int?      // Mínimo de unidades de productos
+  usageLimit      Int?      // Límite máximo de usos del cupón (-1 o null si = infinito)
+  usageCount      Int       @default(0)
+  expirationDate  DateTime? // Fecha de vencimiento
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  orders          Order[]
 }
 
 model ContactMessage {

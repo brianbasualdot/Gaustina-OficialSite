@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Agrupamos useNavigate aquí
-import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle, Download, Bell } from 'lucide-react';
+import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle, Download, Bell, Tag } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import ConfirmationModal from '../../components/ui/ConfirmationModal';
 import { useToast } from '../../context/ToastContext';
@@ -277,6 +277,12 @@ const AdminDashboard = () => {
                         className="bg-white text-black border border-gray-200 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm font-medium"
                     >
                         Categorías
+                    </Link>
+                    <Link
+                        to="/admin/cupones"
+                        className="bg-white text-black border border-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm font-medium text-sm"
+                    >
+                        <Tag size={18} /> Cupones
                     </Link>
                     <Link
                         to="/admin/mensajes"

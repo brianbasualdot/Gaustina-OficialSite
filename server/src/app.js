@@ -19,6 +19,7 @@ import messagesRoutes from './routes/messages.routes.js';
 import seoRoutes from './routes/seo.routes.js';
 
 import categoriesRoutes from './routes/categories.routes.js';
+import couponsRoutes from './routes/coupons.routes.js';
 
 const app = express();
 
@@ -107,6 +108,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/seo', seoRoutes); // For catalog CSV and other SEO tools
 app.use('/', seoRoutes); // For sitemap.xml at root
+app.use('/api/coupons', couponsRoutes);
 
 // General API Routes (including contact and webhooks)
 import apiRoutes from './routes/api.js';

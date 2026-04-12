@@ -1,35 +1,127 @@
 import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Trash2, ArrowRight, Plus, CreditCard, Banknote } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../context/ToastContext';
+import { Trash2, ArrowRight, Plus, CreditCard, Banknote, Truck, Percent } from 'lucide-react';
 import CheckoutForm from '../components/CheckoutForm';
+import { getDisplayPrice } from '../utils/productUtils';
 
+// URL para buscar sugerencias
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const CartPage = () => {
-    const { cartItems, removeFromCart, addToCart } = useCart();
-    const { showToast } = useToast();
+    const { cartItems, removeFromCart, addToCart, clearCart } = useCart();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
+    // --- HELPERS ---
+    const getMultiplier = (p) => {
+        if (p === 'x2') return 2;
+        if (p === 'x4') return 4;
+        if (p === 'x6') return 6;
+        return 1;
+    };
+
+    // --- ESTADOS ---
     const [suggestedProduct, setSuggestedProduct] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState('mercadopago');
+    const [paymentMethod, setPaymentMethod] = useState('mercadopago'); // 'mercadopago' | 'transferencia'
     const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+    // Guest Checkout State
     const [customerData, setCustomerData] = useState(null);
     const [isFormValid, setIsFormValid] = useState(false);
 
-    const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-    const shippingCost = customerData?.shippingMethod === 'domicilio' ? 6473 : 0;
-    const totalWithShipping = subtotal + shippingCost;
-    const finalTotal = paymentMethod === 'transferencia' ? (subtotal * 0.85) + shippingCost : totalWithShipping;
-    const discountAmount = paymentMethod === 'transferencia' ? subtotal * 0.15 : 0;
+    // Configuración de Envío
+    const [selectedShipping, setSelectedShipping] = useState(null);
 
+    // Cupones
+    const [couponCodeInput, setCouponCodeInput] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponError, setCouponError] = useState(null);
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
+    // --- CALCULOS ---
+    const baseSubtotal = cartItems.reduce((acc, item) => acc + (item.price || 0), 0);
+
+    let couponDiscountAmount = 0;
+    let isFreeShippingCoupon = false;
+
+    if (appliedCoupon) {
+        if (appliedCoupon.type === 'PERCENTAGE') {
+            couponDiscountAmount = baseSubtotal * (appliedCoupon.value / 100);
+        } else if (appliedCoupon.type === 'FIXED') {
+            couponDiscountAmount = appliedCoupon.value;
+            if (couponDiscountAmount > baseSubtotal) couponDiscountAmount = baseSubtotal;
+        } else if (appliedCoupon.type === 'FREE_SHIPPING') {
+            isFreeShippingCoupon = true;
+        }
+    }
+
+    const subtotalAfterCoupon = baseSubtotal - couponDiscountAmount;
+
+    // Si es transferencia, aplicamos 10% de descuento AL SUBTOTAL DESPUÉS DEL CUPÓN
+    const transferDiscountAmount = paymentMethod === 'transferencia' ? subtotalAfterCoupon * 0.10 : 0;
+    
+    // Envío (Si hay cupón Envío Gratis, costo 0)
+    let shippingCost = selectedShipping ? selectedShipping.price : 0;
+    if (isFreeShippingCoupon) shippingCost = 0;
+
+    const finalTotal = subtotalAfterCoupon - transferDiscountAmount + shippingCost;
+
+    /**
+     * CALCULOS DE UNIDADES FÍSICAS (Packs)
+     */
+    const totalPhysicalUnits = cartItems.reduce((acc, item) => {
+        return acc + ((item.quantity || 1) * getMultiplier(item.pack));
+    }, 0);
+
+    // Validar cupón
+    const handleApplyCoupon = async () => {
+        if (!couponCodeInput.trim()) return;
+        setIsApplyingCoupon(true);
+        setCouponError(null);
+        
+        try {
+            const res = await fetch(`${API_URL}/api/coupons/validate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: couponCodeInput,
+                    totalPhysicalUnits: totalPhysicalUnits
+                })
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+                setCouponError(data.error || 'Cupón inválido');
+                setAppliedCoupon(null);
+            } else {
+                setAppliedCoupon(data);
+                setCouponError(null);
+                setCouponCodeInput('');
+                showToast('Cupón aplicado con éxito', 'success');
+            }
+        } catch (error) {
+            setCouponError('Error al conectar con el servidor');
+        } finally {
+            setIsApplyingCoupon(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCodeInput('');
+        setCouponError(null);
+    };
+
+    // EFECTO: Buscar producto sugerido al azar
     useEffect(() => {
         fetch(`${API_URL}/api/products`)
             .then(res => res.json())
             .then(products => {
+                // Filtramos productos que NO estén ya en el carrito
                 const available = products.filter(p => !cartItems.some(c => c.id === p.id));
+
                 if (available.length > 0) {
                     const random = available[Math.floor(Math.random() * available.length)];
                     setSuggestedProduct(random);
@@ -40,23 +132,26 @@ const CartPage = () => {
             .catch(err => console.error("Error buscando sugerencia:", err));
     }, [cartItems.length]);
 
+    // MANEJADOR DE COMPRA
     const handleCheckout = async () => {
         if (!isFormValid) {
-            showToast("Por favor completa todos los datos de envío.", "error");
+            showToast("Por favor completa todos los datos de envío.", "info");
             return;
         }
 
         setLoadingCheckout(true);
 
-        // Consolidar dirección para el backend (que espera 'shippingAddress')
-        const consolidatedAddress = `${customerData.street} ${customerData.number}${customerData.floor ? `, Piso ${customerData.floor}` : ''}${customerData.apartment ? `, Depto ${customerData.apartment}` : ''}`;
-
-        const finalCustomerData = {
-            ...customerData,
-            shippingAddress: consolidatedAddress
-        };
-
         try {
+            const finalCustomerData = {
+                ...customerData,
+                shippingCost: shippingCost,
+                shippingMethod: selectedShipping ? selectedShipping.name : 'Envío a convenir',
+                shippingType: selectedShipping ? selectedShipping.type : 'N/A',
+                // Construir dirección completa para el backend/admin
+                shippingAddress: `${customerData?.shippingAddress || ''}${customerData?.shippingFloor ? `, Piso ${customerData.shippingFloor}` : ''}${customerData?.shippingApartment ? `, Depto ${customerData.shippingApartment}` : ''}`,
+                shippingZip: customerData?.shippingZip || ''
+            };
+
             const response = await fetch(`${API_URL}/api/payment/create_preference`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -64,20 +159,25 @@ const CartPage = () => {
                     items: cartItems,
                     method: paymentMethod,
                     customerData: finalCustomerData,
-                    shippingCost: shippingCost
+                    couponCode: appliedCoupon?.code
                 })
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                console.error("Detalles del error del servidor:", data);
                 throw new Error(data.error || "Error al procesar el pedido");
             }
 
             if (paymentMethod === 'transferencia') {
                 if (data.orderId) {
-                    navigate('/checkout/transferencia', { state: { total: finalTotal } });
+                    clearCart();
+                    navigate('/checkout/transferencia', { 
+                        state: { 
+                            orderId: data.orderId, 
+                            total: finalTotal 
+                        } 
+                    });
                 }
             } else {
                 if (data.init_point) {
@@ -112,24 +212,22 @@ const CartPage = () => {
     }
 
     return (
-        <div className="bg-white min-h-screen py-16">
+        <div className="bg-background-warm min-h-screen py-16">
             <div className="container mx-auto px-4">
-                <h1 className="text-4xl md:text-5xl font-heading text-brand-primary mb-8 text-center">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-8">
                     Tu Carrito de Compras
                 </h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+                    {/* COLUMNA IZQUIERDA: Productos y Formulario */}
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="space-y-4 text-left">
+
+                        {/* Lista de Items */}
+                        <div className="space-y-4">
                             {cartItems.map((item, index) => (
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    key={`${item.id}-${index}`}
-                                    className="flex flex-col sm:flex-row items-center gap-6 bg-white p-6 border-b border-gray-100"
-                                >
-                                    <div className="w-24 h-24 flex-shrink-0 bg-gray-50 overflow-hidden">
+                                <div key={`${item.id}-${index}`} className="flex flex-col sm:flex-row items-center gap-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                    <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
                                         <img
                                             src={(item.images && item.images.length > 0) ? item.images[0] : "https://via.placeholder.com/150?text=Sin+Foto"}
                                             alt={item.name}
@@ -137,183 +235,298 @@ const CartPage = () => {
                                         />
                                     </div>
                                     <div className="flex-grow text-center sm:text-left">
-                                        <h3 className="text-lg text-gray-900 font-heading mb-1">{item.name}</h3>
-                                        <p className="text-brand-primary font-body">${item.price.toLocaleString('es-AR')}</p>
+                                        <h3 className="text-lg font-bold text-gray-900 font-heading mb-1">{item.name}</h3>
+                                        <p className="text-brand-primary font-bold inline-flex items-center gap-3">
+                                            ${item.price.toLocaleString('es-AR')}
+                                            {item.freeShipping && (
+                                                <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                                                    <Truck size={10} /> Envío Gratis
+                                                </span>
+                                            )}
+                                        </p>
+
+                                        {/* CUSTOMIZATIONS DISPLAY */}
                                         {item.selectedCustomizations && (
-                                            <div className="text-sm text-gray-500 mt-1 space-y-1 font-body">
+                                            <div className="text-sm text-gray-500 mt-1 space-y-1">
                                                 {item.selectedCustomizations.fabricColor && (
-                                                    <p>Tela: <span className="font-medium text-gray-700">{item.selectedCustomizations.fabricColor}</span></p>
+                                                    <p>Color Tela: <span className="font-medium text-gray-700">{item.selectedCustomizations.fabricColor}</span></p>
                                                 )}
                                                 {item.selectedCustomizations.embroideryColor && (
-                                                    <p>Bordado: <span className="font-medium text-gray-700">{item.selectedCustomizations.embroideryColor}</span></p>
+                                                    <p>Color Bordado: <span className="font-medium text-gray-700">{item.selectedCustomizations.embroideryColor}</span></p>
                                                 )}
-                                                {item.selectedCustomizations.initials && (
-                                                    <p>Iniciales: <span className="font-medium text-gray-700">{item.selectedCustomizations.initials} ({item.selectedCustomizations.initialsColor})</span></p>
+                                                {item.selectedCustomizations.measurement && (
+                                                    <p>Medida: <span className="font-medium text-gray-700">{item.selectedCustomizations.measurement}</span></p>
                                                 )}
-                                                {item.selectedCustomizations.selectedSvg && (
-                                                    <p className="flex items-center gap-1">Diseño: <img src={item.selectedCustomizations.selectedSvg} alt="SVG" className="w-4 h-4 object-contain bg-gray-50 rounded p-0.5" /></p>
+                                                {item.selectedCustomizations.fabricType && (
+                                                    <p>Tela: <span className="font-medium text-gray-700">{item.selectedCustomizations.fabricType}</span></p>
                                                 )}
+                                                {item.selectedCustomizations.letters && (
+                                                    <p>Iniciales: <span className="font-medium text-gray-700">{item.selectedCustomizations.letters}</span></p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* TOTAL UNITS INDICATOR */}
+                                        {item.pack && (
+                                            <div className="mt-2 bg-brand-light/20 border border-brand-light/30 px-2.5 py-1 rounded-md inline-flex items-center gap-2">
+                                                <span className="text-[10px] font-black uppercase text-brand-dark tracking-wider">
+                                                    {item.pack} — {getMultiplier(item.pack)} unidades físicas
+                                                </span>
                                             </div>
                                         )}
                                     </div>
                                     <button
                                         onClick={() => removeFromCart(item._cartId)}
-                                        className="p-2 text-gray-400 hover:text-black transition-colors"
+                                        className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                                         aria-label="Eliminar producto"
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
 
-                        <CheckoutForm onDataChange={(data, isValid) => {
-                            setCustomerData(data);
-                            setIsFormValid(isValid);
-                        }} />
+                        {/* Formulario de Checkout */}
+                        <CheckoutForm
+                            shippingType={selectedShipping?.type}
+                            onDataChange={(data, isValid) => {
+                                setCustomerData(data);
+                                // Validamos que form sea válido Y hayan elegido un envío
+                                const isShippingValid = selectedShipping !== null;
+                                setIsFormValid(isValid && isShippingValid);
+                            }}
+                        />
 
-                        {suggestedProduct && (
-                            <div className="mt-8 border border-gray-100 bg-gray-50 p-6 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 bg-black text-white text-xs font-bold px-3 py-1">
-                                    TE PUEDE GUSTAR
-                                </div>
-                                <div className="flex items-center justify-between gap-4 mt-2">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 bg-white overflow-hidden border border-gray-200">
-                                            <img
-                                                src={(suggestedProduct.images && suggestedProduct.images.length > 0) ? suggestedProduct.images[0] : "https://via.placeholder.com/150"}
-                                                alt={suggestedProduct.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className="text-left">
-                                            <h4 className="font-heading text-gray-900">{suggestedProduct.name}</h4>
-                                            <p className="text-sm text-gray-600 font-body">${suggestedProduct.price.toLocaleString('es-AR')}</p>
-                                        </div>
+                        {/* --- SUGERENCIA --- */}
+                        {suggestedProduct && (() => {
+                            const { price, label, pack } = getDisplayPrice(suggestedProduct);
+                            return (
+                                <div className="mt-8 border border-yellow-200 bg-yellow-50/50 rounded-xl p-6 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-br-lg">
+                                        TE PUEDE GUSTAR
                                     </div>
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => {
-                                            addToCart(suggestedProduct);
-                                            showToast("Producto agregado");
-                                        }}
-                                        className="bg-transparent border border-black text-black p-2 hover:bg-black hover:text-white transition-colors"
-                                        title="Agregar al pedido"
-                                    >
-                                        <Plus size={20} />
-                                    </motion.button>
+                                    <div className="flex items-center justify-between gap-4 mt-2">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 bg-white rounded-lg overflow-hidden border border-yellow-200 shadow-sm">
+                                                <img
+                                                    src={(suggestedProduct.images && suggestedProduct.images.length > 0) ? suggestedProduct.images[0] : "https://via.placeholder.com/150"}
+                                                    alt={suggestedProduct.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-gray-800">{suggestedProduct.name}</h4>
+                                                <p className="text-sm text-gray-600">
+                                                    ${price.toLocaleString('es-AR')} {label && <span className="font-bold text-yellow-700">{label}</span>}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                if (pack) {
+                                                    // Si es un producto de pack, lo añadimos con el pack y precio detectado
+                                                    addToCart({
+                                                        ...suggestedProduct,
+                                                        price: price,
+                                                        pack: pack
+                                                    });
+                                                } else {
+                                                    addToCart(suggestedProduct);
+                                                }
+                                                showToast("¡Sugerencia agregada!", "success");
+                                            }}
+                                            className="bg-black text-white p-2 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
+                                            title="Agregar al pedido"
+                                        >
+                                            <Plus size={20} />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
                     </div>
 
+                    {/* COLUMNA DERECHA: Resumen y Pago */}
                     <div className="lg:col-span-1">
-                        <div className="bg-gray-50 p-8 sticky top-24 rounded-2xl border border-gray-50">
-                            <h2 className="text-xl font-heading text-gray-900 mb-6 border-b border-gray-200 pb-4">Resumen</h2>
+                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 sticky top-24">
+                            <h2 className="text-xl font-heading font-bold text-gray-900 mb-6">Resumen del Pedido</h2>
 
-                            <div className="space-y-4 mb-6 text-gray-700 font-body text-sm">
+                            {/* --- Sección de Cupón --- */}
+                            <div className="mb-6">
+                                {!appliedCoupon ? (
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Código de descuento"
+                                            value={couponCodeInput}
+                                            onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                                            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-bold focus:ring-brand-primary focus:border-brand-primary"
+                                        />
+                                        <button
+                                            onClick={handleApplyCoupon}
+                                            disabled={isApplyingCoupon || !couponCodeInput.trim()}
+                                            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                                        >
+                                            {isApplyingCoupon ? '...' : 'Aplicar'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-center">
+                                        <div>
+                                            <p className="text-xs text-green-800 font-bold">Cupón Aplicado</p>
+                                            <p className="text-sm font-black text-green-900 tracking-wider inline-flex items-center gap-1">
+                                                <Percent size={14} /> {appliedCoupon.code}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={handleRemoveCoupon}
+                                            className="text-red-500 hover:text-red-700 text-xs font-bold underline"
+                                        >
+                                            Quitar
+                                        </button>
+                                    </div>
+                                )}
+                                {couponError && (
+                                    <p className="text-red-500 text-xs mt-2 font-medium">{couponError}</p>
+                                )}
+                            </div>
+
+                            <div className="space-y-4 mb-6 text-gray-700">
                                 <div className="flex justify-between">
                                     <span>Subtotal</span>
-                                    <span className="font-medium">${subtotal.toLocaleString('es-AR')}</span>
+                                    <span className="font-medium">${baseSubtotal.toLocaleString('es-AR')}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
+
+                                {appliedCoupon && (
+                                    <div className="flex justify-between items-center text-green-700">
+                                        <span>Descuento Cupón</span>
+                                        <span className="font-bold">
+                                            {appliedCoupon.type === 'FREE_SHIPPING' 
+                                                ? 'Envío Gratis' 
+                                                : `- $${couponDiscountAmount.toLocaleString('es-AR')}`
+                                            }
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
                                     <span>Envío</span>
-                                    {shippingCost > 0 ? (
-                                        <span className="font-medium">${shippingCost.toLocaleString('es-AR')}</span>
-                                    ) : (
-                                        <span className="text-black font-bold text-xs bg-white border border-gray-200 px-2 py-1">GRATIS</span>
-                                    )}
+                                    <span className="font-bold">
+                                        {selectedShipping
+                                            ? (shippingCost === 0 ? <span className="text-green-600">¡GRATIS!</span> : `$${shippingCost.toLocaleString('es-AR')}`)
+                                            : <span className="text-gray-400 text-xs">A calcular</span>}
+                                    </span>
                                 </div>
-                                <AnimatePresence>
-                                    {paymentMethod === 'transferencia' && (
-                                        <motion.div
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            className="flex justify-between items-center text-green-800 overflow-hidden"
-                                        >
-                                            <span>Descuento (Transferencia)</span>
-                                            <span className="font-bold">- ${discountAmount.toLocaleString('es-AR')}</span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
                             </div>
 
                             <div className="mb-6 space-y-3">
-                                <p className="text-sm font-bold text-gray-900 font-heading uppercase tracking-wide text-left">Método de Pago</p>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <motion.button
-                                        whileHover={{ y: -2 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => setPaymentMethod('mercadopago')}
-                                        className={`flex flex-col items-center justify-center p-4 border rounded-xl transition-all relative overflow-hidden ${paymentMethod === 'mercadopago'
-                                            ? 'border-black bg-white text-black shadow-md ring-1 ring-black'
-                                            : 'border-gray-200 hover:border-gray-300 text-gray-400 bg-white'
-                                            }`}
-                                    >
-                                        <CreditCard size={20} className="mb-2" />
-                                        <span className="text-xs font-heading font-medium">Mercado Pago</span>
-                                        {paymentMethod === 'mercadopago' && (
-                                            <motion.div layoutId="selection" className="absolute inset-0 border-2 border-black rounded-xl pointer-events-none" />
-                                        )}
-                                    </motion.button>
+                                <p className="text-sm font-bold text-gray-900 border-b pb-2">Método de Envío (Correo Argentino)</p>
+                                <div className="space-y-2">
+                                    <label className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedShipping?.id === 'ca_sucursal_flat' ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary' : 'border-gray-200 hover:border-gray-300'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="radio"
+                                                name="shippingMethod"
+                                                className="w-4 h-4 text-brand-primary focus:ring-brand-primary"
+                                                checked={selectedShipping?.id === 'ca_sucursal_flat'}
+                                                onChange={() => setSelectedShipping({ id: 'ca_sucursal_flat', name: 'Envío a Sucursal Correo Argentino', price: 0, type: 'sucursal' })}
+                                            />
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-gray-800">Retiro en Sucursal</span>
+                                                <span className="text-[10px] text-gray-500 uppercase">3 a 6 días hábiles</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-bold text-green-600">¡GRATIS!</span>
+                                    </label>
 
-                                    <motion.button
-                                        whileHover={{ y: -2 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => setPaymentMethod('transferencia')}
-                                        className={`flex flex-col items-center justify-center p-4 border rounded-xl transition-all relative overflow-hidden ${paymentMethod === 'transferencia'
-                                            ? 'border-black bg-white text-black shadow-md ring-1 ring-black'
-                                            : 'border-gray-200 hover:border-gray-300 text-gray-400 bg-white'
+                                    <label className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedShipping?.id === 'ca_domicilio_flat' ? 'border-brand-primary bg-brand-primary/5 ring-1 ring-brand-primary' : 'border-gray-200 hover:border-gray-300'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <input
+                                                type="radio"
+                                                name="shippingMethod"
+                                                className="w-4 h-4 text-brand-primary focus:ring-brand-primary"
+                                                checked={selectedShipping?.id === 'ca_domicilio_flat'}
+                                                onChange={() => setSelectedShipping({ id: 'ca_domicilio_flat', name: 'Envío a domicilio Correo Argentino', price: 6718, type: 'domicilio' })}
+                                            />
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-gray-800">Envío a Domicilio</span>
+                                                <span className="text-[10px] text-gray-500 uppercase">3 a 7 días hábiles</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-bold text-gray-900">
+                                            $6.718
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Descuento condicional */}
+                            {paymentMethod === 'transferencia' && (
+                                <div className="flex justify-between items-center text-green-700">
+                                    <span>Descuento (Transferencia)</span>
+                                    <span className="font-bold">- ${transferDiscountAmount.toLocaleString('es-AR')}</span>
+                                </div>
+                            )}
+
+                            {/* --- SELECTOR DE PAGO --- */}
+                            <div className="mt-6 mb-6 space-y-3">
+                                <p className="text-sm font-bold text-gray-900">Método de Pago</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setPaymentMethod('mercadopago')}
+                                        className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${paymentMethod === 'mercadopago'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500'
+                                            : 'border-gray-200 hover:border-blue-200 text-gray-500'
                                             }`}
                                     >
-                                        <Banknote size={20} className="mb-2" />
-                                        <span className="text-xs font-heading font-medium">Transferencia</span>
-                                        <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full mt-1 font-bold">-15%</span>
-                                        {paymentMethod === 'transferencia' && (
-                                            <motion.div layoutId="selection" className="absolute inset-0 border-2 border-black rounded-xl pointer-events-none" />
-                                        )}
-                                    </motion.button>
+                                        <CreditCard size={24} className="mb-2" />
+                                        <span className="text-xs font-bold">Tarjetas / MP</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => setPaymentMethod('transferencia')}
+                                        className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${paymentMethod === 'transferencia'
+                                            ? 'border-green-500 bg-green-50 text-green-700 ring-1 ring-green-500'
+                                            : 'border-gray-200 hover:border-green-200 text-gray-500'
+                                            }`}
+                                    >
+                                        <Banknote size={24} className="mb-2" />
+                                        <span className="text-xs font-bold">Transferencia</span>
+                                        <span className="text-[10px] bg-green-100 px-1 rounded mt-1 text-green-800 font-medium">10% OFF</span>
+                                    </button>
                                 </div>
                             </div>
 
                             <div className="border-t border-gray-200 pt-6 mb-8">
-                                <div className="flex justify-between items-center text-xl font-heading text-gray-900">
+                                <div className="flex justify-between items-center text-2xl font-bold text-gray-900">
                                     <span>Total</span>
-                                    <motion.span
-                                        key={finalTotal}
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                    >
-                                        ${finalTotal.toLocaleString('es-AR')}
-                                    </motion.span>
+                                    <span>${finalTotal.toLocaleString('es-AR')}</span>
                                 </div>
+                                {paymentMethod !== 'transferencia' && (
+                                    <p className="text-right text-sm text-green-600 mt-2 font-medium">
+                                        ¡Ahorrá ${(subtotalAfterCoupon * 0.10).toLocaleString('es-AR')} pagando por Transferencia!
+                                    </p>
+                                )}
                             </div>
 
-                            <motion.button
-                                whileHover={(!isFormValid || loadingCheckout) ? {} : { scale: 1.02 }}
-                                whileTap={(!isFormValid || loadingCheckout) ? {} : { scale: 0.98 }}
+                            <button
                                 onClick={handleCheckout}
                                 disabled={loadingCheckout || !isFormValid}
-                                className={`w-full text-white font-heading uppercase tracking-widest text-xs py-5 rounded-xl transition-all shadow-lg ${(!isFormValid || loadingCheckout)
-                                    ? 'bg-gray-300 cursor-not-allowed shadow-none'
-                                    : 'bg-black hover:bg-gray-900 shadow-black/10'
+                                className={`w-full text-white font-bold py-4 rounded-lg transition-all shadow-lg text-sm md:text-base ${(!isFormValid || loadingCheckout)
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : (paymentMethod === 'mercadopago' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700')
                                     }`}
                             >
-                                {loadingCheckout ? (
-                                    <div className="flex items-center justify-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Procesando</span>
-                                    </div>
-                                ) : (
-                                    !isFormValid ? 'Completa el envío' : 'Finalizar Compra'
+                                {loadingCheckout ? 'Procesando...' : (
+                                    !isFormValid ? 'Completa formulario y calcula el envío' : (
+                                        paymentMethod === 'mercadopago' ? 'Pagar con Mercado Pago' : 'Finalizar Pedido'
+                                    )
                                 )}
-                            </motion.button>
+                            </button>
 
-                            <p className="text-center text-xs text-gray-400 mt-6 font-body">
+                            <p className="text-center text-xs text-gray-500 mt-4">
                                 <span className="flex items-center justify-center gap-1">
-                                    Compra 100% segura <CreditCard size={12} />
+                                    Compra protegida <CreditCard size={12} />
                                 </span>
                             </p>
                         </div>

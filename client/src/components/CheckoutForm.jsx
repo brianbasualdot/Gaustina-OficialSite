@@ -1,30 +1,37 @@
 import React, { useState, useEffect } from 'react';
 
-const CheckoutForm = ({ onDataChange }) => {
+const CheckoutForm = ({ onDataChange, hideZip = false, shippingType = null }) => {
     const [formData, setFormData] = useState({
         customerName: '',
         customerEmail: '',
         shippingPhone: '',
-        street: '',
-        number: '',
-        floor: '',
-        apartment: '',
+        shippingAddress: '',
         shippingCity: '',
-        shippingZip: '',
-        shippingMethod: 'sucursal'
+        shippingZip: ''
     });
 
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
+        // Validar cada vez que cambian los datos y notificar al padre
         const isValid = validateChange();
         onDataChange(formData, isValid);
-    }, [formData]);
+    }, [formData, shippingType]); // Re-validar si cambia el tipo de envío
 
     const validateChange = () => {
-        // Requeridos: Nombre, Email, Teléfono, Calle, Altura, Ciudad, CP
-        const requiredFields = ['customerName', 'customerEmail', 'shippingPhone', 'street', 'number', 'shippingCity', 'shippingZip'];
-        return requiredFields.every(field => formData[field] && formData[field].trim() !== '');
+        // Retorna true si todos los campos requeridos están llenos de acuerdo al contexto
+        return Object.entries(formData).every(([key, val]) => {
+            // Campos opcionales: siempre retornan true
+            if (key === 'shippingFloor' || key === 'shippingApartment') return true;
+
+            if (hideZip && key === 'shippingZip') return true;
+
+            // Si es sucursal, la dirección y ciudad no son obligatorias aquí (vienen del calculador)
+            // NOTA: En el nuevo modelo manual, SIEMPRE pedimos dirección aunque sea para sucursal
+            // como campo de referencia, pero mantenemos la lógica si el usuario decide lo contrario.
+
+            return val.toString().trim() !== '';
+        });
     };
 
     const handleChange = (e) => {
@@ -40,7 +47,7 @@ const CheckoutForm = ({ onDataChange }) => {
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
             <h3 className="text-lg font-heading font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span>📍</span> Datos de Envío
+                <span>📍</span> Datos de {shippingType === 'sucursal' ? 'Contacto' : 'Envio'}
             </h3>
 
             <div className="space-y-4">
@@ -83,60 +90,43 @@ const CheckoutForm = ({ onDataChange }) => {
                     </div>
                 </div>
 
-                {/* Dirección - Calle y Altura */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {/* Dirección y Código Postal */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Calle</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Dirección de Entrega / Calle y Altura</label>
                         <input
                             type="text"
-                            name="street"
-                            value={formData.street}
+                            name="shippingAddress"
+                            value={formData.shippingAddress}
                             onChange={handleChange}
-                            placeholder="Ej: Av. Santa Fe"
+                            placeholder="Ej: Av. Santa Fe 1234"
                             className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Altura</label>
-                        <input
-                            type="text"
-                            name="number"
-                            value={formData.number}
-                            onChange={handleChange}
-                            placeholder="1234"
-                            className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                        />
-                    </div>
-                </div>
 
-                {/* Piso y Depto (Opcionales) */}
-                <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Piso (Opcional)</label>
                         <input
                             type="text"
-                            name="floor"
-                            value={formData.floor}
+                            name="shippingFloor"
+                            value={formData.shippingFloor || ''}
                             onChange={handleChange}
                             placeholder="Piso"
                             className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Depto / Letra (Opcional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Departamento (Opcional)</label>
                         <input
                             type="text"
-                            name="apartment"
-                            value={formData.apartment}
+                            name="shippingApartment"
+                            value={formData.shippingApartment || ''}
                             onChange={handleChange}
-                            placeholder="A"
+                            placeholder="Depto"
                             className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                         />
                     </div>
-                </div>
 
-                {/* Ciudad y CP */}
-                <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
                         <input
@@ -155,51 +145,9 @@ const CheckoutForm = ({ onDataChange }) => {
                             name="shippingZip"
                             value={formData.shippingZip}
                             onChange={handleChange}
-                            placeholder="CP"
+                            placeholder="CP (Ej: 1428)"
                             className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                         />
-                    </div>
-                </div>
-
-                {/* Método de Envío */}
-                <div className="pt-4 border-t border-gray-100">
-                    <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Método de Envío</label>
-                    <div className="space-y-3">
-                        <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${formData.shippingMethod === 'sucursal' ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-200'}`}>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="radio"
-                                    name="shippingMethod"
-                                    value="sucursal"
-                                    checked={formData.shippingMethod === 'sucursal'}
-                                    onChange={handleChange}
-                                    className="w-4 h-4 text-black focus:ring-black border-gray-300"
-                                />
-                                <div className="text-left">
-                                    <p className="font-medium text-gray-900">Retiro en Sucursal Correo Argentino</p>
-                                    <p className="text-xs text-gray-500">Llega a la sucursal más cercana a tu domicilio</p>
-                                </div>
-                            </div>
-                            <span className="font-bold text-green-700 text-sm italic">GRATIS</span>
-                        </label>
-
-                        <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${formData.shippingMethod === 'domicilio' ? 'border-black bg-gray-50' : 'border-gray-100 hover:border-gray-200'}`}>
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="radio"
-                                    name="shippingMethod"
-                                    value="domicilio"
-                                    checked={formData.shippingMethod === 'domicilio'}
-                                    onChange={handleChange}
-                                    className="w-4 h-4 text-black focus:ring-black border-gray-300"
-                                />
-                                <div className="text-left">
-                                    <p className="font-medium text-gray-900">Envío a Domicilio</p>
-                                    <p className="text-xs text-gray-500">Correo Argentino entrega en tu puerta</p>
-                                </div>
-                            </div>
-                            <span className="font-bold text-gray-900 text-sm">$6.473</span>
-                        </label>
                     </div>
                 </div>
             </div>
