@@ -7,7 +7,7 @@ import CheckoutForm from '../components/CheckoutForm';
 import { getDisplayPrice } from '../utils/productUtils';
 
 // URL para buscar sugerencias
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../config/api';
 
 const CartPage = () => {
     const { cartItems, removeFromCart, addToCart, clearCart } = useCart();

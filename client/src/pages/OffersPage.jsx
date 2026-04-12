@@ -4,7 +4,7 @@ import SeoHead from '../components/common/SeoHead';
 import ProtectedImage from '../components/common/ProtectedImage';
 import { getDisplayPrice, getTransferPrice } from '../utils/productUtils';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../config/api';
 
 const OffersPage = () => {
     const [offers, setOffers] = useState([]);

@@ -4,7 +4,7 @@ import { supabase } from '../../utils/supabase';
 import { Mail, ArrowLeft, Send, CheckCircle, Clock } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../../config/api';
 
 const AdminMessages = () => {
     const [messages, setMessages] = useState([]);

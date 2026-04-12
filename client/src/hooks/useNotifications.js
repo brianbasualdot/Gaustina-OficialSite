@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
+import { SOCKET_URL } from '../config/api';
 
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 const CHACHING_SOUND = 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3';
 
 export const useNotifications = () => {

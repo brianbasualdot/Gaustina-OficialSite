@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/common/SeoHead';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../config/api';
 
 const HomePage = () => {
     // Estado para productos destacados (recientes o aleatorios)

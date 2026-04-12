@@ -6,7 +6,7 @@ import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
 
 // URL INTELIGENTE
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../../config/api';
 
 const CreateProduct = () => {
     const navigate = useNavigate();

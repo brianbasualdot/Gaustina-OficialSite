@@ -13,7 +13,7 @@ import "yet-another-react-lightbox/styles.css";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../config/api';
 
 const isVideo = (url) => {
     if (!url) return false;

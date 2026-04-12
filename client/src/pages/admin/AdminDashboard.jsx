@@ -7,7 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { useNotifications } from '../../hooks/useNotifications';
 
 // URL Inteligente
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../../config/api';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();

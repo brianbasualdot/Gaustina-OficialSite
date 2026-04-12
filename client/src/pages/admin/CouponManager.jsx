@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { Tag, Plus, Trash2, Edit2, X, Check, Search, Percent, Banknote, Truck, ArrowLeft } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../../config/api';
 
 const CouponManager = () => {
     const navigate = useNavigate();

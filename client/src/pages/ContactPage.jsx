@@ -1,5 +1,6 @@
 import React from 'react';
 import confetti from 'canvas-confetti';
+import { API_URL } from '../config/api';
 
 const ContactPage = () => {
     const [formData, setFormData] = React.useState({
@@ -18,9 +19,6 @@ const ContactPage = () => {
         setStatus({ loading: true, error: null, success: false });
 
         try {
-            // Usa la URL base de la API si está definida en variables de entorno, o asume relativa /api
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
             const response = await fetch(`${API_URL}/api/contact`, {
                 method: 'POST',
                 headers: {

@@ -4,7 +4,7 @@ import SeoHead from '../components/common/SeoHead';
 
 // Dummy Data replacement or Fetch from API
 // Since we are decoupling from specific categories, we'll fetch all or use dummy data if API fails
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../config/api';
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);

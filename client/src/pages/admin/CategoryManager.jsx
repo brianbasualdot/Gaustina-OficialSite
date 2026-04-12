@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Plus, Loader } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { API_URL } from '../../config/api';
 
 const CategoryManager = () => {
     const navigate = useNavigate();
