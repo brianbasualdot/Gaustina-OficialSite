@@ -30,7 +30,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import MaintenancePage from './pages/MaintenancePage';
 
 function App() {
-    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'false';
+    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'true';
 
     useEffect(() => {
         const handleContextMenu = (e) => {
@@ -81,10 +81,10 @@ function App() {
                                     <Route path="/checkout/success" element={<SuccessPage />} />
                                     <Route path="/checkout/failure" element={<FailurePage />} />
                                     <Route path="/checkout/pending" element={<SuccessPage />} />
-    
+
                                     {/* Admin Routes */}
                                     <Route path="/admin/login" element={<AdminLogin />} />
-    
+
                                     <Route element={<ProtectedRoute />}>
                                         <Route path="/admin/dashboard" element={<AdminDashboard />} />
                                         <Route path="/admin/crear-producto" element={<CreateProduct />} />
@@ -93,7 +93,7 @@ function App() {
                                         <Route path="/admin/mensajes" element={<AdminMessages />} />
                                         <Route path="/admin/cupones" element={<CouponManager />} />
                                     </Route>
-    
+
                                     <Route
                                         path="*"
                                         element={<NotFoundPage />}
