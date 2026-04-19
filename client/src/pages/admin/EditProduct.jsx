@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Upload, Loader, ArrowLeft, X, Trash2, Move, Maximize2 } from 'lucide-react';
+import { Upload, Loader, ArrowLeft, ArrowRight, X, Trash2, Star, Move, Maximize2 } from 'lucide-react';
 import { motion, Reorder } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
@@ -169,13 +169,18 @@ const EditProduct = () => {
 
     // MOVER IMAGEN (REORDENAR)
     const moveImage = (fromIndex, toIndex) => {
-        if (fromIndex === toIndex) return;
+        if (fromIndex === toIndex || toIndex < 0 || toIndex >= managedImages.length) return;
         setManagedImages(prev => {
             const result = [...prev];
             const [removed] = result.splice(fromIndex, 1);
             result.splice(toIndex, 0, removed);
             return result;
         });
+    };
+
+    const promoteToCover = (index) => {
+        if (index === 0) return;
+        moveImage(index, 0);
     };
 
     // --- SVGs ---
@@ -364,8 +369,8 @@ const EditProduct = () => {
                         )}
                     </div>
                     
-                    {/* Grilla Reordenable con Refuerzo 2D */}
-                    <div className="mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 relative" ref={galleryRef}>
+                    {/* Grilla Reordenable con Controles de Botón */}
+                    <div className="mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 relative shadow-inner">
                         <motion.div 
                             layout
                             className="grid grid-cols-3 sm:grid-cols-4 gap-4"
@@ -374,64 +379,73 @@ const EditProduct = () => {
                                 <motion.div
                                     key={item.id}
                                     layout
-                                    drag
-                                    dragConstraints={galleryRef}
-                                    dragElastic={0.05}
-                                    dragMomentum={false}
-                                    onDragEnd={(e, info) => {
-                                        const container = galleryRef.current;
-                                        if (!container) return;
-                                        
-                                        const children = Array.from(container.querySelectorAll('.grid-item'));
-                                        const draggedRect = e.target.getBoundingClientRect();
-                                        const draggedCenter = {
-                                            x: draggedRect.left + draggedRect.width / 2,
-                                            y: draggedRect.top + draggedRect.height / 2
-                                        };
-
-                                        let closestIndex = index;
-                                        let minDistance = Infinity;
-
-                                        children.forEach((child, idx) => {
-                                            if (idx === index) return;
-                                            const rect = child.getBoundingClientRect();
-                                            const center = {
-                                                x: rect.left + rect.width / 2,
-                                                y: rect.top + rect.height / 2
-                                            };
-                                            const distance = Math.hypot(draggedCenter.x - center.x, draggedCenter.y - center.y);
-                                            if (distance < minDistance && distance < rect.width) {
-                                                minDistance = distance;
-                                                closestIndex = idx;
-                                            }
-                                        });
-
-                                        if (closestIndex !== index) {
-                                            moveImage(index, closestIndex);
-                                        }
-                                    }}
-                                    whileDrag={{ 
-                                        scale: 1.1, 
-                                        zIndex: 50,
-                                        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2)"
-                                    }}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
                                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                    className={`grid-item relative aspect-square rounded-xl overflow-hidden border group bg-white cursor-grab active:cursor-grabbing shadow-sm ${item.isNew ? 'border-blue-200' : 'border-green-100'}`}
+                                    className={`relative aspect-square rounded-xl overflow-hidden border shadow-sm group ${item.isNew ? 'border-blue-200 bg-blue-50/10' : 'border-gray-200 bg-white'}`}
                                 >
-                                    <img src={item.url} alt="Producto" className="w-full h-full object-cover pointer-events-none" />
-                                    <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md border ${index === 0 ? 'bg-black text-white border-white/20' : 'bg-white/80 text-black border-black/10'} pointer-events-none z-10 shadow-sm`}>
-                                        {index === 0 ? 'PORTADA' : index + 1}
+                                    <img src={item.url} alt="Producto" className="w-full h-full object-cover" />
+                                    
+                                    {/* Overlay de Control */}
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
+                                        <div className="flex justify-between items-start">
+                                            <div className="bg-white/90 px-1.5 py-0.5 rounded text-[9px] font-bold text-black uppercase">
+                                                {index === 0 ? 'Portada' : `#${index + 1}`}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(item.id, item.isNew)}
+                                                className="bg-white/90 p-1 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                            >
+                                                {item.isNew ? <X size={14} /> : <Trash2 size={14} />}
+                                            </button>
+                                        </div>
+
+                                        <div className="flex justify-center gap-1.5">
+                                            {index > 0 && (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => moveImage(index, index - 1)}
+                                                        className="bg-white/90 p-1.5 rounded-full text-brand-dark hover:bg-brand-primary hover:text-white transition-colors"
+                                                        title="Mover Atrás"
+                                                    >
+                                                        <ArrowLeft size={16} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => promoteToCover(index)}
+                                                        className="bg-white/90 p-1.5 rounded-full text-yellow-600 hover:bg-yellow-500 hover:text-white transition-colors"
+                                                        title="Hacer Portada"
+                                                    >
+                                                        <Star size={16} fill="currentColor" />
+                                                    </button>
+                                                </>
+                                            )}
+                                            {index < managedImages.length - 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => moveImage(index, index + 1)}
+                                                    className="bg-white/90 p-1.5 rounded-full text-brand-dark hover:bg-brand-primary hover:text-white transition-colors"
+                                                    title="Mover Adelante"
+                                                >
+                                                    <ArrowRight size={16} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            removeImage(item.id, item.isNew);
-                                        }}
-                                        className="absolute top-2 right-2 bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm opacity-0 group-hover:opacity-100 z-20"
-                                    >
-                                        {item.isNew ? <X size={14} /> : <Trash2 size={14} />}
-                                    </button>
+
+                                    {/* Badge siempre visible si es Portada */}
+                                    {index === 0 && (
+                                        <div className="absolute top-2 left-2 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full border border-white/20 uppercase tracking-tighter group-hover:opacity-0 transition-opacity">
+                                            Portada
+                                        </div>
+                                    )}
+                                    {item.isNew && (
+                                        <div className="absolute bottom-2 right-2 bg-blue-500 text-white text-[7px] px-1 py-0.5 rounded uppercase tracking-tighter group-hover:opacity-0 transition-opacity">
+                                            Nuevo
+                                        </div>
+                                    )}
                                 </motion.div>
                             ))}
                         </motion.div>
