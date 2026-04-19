@@ -16,6 +16,7 @@ const EditProduct = () => {
     const [session, setSession] = useState(null);
     const { showToast } = useToast();
     const containerRef = useRef(null);
+    const galleryRef = useRef(null);
 
     // IMÁGENES REORDENABLES
     const [managedImages, setManagedImages] = useState([]); // [{id, url, file, isNew}]
@@ -353,17 +354,20 @@ const EditProduct = () => {
                     </div>
 
                     {/* Grilla Reordenable */}
-                    <Reorder.Group 
-                        axis="y" 
-                        values={managedImages} 
-                        onReorder={setManagedImages}
-                        className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4"
-                    >
+                    <div ref={galleryRef} style={{ position: 'relative' }}>
+                        <Reorder.Group 
+                            axis="y" 
+                            values={managedImages} 
+                            onReorder={setManagedImages}
+                            className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4"
+                        >
                         {managedImages.map((item) => (
                             <Reorder.Item 
                                 key={item.id} 
                                 value={item}
                                 layout
+                                dragConstraints={galleryRef}
+                                dragElastic={0.1}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 whileDrag={{ 
@@ -390,6 +394,7 @@ const EditProduct = () => {
                             </Reorder.Item>
                         ))}
                     </Reorder.Group>
+                    </div>
 
                     {/* Uploader */}
                     <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 hover:bg-gray-50 transition-colors cursor-pointer text-center group">

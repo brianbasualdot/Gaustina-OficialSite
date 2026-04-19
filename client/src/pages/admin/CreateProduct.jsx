@@ -14,6 +14,7 @@ const CreateProduct = () => {
     const [session, setSession] = useState(null);
     const { showToast } = useToast();
     const containerRef = useRef(null);
+    const galleryRef = useRef(null);
 
     // ESTADO PARA MÚLTIPLES IMÁGENES
     const [managedImages, setManagedImages] = useState([]); // [{id, url, file}]
@@ -269,7 +270,7 @@ const CreateProduct = () => {
                     </div>
 
                     {/* Grilla de Previsualización Reordenable */}
-                    <div className="mt-4">
+                    <div className="mt-4" ref={galleryRef} style={{ position: 'relative' }}>
                         <Reorder.Group 
                             axis="y" 
                             values={managedImages} 
@@ -281,6 +282,8 @@ const CreateProduct = () => {
                                     key={item.id} 
                                     value={item}
                                     layout
+                                    dragConstraints={galleryRef}
+                                    dragElastic={0.1}
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     whileDrag={{ 
