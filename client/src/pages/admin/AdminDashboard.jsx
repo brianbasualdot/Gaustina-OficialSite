@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Agrupamos useNavigate aquí
-import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle, Download, Bell, Tag } from 'lucide-react';
+import { Trash2, Plus, Package, Pencil, ShoppingBag, CheckCircle, Truck, FileText, XCircle, Mail, PauseCircle, PlayCircle, Download, Bell, Tag, Shield } from 'lucide-react';
 import { supabase } from '../../utils/supabase';
 import ConfirmationModal from '../../components/ui/ConfirmationModal';
 import { useToast } from '../../context/ToastContext';
@@ -17,6 +17,8 @@ const AdminDashboard = () => {
     const [ordersTotalPages, setOrdersTotalPages] = useState(1);
     const [activeTab, setActiveTab] = useState('products');
     const [loading, setLoading] = useState(true);
+    const [maintenanceMode, setMaintenanceMode] = useState(false);
+    const [isTogglingMaintenance, setIsTogglingMaintenance] = useState(false);
 
     // UI State
     const [modalOpen, setModalOpen] = useState(false);
@@ -32,6 +34,52 @@ const AdminDashboard = () => {
     const handleLogout = async () => {
         await supabase.auth.signOut();
         navigate('/admin/login');
+    };
+
+    const fetchMaintenanceMode = async () => {
+        try {
+            const res = await fetch(`${API_URL}/api/settings/maintenance_mode`);
+            if (res.ok) {
+                const data = await res.json();
+                setMaintenanceMode(data.value === 'true');
+            }
+        } catch (error) {
+            console.error("Error fetching maintenance mode:", error);
+        }
+    };
+
+    const handleToggleMaintenance = async () => {
+        const newState = !maintenanceMode;
+        const confirmMsg = newState 
+            ? "¿Estás seguro de que quieres ACTIVAR el modo mantenimiento? Los clientes no podrán ver la tienda."
+            : "¿Quieres DESACTIVAR el modo mantenimiento? La tienda volverá a estar pública.";
+        
+        if (!window.confirm(confirmMsg)) return;
+
+        setIsTogglingMaintenance(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const res = await fetch(`${API_URL}/api/settings`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
+                },
+                body: JSON.stringify({ key: 'maintenance_mode', value: String(newState) })
+            });
+
+            if (res.ok) {
+                setMaintenanceMode(newState);
+                showToast(`Modo mantenimiento ${newState ? 'activado' : 'desactivado'}`, "success");
+            } else {
+                showToast("Error al actualizar el modo mantenimiento", "error");
+            }
+        } catch (error) {
+            console.error("Error toggling maintenance:", error);
+            showToast("Error de conexión", "error");
+        } finally {
+            setIsTogglingMaintenance(false);
+        }
     };
 
     const fetchProducts = async () => {
@@ -206,7 +254,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
-            await Promise.all([fetchProducts(), fetchOrders()]);
+            await Promise.all([fetchProducts(), fetchOrders(), fetchMaintenanceMode()]);
             setLoading(false);
         };
         loadData();
@@ -259,6 +307,20 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="flex gap-4 items-center">
+                    <button
+                        onClick={handleToggleMaintenance}
+                        disabled={isTogglingMaintenance}
+                        className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-sm font-medium text-sm ${
+                            maintenanceMode 
+                            ? 'bg-amber-500 text-white hover:bg-amber-600 animate-pulse' 
+                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                        title={maintenanceMode ? "El modo mantenimiento está ACTIVO" : "Activar modo mantenimiento"}
+                    >
+                        <Shield size={18} className={maintenanceMode ? "fill-current" : ""} />
+                        {maintenanceMode ? "Mantenimiento: ON" : "Mantenimiento: OFF"}
+                    </button>
+
                     <button
                         onClick={handleLogout}
                         className="text-gray-500 hover:text-red-600 font-medium px-4 py-2 transition-colors border border-transparent hover:border-red-100 rounded-lg"

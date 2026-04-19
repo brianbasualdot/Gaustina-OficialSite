@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
@@ -28,9 +28,32 @@ import CouponManager from './pages/admin/CouponManager';
 import NotFoundPage from './pages/NotFoundPage';
 
 import MaintenancePage from './pages/MaintenancePage';
+import { API_URL } from './config/api';
 
 function App() {
-    const isMaintenanceMode = import.meta.env.VITE_MAINTENANCE_MODE === 'false';
+    const [maintenanceMode, setMaintenanceMode] = useState(null);
+    const [isLoadingMaintenance, setIsLoadingMaintenance] = useState(true);
+
+    useEffect(() => {
+        const fetchMaintenanceMode = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/settings/maintenance_mode`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setMaintenanceMode(data.value === 'true');
+                } else {
+                    setMaintenanceMode(false);
+                }
+            } catch (error) {
+                console.error("Error fetching maintenance mode:", error);
+                setMaintenanceMode(false);
+            } finally {
+                setIsLoadingMaintenance(false);
+            }
+        };
+
+        fetchMaintenanceMode();
+    }, []);
 
     useEffect(() => {
         const handleContextMenu = (e) => {
@@ -57,12 +80,20 @@ function App() {
         };
     }, []);
 
+    if (isLoadingMaintenance) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-white">
+                <div className="w-12 h-12 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
     return (
         <ToastProvider>
             <ModalProvider>
                 <CartProvider>
                     <BrowserRouter>
-                        {isMaintenanceMode && !window.location.pathname.startsWith('/admin') ? (
+                        {maintenanceMode && !window.location.pathname.startsWith('/admin') ? (
                             <MaintenancePage />
                         ) : (
                             <Layout>

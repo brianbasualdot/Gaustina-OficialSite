@@ -111,7 +111,10 @@ app.use('/', seoRoutes); // For sitemap.xml at root
 app.use('/api/coupons', couponsRoutes);
 
 // General API Routes (including contact and webhooks)
+import settingsRoutes from './routes/settings.routes.js';
 import apiRoutes from './routes/api.js';
+
+app.use('/api/settings', settingsRoutes);
 app.use('/api', apiRoutes);
 
 // The error handler must be before any other error middleware and after all controllers
