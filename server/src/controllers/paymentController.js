@@ -13,7 +13,7 @@ if (!process.env.MP_ACCESS_TOKEN) {
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
 
 // 1. CREAR ORDEN CON TRANSACCIÓN ACID
-const createOrderTransaction = async (items, total, type, customerData) => {
+const createOrderTransaction = async (items, total, type, customerData, extraData = {}) => {
     return await prisma.$transaction(async (tx) => {
         // A. Validar y Decrementar Stock
         for (const item of items) {
@@ -41,13 +41,24 @@ const createOrderTransaction = async (items, total, type, customerData) => {
                 totalAmount: total,
                 status: 'PENDING',
                 paymentMethod: type,
-                // Datos de Cliente y Envío (Obligatorios por lógica de negocio ahora)
+                // Datos de Cliente y Envío
                 customerName: customerData.customerName,
                 customerEmail: customerData.customerEmail,
                 shippingAddress: customerData.shippingAddress,
                 shippingCity: customerData.shippingCity,
                 postalCode: customerData.shippingZip,
                 shippingPhone: customerData.shippingPhone,
+                
+                // Campos de descuento y envío
+                shippingCost: extraData.shippingCost || 0,
+                shippingMethod: customerData.shippingMethod || 'N/A',
+                shippingType: customerData.shippingType || 'N/A',
+                discountAmount: extraData.discountAmount || 0,
+
+                // Relación con Cupones
+                coupons: extraData.couponIds ? {
+                    connect: extraData.couponIds.map(id => ({ id }))
+                } : undefined,
 
                 items: {
                     create: items.map(item => ({
@@ -58,7 +69,10 @@ const createOrderTransaction = async (items, total, type, customerData) => {
                     }))
                 }
             },
-            include: { items: { include: { product: true } } } // Para tener detalles al enviar email
+            include: { 
+                items: { include: { product: true } },
+                coupons: true
+            }
         });
 
         return order;
@@ -68,7 +82,7 @@ const createOrderTransaction = async (items, total, type, customerData) => {
 // 2. ENDPOINT: INICIAR PAGO (Preference)
 export const createPreference = async (req, res) => {
     try {
-        const { items, method, customerData, shippingCost } = req.body;
+        const { items, method, customerData, shippingCost, couponCodes, totalPhysicalUnits } = req.body;
 
         // Validar datos básicos
         if (!customerData || !customerData.customerEmail || !customerData.shippingAddress) {
@@ -76,21 +90,77 @@ export const createPreference = async (req, res) => {
         }
 
         let subtotal = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
-        const shipping = parseFloat(shippingCost) || 0;
-        let total = subtotal + shipping;
+        let actualShippingCost = parseFloat(shippingCost) || 0;
+        
+        // --- PROCESAR CUPONES ---
+        let totalDiscount = 0;
+        let isFreeShipping = false;
+        let appliedCouponIds = [];
 
-        // APLICAR DESCUENTO TRANSFERENCIA (15% solo sobre productos)
+        if (couponCodes && Array.isArray(couponCodes) && couponCodes.length > 0) {
+            const coupons = await prisma.coupon.findMany({
+                where: {
+                    code: { in: couponCodes.map(c => c.toUpperCase().trim()) },
+                    isActive: true
+                }
+            });
+
+            for (const coupon of coupons) {
+                // Validar expiración
+                if (coupon.expirationDate && new Date() > new Date(coupon.expirationDate)) continue;
+                
+                // Validar límite de uso
+                if (coupon.usageLimit !== null && coupon.usageLimit !== -1 && coupon.usageCount >= coupon.usageLimit) continue;
+
+                // Validar mínimo de ítems
+                if (coupon.minItems && totalPhysicalUnits < coupon.minItems) continue;
+
+                // Aplicar beneficio
+                if (coupon.type === 'PERCENTAGE') {
+                    totalDiscount += (subtotal * (coupon.value / 100));
+                } else if (coupon.type === 'FIXED') {
+                    totalDiscount += coupon.value;
+                } else if (coupon.type === 'FREE_SHIPPING') {
+                    isFreeShipping = true;
+                }
+                
+                appliedCouponIds.push(coupon.id);
+
+                // Incrementar contador de uso
+                await prisma.coupon.update({
+                    where: { id: coupon.id },
+                    data: { usageCount: { increment: 1 } }
+                });
+            }
+        }
+
+        // Si hay cupón de envío gratis, el costo de envío es 0
+        if (isFreeShipping) {
+            actualShippingCost = 0;
+        }
+
+        // Subtotal después de cupones
+        const subtotalAfterCoupons = Math.max(0, subtotal - totalDiscount);
+        let total = subtotalAfterCoupons + actualShippingCost;
+
+        // APLICAR DESCUENTO TRANSFERENCIA (10% solo sobre subtotal remanente)
+        let transferDiscount = 0;
         if (method === 'transferencia') {
-            total = (subtotal * 0.85) + shipping;
+            transferDiscount = subtotalAfterCoupons * 0.10;
+            total = subtotalAfterCoupons - transferDiscount + actualShippingCost;
         }
 
         // --- TRANSACCIÓN ACID (Stock + Orden) ---
         let newOrder;
         try {
-            newOrder = await createOrderTransaction(items, total, method.toUpperCase(), customerData);
+            newOrder = await createOrderTransaction(items, total, method.toUpperCase(), customerData, {
+                discountAmount: totalDiscount + transferDiscount,
+                shippingCost: actualShippingCost,
+                couponIds: appliedCouponIds
+            });
         } catch (dbError) {
             console.error("Error de Stock/DB:", dbError.message);
-            return res.status(400).json({ error: dbError.message }); // Retorna error de stock al front
+            return res.status(400).json({ error: dbError.message });
         }
 
         // A. CASO TRANSFERENCIA

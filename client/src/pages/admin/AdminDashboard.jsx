@@ -459,6 +459,7 @@ const AdminDashboard = () => {
                                 <th className="p-3">Items</th>
                                 <th className="p-3">Total</th>
                                 <th className="p-3">Pago</th>
+                                <th className="p-3">Cupones</th>
                                 <th className="p-3">Estado</th>
                                 <th className="p-3 text-center">Acciones</th>
                             </tr>
@@ -502,6 +503,19 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="p-3 text-xs">
                                         {order.paymentMethod}
+                                    </td>
+                                    <td className="p-3">
+                                        <div className="flex flex-wrap gap-1 max-w-[120px]">
+                                            {order.coupons && order.coupons.length > 0 ? (
+                                                order.coupons.map((coupon, idx) => (
+                                                    <span key={idx} className="bg-green-100 text-green-700 text-[9px] px-1.5 py-0.5 rounded-full font-bold border border-green-200">
+                                                        {coupon.code}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-gray-300 text-[10px]">-</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="p-3">
                                         <span className={`px-2 py-0.5 rounded text-xs font-bold 

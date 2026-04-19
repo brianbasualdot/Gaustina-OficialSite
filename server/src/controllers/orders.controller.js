@@ -23,7 +23,8 @@ export const getAllOrders = async (req, res) => {
                         include: {
                             product: true
                         }
-                    }
+                    },
+                    coupons: true
                 }
             })
         ]);
@@ -99,7 +100,8 @@ export const downloadInvoice = async (req, res) => {
                     include: {
                         product: true
                     }
-                }
+                },
+                coupons: true
             }
         });
 

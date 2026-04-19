@@ -133,7 +133,7 @@ function generateInvoiceTable(doc, order) {
     }
 
     // Totales
-    const summaryTop = currentY + 10;
+    const summaryTop = currentY + 15;
 
     doc.font("Helvetica-Bold");
 
@@ -141,15 +141,30 @@ function generateInvoiceTable(doc, order) {
     const subtotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     generateSummaryRow(doc, summaryTop, "Subtotal", `$${subtotal.toLocaleString('es-AR')}`);
 
-    // Descuento (Si aplica, por ejemplo transferencia)
-    if (order.totalAmount < subtotal) {
-        const discount = subtotal - order.totalAmount;
-        generateSummaryRow(doc, summaryTop + 20, "Descuento", `-$${discount.toLocaleString('es-AR')}`);
+    let nextY = summaryTop + 20;
+
+    // Envío (Si existe en la orden)
+    if (order.shippingCost !== undefined && order.shippingCost !== null) {
+        generateSummaryRow(doc, nextY, "Envío", `$${order.shippingCost.toLocaleString('es-AR')}`);
+        nextY += 20;
+    }
+
+    // Descuentos (Suma de cupones + transferencia)
+    if (order.discountAmount && order.discountAmount > 0) {
+        generateSummaryRow(doc, nextY, "Descuentos", `-$${order.discountAmount.toLocaleString('es-AR')}`);
+        nextY += 20;
     }
 
     // Total a pagar
     doc.fontSize(12);
-    generateSummaryRow(doc, summaryTop + 45, "Total a pagar", `$${Number(order.totalAmount).toLocaleString('es-AR')}`);
+    generateSummaryRow(doc, nextY + 5, "Total a pagar", `$${Number(order.totalAmount).toLocaleString('es-AR')}`);
+    
+    // Lista de Cupones (Opcional, en pequeño)
+    if (order.coupons && order.coupons.length > 0) {
+        doc.fontSize(8).font("Helvetica-Oblique").fillColor("#777777");
+        const codes = order.coupons.map(c => c.code).join(", ");
+        doc.text(`Cupones aplicados: ${codes}`, 300, nextY + 30, { width: 250, align: "right" });
+    }
 }
 
 function generateFooter(doc) {

@@ -363,10 +363,18 @@ const EditProduct = () => {
                             <Reorder.Item 
                                 key={item.id} 
                                 value={item}
+                                layout
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                whileDrag={{ 
+                                    scale: 1.05, 
+                                    zIndex: 50,
+                                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                                }}
                                 className={`relative aspect-square rounded-lg overflow-hidden border group bg-white cursor-grab active:cursor-grabbing ${item.isNew ? 'border-blue-200' : 'border-green-200'}`}
                             >
                                 <img src={item.url} alt="Producto" className="w-full h-full object-cover pointer-events-none" />
-                                <div className={`absolute inset-x-0 bottom-0 text-[9px] text-center py-0.5 backdrop-blur-sm text-white ${item.managedIdx === 0 ? 'bg-black/70' : 'bg-black/40'} pointer-events-none`}>
+                                <div className={`absolute inset-x-0 bottom-0 text-[9px] text-center py-0.5 backdrop-blur-sm text-white ${managedImages.indexOf(item) === 0 ? 'bg-black/70' : 'bg-black/40'} pointer-events-none`}>
                                     {managedImages.indexOf(item) === 0 ? '¡PORTADA!' : managedImages.indexOf(item) + 1}
                                 </div>
                                 <button

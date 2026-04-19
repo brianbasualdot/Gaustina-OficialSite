@@ -269,44 +269,45 @@ const CreateProduct = () => {
                     </div>
 
                     {/* Grilla de Previsualización Reordenable */}
-                    <motion.div layout>
-                        <motion.div 
-                            className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4"
-                            component={motion.div}
+                    <div className="mt-4">
+                        <Reorder.Group 
+                            axis="y" 
+                            values={managedImages} 
+                            onReorder={setManagedImages}
+                            className="grid grid-cols-3 sm:grid-cols-4 gap-4"
                         >
-                            <motion.div className="contents">
-                                <Reorder.Group 
-                                    axis="y" 
-                                    values={managedImages} 
-                                    onReorder={setManagedImages}
-                                    className="grid grid-cols-3 sm:grid-cols-4 gap-4 col-span-full"
+                            {managedImages.map((item) => (
+                                <Reorder.Item 
+                                    key={item.id} 
+                                    value={item}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    whileDrag={{ 
+                                        scale: 1.05, 
+                                        zIndex: 50,
+                                        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                                    }}
+                                    className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group bg-white cursor-grab active:cursor-grabbing"
                                 >
-                                    {managedImages.map((item) => (
-                                        <Reorder.Item 
-                                            key={item.id} 
-                                            value={item}
-                                            className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group bg-white cursor-grab active:cursor-grabbing"
-                                        >
-                                            <img src={item.url} alt="Preview" className="w-full h-full object-cover pointer-events-none" />
-                                            <div className="absolute top-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-none">
-                                                {managedImages.indexOf(item) === 0 ? 'PORTADA' : managedImages.indexOf(item) + 1}
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeImage(item.id);
-                                                }}
-                                                className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </Reorder.Item>
-                                    ))}
-                                </Reorder.Group>
-                            </motion.div>
-                        </motion.div>
-                    </motion.div>
+                                    <img src={item.url} alt="Preview" className="w-full h-full object-cover pointer-events-none" />
+                                    <div className="absolute top-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-none">
+                                        {managedImages.indexOf(item) === 0 ? 'PORTADA' : managedImages.indexOf(item) + 1}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeImage(item.id);
+                                        }}
+                                        className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </Reorder.Item>
+                            ))}
+                        </Reorder.Group>
+                    </div>
                 </div>
 
                 {/* Campos de Texto */}
