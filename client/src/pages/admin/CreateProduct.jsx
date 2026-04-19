@@ -281,7 +281,7 @@ const CreateProduct = () => {
                     </div>
 
                     {/* Grilla de Previsualización Reordenable */}
-                    <div className="mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 relative overflow-hidden" ref={galleryRef}>
+                    <div className="mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 relative" ref={galleryRef}>
                         <motion.div 
                             layout
                             className="grid grid-cols-3 sm:grid-cols-4 gap-4"
