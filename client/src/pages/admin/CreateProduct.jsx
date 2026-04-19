@@ -90,6 +90,17 @@ const CreateProduct = () => {
         setManagedImages(prev => prev.filter(img => img.id !== id));
     };
 
+    // MOVER IMAGEN (REORDENAR)
+    const moveImage = (fromIndex, toIndex) => {
+        if (fromIndex === toIndex) return;
+        setManagedImages(prev => {
+            const result = [...prev];
+            const [removed] = result.splice(fromIndex, 1);
+            result.splice(toIndex, 0, removed);
+            return result;
+        });
+    };
+
     // MANEJAR SVGs
     const handleSvgChange = (e) => {
         if (e.target.files) {
@@ -270,32 +281,64 @@ const CreateProduct = () => {
                     </div>
 
                     {/* Grilla de Previsualización Reordenable */}
-                    <div className="mt-4" ref={galleryRef} style={{ position: 'relative' }}>
-                        <Reorder.Group 
-                            axis="y" 
-                            values={managedImages} 
-                            onReorder={setManagedImages}
+                    <div className="mt-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 relative overflow-hidden" ref={galleryRef}>
+                        <motion.div 
+                            layout
                             className="grid grid-cols-3 sm:grid-cols-4 gap-4"
                         >
-                            {managedImages.map((item) => (
-                                <Reorder.Item 
-                                    key={item.id} 
-                                    value={item}
+                            {managedImages.map((item, index) => (
+                                <motion.div
+                                    key={item.id}
                                     layout
+                                    drag
                                     dragConstraints={galleryRef}
-                                    dragElastic={0.1}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    whileDrag={{ 
-                                        scale: 1.05, 
-                                        zIndex: 50,
-                                        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                                    dragElastic={0.05}
+                                    dragMomentum={false}
+                                    onDragEnd={(e, info) => {
+                                        // Detección de colisión simple para reordenar en el grid
+                                        const container = galleryRef.current;
+                                        if (!container) return;
+                                        
+                                        const children = Array.from(container.querySelectorAll('.grid-item'));
+                                        const draggedElement = e.target;
+                                        const draggedRect = draggedElement.getBoundingClientRect();
+                                        const draggedCenter = {
+                                            x: draggedRect.left + draggedRect.width / 2,
+                                            y: draggedRect.top + draggedRect.height / 2
+                                        };
+
+                                        let closestIndex = index;
+                                        let minDistance = Infinity;
+
+                                        children.forEach((child, idx) => {
+                                            if (idx === index) return;
+                                            const rect = child.getBoundingClientRect();
+                                            const center = {
+                                                x: rect.left + rect.width / 2,
+                                                y: rect.top + rect.height / 2
+                                            };
+                                            const distance = Math.hypot(draggedCenter.x - center.x, draggedCenter.y - center.y);
+                                            if (distance < minDistance && distance < rect.width) {
+                                                minDistance = distance;
+                                                closestIndex = idx;
+                                            }
+                                        });
+
+                                        if (closestIndex !== index) {
+                                            moveImage(index, closestIndex);
+                                        }
                                     }}
-                                    className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group bg-white cursor-grab active:cursor-grabbing"
+                                    whileDrag={{ 
+                                        scale: 1.1, 
+                                        zIndex: 50,
+                                        boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2)"
+                                    }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                    className="grid-item relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-white cursor-grab active:cursor-grabbing shadow-sm"
                                 >
                                     <img src={item.url} alt="Preview" className="w-full h-full object-cover pointer-events-none" />
-                                    <div className="absolute top-1 left-1 bg-black/50 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-none">
-                                        {managedImages.indexOf(item) === 0 ? 'PORTADA' : managedImages.indexOf(item) + 1}
+                                    <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md border ${index === 0 ? 'bg-black text-white border-white/20' : 'bg-white/80 text-black border-black/10'} pointer-events-none z-10 shadow-sm`}>
+                                        {index === 0 ? 'PORTADA' : index + 1}
                                     </div>
                                     <button
                                         type="button"
@@ -303,13 +346,13 @@ const CreateProduct = () => {
                                             e.stopPropagation();
                                             removeImage(item.id);
                                         }}
-                                        className="absolute top-1 right-1 bg-white/90 p-1 rounded-full text-red-500 hover:bg-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                        className="absolute top-2 right-2 bg-red-50 text-red-500 p-1.5 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm opacity-0 group-hover:opacity-100 z-20"
                                     >
                                         <X size={14} />
                                     </button>
-                                </Reorder.Item>
+                                </motion.div>
                             ))}
-                        </Reorder.Group>
+                        </motion.div>
                     </div>
                 </div>
 
