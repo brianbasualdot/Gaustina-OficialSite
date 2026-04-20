@@ -134,28 +134,42 @@ const ContactPage = () => {
                         {/* Sidebar Info */}
                         <div className="space-y-8">
                             <div className="bg-gray-50 p-6 border border-gray-100">
-                                <h3 className="text-xl font-heading text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                                    Taller
+                                <h3 className="text-xl font-heading text-gray-900 mb-4 pb-2 border-b border-gray-200 uppercase tracking-widest text-xs font-bold">
+                                    Nuestro Taller
                                 </h3>
-                                <p className="text-gray-600 font-body mb-4">
-                                    Calle 4<br />
-                                    Casco Urbano<br />
-                                    La Plata, Bs. As.
-                                </p>
+                                <div className="text-gray-600 font-body space-y-4">
+                                    <div>
+                                        <p className="font-bold text-gray-900 text-sm uppercase tracking-wide mb-1">Ubicación</p>
+                                        <p>
+                                            Calle 4 1325<br />
+                                            Casco Urbano<br />
+                                            La Plata, Buenos Aires<br />
+                                            CP B1900, Argentina
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-900 text-sm uppercase tracking-wide mb-1">Contacto Directo</p>
+                                        <p>WhatsApp: +54 9 221 579-1290</p>
+                                        <p>Email: bgaustina@gmail.com</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="bg-gray-50 p-6 border border-gray-100">
-                                <h3 className="text-xl font-heading text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                                    Horario
+                                <h3 className="text-xl font-heading text-gray-900 mb-4 pb-2 border-b border-gray-200 uppercase tracking-widest text-xs font-bold">
+                                    Atención al Cliente
                                 </h3>
-                                <ul className="space-y-2 text-gray-600 font-body">
+                                <ul className="space-y-3 text-gray-600 font-body text-sm">
                                     <li className="flex justify-between">
-                                        <span>Lunes - Viernes</span>
-                                        <span className="font-medium">9am - 5pm</span>
+                                        <span>Lunes a Viernes</span>
+                                        <span className="font-medium">9:00 - 17:00</span>
                                     </li>
                                     <li className="flex justify-between">
                                         <span>Sábados</span>
-                                        <span className="font-medium">10am - 1pm</span>
+                                        <span className="font-medium">10:00 - 13:00</span>
+                                    </li>
+                                    <li className="flex justify-between pt-2 border-t border-gray-200">
+                                        <span className="italic">Respondemos en menos de 24hs</span>
                                     </li>
                                 </ul>
                             </div>

@@ -26,6 +26,9 @@ import CategoryManager from './pages/admin/CategoryManager';
 import AdminMessages from './pages/admin/AdminMessages';
 import CouponManager from './pages/admin/CouponManager';
 import NotFoundPage from './pages/NotFoundPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import AboutPage from './pages/AboutPage';
 
 import MaintenancePage from './pages/MaintenancePage';
 import { API_URL } from './config/api';
@@ -112,6 +115,9 @@ function App() {
                                     <Route path="/checkout/success" element={<SuccessPage />} />
                                     <Route path="/checkout/failure" element={<FailurePage />} />
                                     <Route path="/checkout/pending" element={<SuccessPage />} />
+                                    <Route path="/politica-de-privacidad" element={<PrivacyPolicy />} />
+                                    <Route path="/terminos-y-condiciones" element={<TermsAndConditions />} />
+                                    <Route path="/quienes-somos" element={<AboutPage />} />
 
                                     {/* Admin Routes */}
                                     <Route path="/admin/login" element={<AdminLogin />} />
