@@ -4,6 +4,7 @@ import { Upload, Loader, ArrowLeft, ArrowRight, X, Star, Move, Maximize2 } from 
 import { motion, Reorder } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
+import { processImage } from '../../utils/imageUtils';
 
 // URL INTELIGENTE
 import { API_URL } from '../../config/api';
@@ -73,15 +74,23 @@ const CreateProduct = () => {
     };
 
     // MANEJAR SELECCIÓN MÚLTIPLE
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         if (e.target.files) {
             const filesArray = Array.from(e.target.files);
-            const newItems = filesArray.map(file => ({
-                id: `${Date.now()}-${Math.random().toString(36).substring(2)}`,
-                file: file,
-                url: URL.createObjectURL(file)
-            }));
-            setManagedImages(prev => [...prev, ...newItems]);
+            
+            // Procesar cada imagen para convertirla a WebP y optimizarla
+            const processedItems = await Promise.all(
+                filesArray.map(async (file) => {
+                    const optimizedFile = await processImage(file);
+                    return {
+                        id: `${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                        file: optimizedFile,
+                        url: URL.createObjectURL(optimizedFile)
+                    };
+                })
+            );
+
+            setManagedImages(prev => [...prev, ...processedItems]);
         }
     };
 

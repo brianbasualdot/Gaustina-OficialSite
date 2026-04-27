@@ -50,20 +50,23 @@ const Footer = () => {
                         <h3 className="text-white text-xs font-bold uppercase tracking-widest mb-4 text-center md:text-left">Medios de Pago</h3>
                         <div className="flex flex-wrap justify-center md:justify-start gap-4 filter grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
                             {/* Visa */}
-                            <div className="bg-white/5 p-2 rounded flex items-center justify-center w-10 h-6">
-                                <svg viewBox="0 0 48 48" className="w-full h-full"><path fill="#ffffff" d="M18.5 31.5H15l2.2-13.8h3.5l-2.2 13.8zM28.4 18.2c-.7-.4-1.9-.8-3.3-.8-3.6 0-6.1 1.9-6.2 4.7-.1 2.1 1.8 3.2 3.3 3.9 1.5.7 2 1.2 2 1.8 0 .9-1.1 1.4-2.2 1.4-1.5 0-2.3-.2-3.5-.8l-.5-.2-.5 3.3c.9.4 2.6.8 4.3.8 3.8 0 6.3-1.9 6.4-4.8 0-1.6-1-2.8-3.1-3.8-1.3-.7-2.1-1.1-2.1-1.8 0-.6.7-1.3 2.1-1.3 1.1-.1 1.9.3 2.6.6l.3.1.4-3.3zM40.2 17.7h-2.7c-.8 0-1.5.5-1.9 1.3l-5.3 12.5H34s.6-1.7.7-2.1h4.1c.1.4.4 2.1.4 2.1h3.1l-2.1-13.8zm-5.3 9h2.3l-1.1-3.2-1.2 3.2zM12.9 17.7H7.3L7 19.3c3.4.8 5.7 3 6.6 5.4l1.1-5.7c.3-1-.3-1.3-1.8-1.3z" /></svg>
+                            <div className="bg-white/10 p-1.5 rounded flex items-center justify-center">
+                                <img src="/Visa_Inc._logo.svg" alt="Visa" className="h-3.5 w-auto object-contain" />
                             </div>
                             {/* Mastercard */}
-                            <div className="bg-white/5 p-2 rounded flex items-center justify-center w-10 h-6">
-                                <svg viewBox="0 0 48 48" className="w-full h-full"><circle cx="18" cy="24" r="14" fill="#ffffff" fillOpacity=".2"/><circle cx="30" cy="24" r="14" fill="#ffffff" fillOpacity=".2"/><path fill="#ffffff" d="M24 13.6c-2.8 2.8-4.5 6.6-4.5 10.4s1.7 7.6 4.5 10.4c2.8-2.8 4.5-6.6 4.5-10.4s-1.7-7.6-4.5-10.4z"/></svg>
+                            <div className="bg-white/10 p-1.5 rounded flex items-center justify-center">
+                                <img src="/Mastercard-logo.svg" alt="Mastercard" className="h-5 w-auto object-contain" />
                             </div>
                             {/* Mercado Pago */}
-                            <div className="bg-white/5 p-2 rounded flex items-center justify-center h-6 px-2">
-                                <span className="text-[8px] font-bold text-white tracking-tighter">MERCADO PAGO</span>
+                            <div className="bg-white/10 p-1.5 rounded flex items-center justify-center">
+                                <img src="/meradopago_logo.svg" alt="Mercado Pago" className="h-4 w-auto object-contain" />
                             </div>
                             {/* Transferencia */}
-                            <div className="bg-white/5 p-2 rounded flex items-center justify-center w-10 h-6">
-                                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="white"><path d="M2 17h20v2H2v-2zm1.15-2L2 15V5l1.15-2h17.7L22 5v10l-1.15 2H3.15zM7 7v6h10V7H7z"/></svg>
+                            <div className="bg-white/10 p-1.5 rounded flex items-center justify-center">
+                                <div className="flex items-center gap-1.5 px-1">
+                                    <svg viewBox="0 0 24 24" className="w-3 h-3" fill="white"><path d="M2 17h20v2H2v-2zm1.15-2L2 15V5l1.15-2h17.7L22 5v10l-1.15 2H3.15zM7 7v6h10V7H7z"/></svg>
+                                    <span className="text-[7px] font-bold text-white uppercase tracking-tighter">Transferencia</span>
+                                </div>
                             </div>
                         </div>
                     </div>

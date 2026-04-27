@@ -4,6 +4,7 @@ import { Upload, Loader, ArrowLeft, ArrowRight, X, Trash2, Star, Move, Maximize2
 import { motion, Reorder } from 'framer-motion';
 import { supabase } from '../../utils/supabase';
 import { useToast } from '../../context/ToastContext';
+import { processImage } from '../../utils/imageUtils';
 
 // URL INTELIGENTE
 import { API_URL } from '../../config/api';
@@ -148,16 +149,24 @@ const EditProduct = () => {
     };
 
     // 1. Nuevas
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         if (e.target.files) {
             const filesArray = Array.from(e.target.files);
-            const newItems = filesArray.map(file => ({
-                id: `new-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-                file: file,
-                url: URL.createObjectURL(file),
-                isNew: true
-            }));
-            setManagedImages(prev => [...prev, ...newItems]);
+            
+            // Procesar cada imagen para convertirla a WebP y optimizarla
+            const processedItems = await Promise.all(
+                filesArray.map(async (file) => {
+                    const optimizedFile = await processImage(file);
+                    return {
+                        id: `new-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                        file: optimizedFile,
+                        url: URL.createObjectURL(optimizedFile),
+                        isNew: true
+                    };
+                })
+            );
+            
+            setManagedImages(prev => [...prev, ...processedItems]);
         }
     };
 
@@ -735,7 +744,7 @@ const EditProduct = () => {
                     )}
 
                     {/* CONFIGURADOR VISUAL (Solo si hay al menos 2 imágenes y alguna personalización activa) */}
-                    {(form.allowInitials || form.allowSvg) && (existingImages.length + newPreviews.length) >= 2 && (
+                    {(form.allowInitials || form.allowSvg) && managedImages.length >= 2 && (
                         <div className="mt-12 border-t pt-8">
                             <h3 className="text-xl font-heading text-brand-dark mb-2">Posicionamiento Maestro</h3>
                             <p className="text-sm text-gray-500 mb-6">Arrastrá los elementos sobre la <b>segunda imagen</b> para definir dónde aparecerán por defecto.</p>
