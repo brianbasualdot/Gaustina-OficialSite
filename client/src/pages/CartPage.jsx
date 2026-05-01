@@ -469,7 +469,7 @@ const CartPage = () => {
                                                 name="shippingMethod"
                                                 className="w-4 h-4 text-brand-primary focus:ring-brand-primary"
                                                 checked={selectedShipping?.id === 'ca_domicilio_flat'}
-                                                onChange={() => setSelectedShipping({ id: 'ca_domicilio_flat', name: 'Envío a domicilio Correo Argentino', price: 6718, type: 'domicilio' })}
+                                                onChange={() => setSelectedShipping({ id: 'ca_domicilio_flat', name: 'Envío a domicilio Correo Argentino', price: 4490, type: 'domicilio' })}
                                             />
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-bold text-gray-800">Envío a Domicilio</span>
@@ -477,7 +477,7 @@ const CartPage = () => {
                                             </div>
                                         </div>
                                         <span className="text-xs font-bold text-gray-900">
-                                            $6.718
+                                            $4.490
                                         </span>
                                     </label>
                                 </div>

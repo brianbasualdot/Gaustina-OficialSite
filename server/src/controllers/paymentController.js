@@ -90,7 +90,7 @@ export const createPreference = async (req, res) => {
         }
 
         let subtotal = items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
-        let actualShippingCost = parseFloat(shippingCost) || 0;
+        let actualShippingCost = parseFloat(shippingCost) || parseFloat(customerData?.shippingCost) || 0;
         
         // --- PROCESAR CUPONES ---
         let totalDiscount = 0;
@@ -196,10 +196,10 @@ export const createPreference = async (req, res) => {
         // Por ahora, el stock ya se descontó. Si no pagan, habría que reponerlo (webhook failure/pending expiry).
         // Simplificamos asumiendo éxito o webhook de cancelación manual.
 
-        const shippingItem = shipping > 0 ? {
+        const shippingItem = actualShippingCost > 0 ? {
             title: "Envío a Domicilio",
             quantity: 1,
-            unit_price: shipping,
+            unit_price: actualShippingCost,
             currency_id: 'ARS'
         } : null;
 
